@@ -1,0 +1,201 @@
+{% extends "account/auth_base.html" %}
+
+{% block title %}Log in · NHCC Operations{% endblock %}
+
+{% block content %}
+<div class="row g-0 auth-card shadow-sm">
+
+    <!-- Left side (hidden on mobile) -->
+    <div class="col-lg-6 d-none d-lg-flex auth-side p-5 flex-column justify-content-between">
+
+        <div>
+
+            <span class="hero-badge badge rounded-pill px-3 py-2 mb-4">
+                <i class="bi bi-shield-check me-2"></i>
+                Internal access only
+            </span>
+
+            <h1 class="display-6 fw-bold mb-3">
+                NHCC Operations
+            </h1>
+
+            <p class="mb-4 text-white-50">
+                A premium control center for finance, reporting, permissions, and daily business operations.
+            </p>
+
+            <div class="d-flex flex-wrap gap-2">
+                <span class="badge rounded-pill bg-white bg-opacity-10 px-3 py-2">Finance</span>
+                <span class="badge rounded-pill bg-white bg-opacity-10 px-3 py-2">Reporting</span>
+                <span class="badge rounded-pill bg-white bg-opacity-10 px-3 py-2">Staff</span>
+                <span class="badge rounded-pill bg-white bg-opacity-10 px-3 py-2">Management</span>
+            </div>
+
+        </div>
+
+        <div class="soft-card p-3">
+
+            <div class="d-flex align-items-center gap-3">
+
+                <div class="rounded-circle bg-black bg-opacity-10 p-2">
+                    <i class="bi bi-graph-up-arrow fs-5"></i>
+                </div>
+
+                <div>
+                    <div class="fw-bold text-black-50">
+                        Operational clarity
+                    </div>
+
+                    <div class="text-black-50">
+                        Track progress with confidence.
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Login Form -->
+    <div class="col-12 col-lg-6 p-4 p-md-5">
+
+        <div class="mx-auto" style="max-width:480px;">
+
+            <div class="mb-4 text-center text-lg-start">
+
+                <h2 class="fw-bold mb-2">
+                    Welcome back
+                </h2>
+
+                <p class="text-muted mb-0">
+                    Sign in to continue to your workspace.
+                </p>
+
+            </div>
+
+            <form method="post" novalidate>
+
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="mb-3">
+
+                    <label class="form-label fw-semibold">
+                        Work email
+                    </label>
+
+                    <div class="input-group">
+
+                        <span class="input-group-text">
+                            <i class="bi bi-envelope"></i>
+                        </span>
+
+                        <input
+                            type="email"
+                            class="form-control"
+                            name="email"
+                            placeholder="name@nhcc.org"
+                            value="{{ form.email.value|default:'' }}"
+                        >
+
+                    </div>
+
+                    {% for error in form.email.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label class="form-label fw-semibold">
+                        Password
+                    </label>
+
+                    <div class="position-relative">
+
+                        <input
+                            type="password"
+                            class="form-control pe-5"
+                            id="password"
+                            name="password"
+                            placeholder="Enter your password"
+                        >
+
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            data-password-toggle="password">
+
+                            <i class="bi bi-eye"></i>
+
+                        </button>
+
+                    </div>
+
+                    {% for error in form.password.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+
+                    <div class="form-check">
+
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="rememberMe"
+                            name="remember_me"
+                        >
+
+                        <label class="form-check-label small" for="rememberMe">
+                            Remember me
+                        </label>
+
+                    </div>
+
+                    <a href="{% url 'forgot-password' %}"
+                       class="small text-decoration-none">
+                        Forgot password?
+                    </a>
+
+                </div>
+
+                <button class="btn btn-primary w-100 py-2">
+                    Sign in
+                </button>
+
+            </form>
+
+            <div class="text-center mt-4">
+
+                <span class="text-muted">
+                    Don't have an account?
+                </span>
+
+                <a href="{% url 'signup' %}"
+                   class="fw-semibold text-decoration-none">
+                    Create one
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
