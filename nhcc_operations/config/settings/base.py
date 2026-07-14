@@ -29,7 +29,6 @@ INSTALLED_APPS = [
     'finance.expense',
     'report',
     'staff',
-    'core'
 ]
 
 MIDDLEWARE = [
