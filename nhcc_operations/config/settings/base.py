@@ -27,8 +27,6 @@ INSTALLED_APPS = [
     'dashboard',
     'finance',
     'finance.expense',
-    'finance.diesel',
-    'finance.ekedc',
     'report',
     'staff',
     'core'

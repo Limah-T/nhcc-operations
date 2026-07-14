@@ -1,0 +1,115 @@
+from django.db import models
+from account.models import CustomUser
+from decimal import Decimal
+
+class Category(models.Model):
+    created_by_user = models.ForeignKey(
+        CustomUser, on_delete=models.SET_NULL, 
+        null=True, related_name="category_created_by_staff_id"
+    )
+    updated_by_user = models.ForeignKey(
+        CustomUser, on_delete=models.SET_NULL, 
+        null=True, related_name="category_updated_by_staff_id"
+    )
+    name = models.CharField(max_length=200)
+    created_by = models.CharField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class Diesel(models.Model):
+    created_by_user = models.ForeignKey(
+        CustomUser, on_delete=models.SET_NULL, 
+        null=True, related_name="diesel_created_by_staff_id"
+    )
+    updated_by_user = models.ForeignKey(
+        CustomUser, on_delete=models.SET_NULL, 
+        null=True, related_name="diesel_updated_by_staff_id"
+    )
+    litres = models.DecimalField(max_digits=15, decimal_places=2)
+    amount = models.DecimalField(max_digits=15, decimal_places=2)
+    month = models.CharField(max_length=30)
+    supplier_name = models.CharField(max_length=200)
+    created_by = models.CharField(max_length=200)
+    updated_by = models.CharField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+class EKEDC(models.Model):
+    created_by_user = models.ForeignKey(
+        CustomUser, on_delete=models.SET_NULL, 
+        null=True, related_name="ekedc_created_by_staff_id"
+    )
+    updated_by_user = models.ForeignKey(
+        CustomUser, on_delete=models.SET_NULL, 
+        null=True, related_name="ekedc_updated_by_staff_id"
+    )
+    amount = models.DecimalField(max_digits=15, decimal_places=2)
+    month = models.CharField(max_length=30)
+    created_by = models.CharField(max_length=200)
+    updated_by = models.CharField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)  
+
+class Expense(models.Model):
+    created_by_user = models.ForeignKey(
+        CustomUser, on_delete=models.SET_NULL, 
+        null=True, related_name="expense_created_by_staff_id"
+    )
+    updated_by_user = models.ForeignKey(
+        CustomUser, on_delete=models.SET_NULL, 
+        null=True, related_name="expense_updated_by_staff_id"
+    )
+    category = models.ForeignKey(
+        Category, on_delete=models.SET_NULL, null=True
+    )
+    name = models.CharField(max_length=255)
+    amount = models.DecimalField(max_digits=15, decimal_places=2)
+    quantity = models.DecimalField(
+        max_digits=15, decimal_places=2, default=Decimal('0')
+    )
+    total = models.DecimalField(max_digits=15, decimal_places=2)
+    created_by = models.CharField(max_length=200)
+    updated_by = models.CharField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class AccountDetails(models.Model):
+    created_by_user = models.ForeignKey(
+        CustomUser, on_delete=models.SET_NULL, 
+        null=True, related_name="acct_details_created_by_staff_id"
+    )
+    updated_by_user = models.ForeignKey(
+        CustomUser, on_delete=models.SET_NULL, 
+        null=True, related_name="acct_details_updated_by_staff_id"
+    )
+    bank_name = models.CharField(max_length=255)
+    staff_name = models.CharField(max_length=255)
+    account_number = models.CharField(max_length=50)
+    created_by = models.CharField(max_length=200)
+    updated_by = models.CharField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class Salary(models.Model):
+    staff = models.ForeignKey(
+        CustomUser, on_delete=models.SET_NULL, 
+        null=True, related_name="staff_salary"
+    )
+    created_by_user = models.ForeignKey(
+        CustomUser, on_delete=models.SET_NULL, 
+        null=True, related_name="salary_created_by_staff_id"
+    )
+    updated_by_user = models.ForeignKey(
+        CustomUser, on_delete=models.SET_NULL, 
+        null=True, related_name="salary_updated_by_staff_id"
+    )
+    account_details = models.ForeignKey(
+        AccountDetails, on_delete=models.SET_NULL, null=True
+    )
+    full_name = models.CharField(max_length=255)
+    amount = models.DecimalField(max_digits=15, decimal_places=2)
+    created_by = models.CharField(max_length=200)
+    updated_by = models.CharField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
