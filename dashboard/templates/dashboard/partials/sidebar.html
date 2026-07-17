@@ -33,7 +33,7 @@
     <!-- Navigation -->
     <nav class="nav flex-column gap-1 flex-grow-1">
 
-        <a class="nav-link active rounded-3 px-3 py-2 text-white bg-white bg-opacity-10" href="#">
+        <a class="nav-link active rounded-3 px-3 py-2 text-white bg-white bg-opacity-10" href="{% url 'dashboard'%}">
             <i class="bi bi-speedometer2 me-2"></i>
             Dashboard
         </a>
@@ -48,17 +48,17 @@
             Salary
         </a>
 
-        <a class="nav-link rounded-3 px-3 py-2 text-white-50" href="#">
+        <a class="nav-link rounded-3 px-3 py-2 text-white-50" href="{% url 'diesel'%}">
             <i class="bi bi-fuel-pump me-2"></i>
             Diesel
         </a>
 
-        <a class="nav-link rounded-3 px-3 py-2 text-white-50" href="#">
+        <a class="nav-link rounded-3 px-3 py-2 text-white-50" href="{% url 'electricity'%}">
             <i class="bi bi-lightning-charge me-2"></i>
             Electricity
         </a>
 
-        <a class="nav-link rounded-3 px-3 py-2 text-white-50" href="#">
+        <a class="nav-link rounded-3 px-3 py-2 text-white-50" href="{% url 'expense-dashboard'%}">
             <i class="bi bi-receipt me-2"></i>
             Office Expenses
         </a>

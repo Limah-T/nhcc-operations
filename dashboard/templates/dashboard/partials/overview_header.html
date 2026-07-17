@@ -2,11 +2,11 @@
   <div class="card-body p-4 p-xl-5 d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
     <div>
       <div class="text-primary fw-semibold small text-uppercase">Operations Overview</div>
-      <h2 class="h3 fw-bold mb-2">Good morning, Administrator</h2>
+      <h2 class="h3 fw-bold mb-2">{{greet}}, {{user_name}}</h2>
       <p class="text-muted mb-0">Welcome back. Here is your financial overview for NHCC Operations.</p>
     </div>
     <div class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 fs-6">
-      <i class="bi bi-calendar2-week me-2"></i>Monday, July 13, 2026
+      <i class="bi bi-calendar2-week me-2"></i>{{ now|date:"l, F j Y" }} | {{ now|date:"g:i a" }}
     </div>
   </div>
 </section>

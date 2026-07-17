@@ -9,7 +9,6 @@ class SignupForm(forms.ModelForm):
     last_name = forms.CharField(max_length=100)
     email = forms.EmailField(max_length=255)
     password = forms.CharField(min_length=8, max_length=100)
-    confirm_password = forms.CharField(min_length=8, max_length=100)
 
     class Meta:
         model = CustomUser
@@ -18,6 +17,7 @@ class SignupForm(forms.ModelForm):
     def clean_email(self):
         cleaned_email = self.cleaned_data["email"]
         email = " ".join(cleaned_email.split()).lower()
+
         if email not in staff_accounts:
             raise forms.ValidationError("Permission Denied")
         if CustomUser.objects.filter(email=email).exists():
@@ -26,13 +26,6 @@ class SignupForm(forms.ModelForm):
             )
         return email
     
-    def clean(self):
-        cleaned_data = super().clean()
-        password = cleaned_data.get("password")
-        confirm_password = cleaned_data.get("confirm_password")
-        if password != confirm_password:
-            raise forms.ValidationError("Passwords do not match")
-        return cleaned_data
     
     def save(self, commit=True):
         password = self.cleaned_data["password"]

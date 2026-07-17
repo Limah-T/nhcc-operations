@@ -1,0 +1,87 @@
+{% extends "dashboard/dashboard_base.html" %}
+
+{% block title %}Record Office Expense | NHCC Operations{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-8">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4 p-lg-5">
+                <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+                    <div>
+                        <div class="text-primary fw-semibold small text-uppercase">Office Expenses</div>
+                        <h3 class="fw-bold mb-1">Record Expense</h3>
+                        <p class="text-muted mb-0">Add a new office expense entry below.</p>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="{% url 'dashboard'%}" class="btn btn-outline-primary rounded-4">Dashboard</a>
+                        <a href="{% url 'category'%}" class="btn btn-outline-primary rounded-4">Categories</a>
+                    </div>
+                </div>
+
+                <form>
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <label for="expenseCategory" class="form-label fw-semibold">Category</label>
+                            <select class="form-select rounded-4" id="expenseCategory" name="expenseCategory">
+                                <option selected>Select category</option>
+                                <option value="1">Stationery</option>
+                                <option value="2">Utilities</option>
+                                <option value="3">Maintenance</option>
+                                <option value="4">Office Supplies</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label for="expenseName" class="form-label fw-semibold">Expense Name</label>
+                            <input type="text" class="form-control rounded-4" id="expenseName" name="expenseName" placeholder="Enter expense name">
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label for="amount" class="form-label fw-semibold">Amount</label>
+                            <input type="number" class="form-control rounded-4" id="amount" name="amount" min="0" step="0.01" placeholder="0.00">
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label for="quantity" class="form-label fw-semibold">Quantity</label>
+                            <input type="number" class="form-control rounded-4" id="quantity" name="quantity" min="0" step="1" placeholder="1">
+                        </div>
+
+                        <div class="col-12">
+                            <label for="total" class="form-label fw-semibold">Total</label>
+                            <input type="text" class="form-control rounded-4" id="total" name="total" readonly placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary rounded-4">Save Expense</button>
+                        <a href="/office-expense-dashboard/" class="btn btn-outline-secondary rounded-4">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const amountInput = document.getElementById('amount');
+    const quantityInput = document.getElementById('quantity');
+    const totalInput = document.getElementById('total');
+
+    function updateTotal() {
+        const amount = parseFloat(amountInput.value) || 0;
+        const quantity = parseInt(quantityInput.value, 10) || 0;
+        totalInput.value = (amount * quantity).toFixed(2);
+    }
+
+    if (amountInput && quantityInput && totalInput) {
+        [amountInput, quantityInput].forEach(function (input) {
+            input.addEventListener('input', updateTotal);
+        });
+    }
+});
+</script>
+{% endblock %}

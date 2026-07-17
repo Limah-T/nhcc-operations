@@ -26,9 +26,9 @@ class LoginView(View):
                 request, email=email, 
                 password=password
             )
-            if user:
+            if user:                
                 login(request, user)
-                return redirect("")
+                return redirect("dashboard")
             
             form.add_error(
                 "email", "No active account with the provided credentials."

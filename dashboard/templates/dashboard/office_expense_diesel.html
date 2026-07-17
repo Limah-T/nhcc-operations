@@ -1,0 +1,670 @@
+{% extends "dashboard/dashboard_base.html" %}
+{% load humanize %}
+{% block title %}Office Diesel | NHCC Operations{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4 p-lg-5">
+                <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+                    <div>
+                        <div class="text-primary fw-semibold small text-uppercase">Office Diesel</div>
+                        <h3 class="fw-bold mb-1">Manage Diesel Purchases</h3>
+                        <p class="text-muted mb-0">Record and manage diesel purchases for office operations.</p>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="{% url 'dashboard' %}" class="btn btn-outline-primary rounded-4">Dashboard</a>
+                        <button type="button" class="btn btn-primary rounded-4" data-bs-toggle="modal" data-bs-target="#addDieselModal">
+                            Record Diesel
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+                            <h5 class="fw-bold mb-0">Diesel Records ({{ count }})</h5>
+
+                            {% if diesel_errors %}
+                                <div class="alert alert-danger rounded-4 mb-3">
+                                    <div class="fw-semibold mb-2">
+                                        Please correct the following:
+                                    </div>
+
+                                    <ul class="mb-0 ps-3">
+                                        {% for error in diesel_errors %}
+                                            <li class="mb-2">
+                                                <strong>{{ error.value }}</strong><br>
+
+                                                {% for message in error.errors.name %}
+                                                    <small>{{ message }}</small>
+                                                {% endfor %}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                {% endif %}
+
+                            <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between justify-content-lg-start w-100 w-lg-auto">
+                                <button
+                                    type="button"
+                                    id="bulkDeleteButton"
+                                    class="btn btn-outline-danger rounded-4"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#bulkDeleteModal"
+                                    disabled>
+                                    Delete Selected
+                                </button>
+
+                                <div class="dropdown ms-auto ms-lg-0">
+                                    <button class="btn btn-primary rounded-4 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Add Diesel
+                                    </button>
+                                    <ul class="dropdown-menu rounded-4 border-0 shadow-sm">
+                                        <li>
+                                            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#addDieselModal">
+                                                Add Diesel Purchase
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#addMultipleDieselModal">
+                                                Add Multiple Diesel Purchases
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-muted small text-uppercase fw-semibold">This Month</div>
+                                <div class="fw-bold fs-4 mb-0">{{ monthly_total_display }}</div>
+                            </div>
+                            <div class="text-primary"> <i class="bi bi-fuel-pump fs-4"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="addDieselModal" tabindex="-1" aria-labelledby="addDieselModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+                        <div class="modal-content rounded-4 shadow border-0">
+                            <form method="post" action="{% url 'add_diesel' %}">
+                                {% csrf_token %}
+                                <div class="modal-header border-0 pb-0">
+                                    <h5 class="modal-title fw-bold" id="addDieselModalLabel">Add Diesel Purchase</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body pt-3">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold">Litres</label>
+                                            <input
+                                                type="number"
+                                                step="0.01"
+                                                id="litres"
+                                                name="litres"
+                                                class="form-control rounded-4"
+                                                required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold">Price</label>
+                                            <input
+                                                type="number"
+                                                step="0.01"
+                                                id="price"
+                                                name="price"
+                                                class="form-control rounded-4"
+                                                required>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label fw-semibold">Amount</label>
+                                            <input
+                                                type="text"
+                                                id="amount"
+                                                class="form-control rounded-4 bg-light"
+                                                readonly>
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label fw-semibold">Supplier Name</label>
+                                            <input type="text" name="supplier_name" class="form-control rounded-4" placeholder="Enter supplier name" required>
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label fw-semibold">Transport</label>
+
+                                            <input
+                                                type="text"
+                                                id="ediTransport"
+                                                name="transport"
+                                                class="form-control rounded-4">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer border-0 pt-0">
+                                    <button type="button" class="btn btn-outline-secondary rounded-4 w-100 w-sm-auto" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary rounded-4 w-100 w-sm-auto">Save Diesel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="addMultipleDieselModal" tabindex="-1" aria-labelledby="addMultipleDieselModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content rounded-4 shadow border-0">
+
+            <form method="post" action="{% url 'add_diesel' %}" class="d-flex flex-column" style="max-height:90vh;">
+                {% csrf_token %}
+
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold" id="addMultipleDieselModalLabel">
+                        Add Multiple Diesel Purchases
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body overflow-auto">
+                    <div id="dieselInputs" class="d-grid gap-3"></div>
+
+                    <button
+                        type="button"
+                        id="addAnotherDiesel"
+                        class="btn btn-outline-primary rounded-4 mt-3">
+                        + Add another
+                    </button>
+                </div>
+
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-secondary rounded-4" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+
+                    <button type="submit" class="btn btn-primary rounded-4">
+                        Save Diesel
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+                <div class="modal fade" id="bulkDeleteModal" tabindex="-1" aria-labelledby="bulkDeleteModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+                        <div class="modal-content rounded-4 shadow border-0">
+                            <form method="post" action="{% url 'delete_diesels' %}" id="bulkDeleteForm">
+                                {% csrf_token %}
+                                <div class="modal-header border-0 pb-0">
+                                    <h5 class="modal-title fw-bold text-danger" id="bulkDeleteModalLabel">Delete Selected Diesel Records</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body pt-3">
+                                    <p class="mb-2">Are you sure you want to delete these diesel records?</p>
+                                    <p class="text-muted small mb-3">This action cannot be undone.</p>
+                                    <div id="bulkDeleteSummary" class="fw-semibold">0 diesel records will be deleted.</div>
+                                    <div id="bulkDeleteInputs"></div>
+                                </div>
+                                <div class="modal-footer border-0 pt-0">
+                                    <button type="button" class="btn btn-outline-secondary rounded-4 w-100 w-sm-auto" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-danger rounded-4 w-100 w-sm-auto">Delete Selected</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="px-3 py-3" style="width:48px;">
+                                            <input class="form-check-input" type="checkbox" id="selectAllDiesel" aria-label="Select all diesel records">
+                                        </th>
+                                        <th class="px-4 py-3">Litres</th>
+                                        <th class="px-4 py-3">Price</th>
+                                        <th class="px-4 py-3">Amount</th>
+                                        <th class="px-4 py-3">T-Fare</th>
+                                        <th class="px-4 py-3">Total</th>
+                                        <th class="px-4 py-3">Date</th>
+                                        <th class="text-end" style="width:120px;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for diesel in diesel_records %}
+                                    <tr>
+                                        <td class="px-3 py-3">
+                                            <input class="form-check-input diesel-checkbox" type="checkbox" value="{{ diesel.id }}" aria-label="Select diesel {{ diesel.supplier_name }}">
+                                        </td>
+                                        
+                                        <td class="px-4 py-3">{{ diesel.litres }}</td>
+                                        <td class="px-4 py-3">₦{{ diesel.price|floatformat|intcomma }}</td>
+                                        <td class="px-4 py-3">₦{{ diesel.amount|floatformat|intcomma }}</td>
+                                        <td class="px-4 py-3">₦{{ diesel.transport|floatformat|intcomma }}</td>
+                                        <td class="px-4 py-3">₦{{ diesel.total|floatformat|intcomma }}</td>
+                                        <td class="px-4 py-3">{{ diesel.created_at|date:"M d, Y" }}</td>
+
+                                        <td class="text-end align-middle">
+                                            <div class="d-flex justify-content-end align-items-center">
+
+                                                <!-- Desktop buttons -->
+                                                <div class="d-none d-lg-inline-flex gap-2">
+                                                    <button
+                                                        type="button"
+                                                        class="btn btn-sm btn-outline-primary rounded-4 edit-diesel-btn"
+                                                        data-diesel-id="{{ diesel.id }}"
+                                                        data-supplier-name="{{ diesel.supplier_name }}"
+                                                        data-litres="{{ diesel.litres }}"
+                                                        data-price="{{ diesel.price }}"
+                                                        data-amount="{{ diesel.amount }}"
+                                                        data-transport="{{ diesel.transport }}"
+                                                        
+                                                        
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#editDieselModal">
+                                                        Edit
+                                                    </button>
+
+                                                    <button
+                                                        type="button"
+                                                        class="btn btn-sm btn-outline-danger rounded-4 delete-diesel-btn"
+                                                        data-diesel-id="{{ diesel.id }}"
+                                                        data-supplier-name="{{ diesel.supplier_name }}"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#deleteDieselModal">
+                                                        Delete
+                                                    </button>
+                                                </div>
+
+                                                <!-- Mobile dropdown -->
+                                                <div class="dropdown d-lg-none">
+                                                    <button
+                                                        class="btn p-0 border-0 shadow-none"
+                                                        type="button"
+                                                        data-bs-toggle="dropdown"
+                                                        aria-expanded="false">
+                                                        <i class="bi bi-three-dots-vertical fs-5"></i>
+                                                    </button>
+
+                                                    <ul class="dropdown-menu dropdown-menu-end rounded-4 border-0 shadow-sm">
+                                                        <li>
+                                                            <button
+                                                                type="button"
+                                                                class="dropdown-item edit-diesel-btn"
+                                                                data-diesel-id="{{ diesel.id }}"
+                                                                data-supplier-name="{{ diesel.supplier_name }}"
+                                                                data-litres="{{ diesel.litres }}"
+                                                                data-price="{{ diesel.price }}"
+                                                                data-amount="{{ diesel.amount }}"
+                                                                data-transport="{{ diesel.transport }}"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#editDieselModal">
+                                                                <i class="bi bi-pencil me-2"></i>Edit
+                                                            </button>
+                                                        </li>
+
+                                                        <li>
+                                                            <button
+                                                                type="button"
+                                                                class="dropdown-item text-danger delete-diesel-btn"
+                                                                data-diesel-id="{{ diesel.id }}"
+                                                                data-supplier-name="{{ diesel.supplier_name }}"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#deleteDieselModal">
+                                                                <i class="bi bi-trash me-2"></i>Delete
+                                                            </button>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+
+                                            </div>
+                                        </td>
+
+                                                
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="7" class="px-4 py-5 text-center text-muted">
+                                            No diesel records yet. Add your first purchase to get started.
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="editDieselModal" tabindex="-1" aria-labelledby="editDieselModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+                        <div class="modal-content rounded-4 shadow border-0">
+                            <form method="post" id="editDieselForm">
+                                {% csrf_token %}
+                                <div class="modal-header border-0 pb-0">
+                                    <h5 class="modal-title fw-bold" id="editDieselModalLabel">Edit Diesel Purchase</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body pt-3">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold">Litres</label>
+                                            <input type="number" step="0.01" name="litres" id="editLitres" class="form-control rounded-4" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold">Price</label>
+                                            <input 
+                                                type="number" 
+                                                step="0.01" 
+                                                name="price" 
+                                                id="editPrice" 
+                                                class="form-control rounded-4" required>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label fw-semibold">Amount</label>
+                                            <input
+                                                type="text"
+                                                id="editAmount"
+                                                class="form-control rounded-4 bg-light"
+                                                readonly>
+                                        </div>
+        
+                                        <div class="col-6">
+                                            <label class="form-label fw-semibold">Supplier Name</label>
+                                            <input type="text" name="supplier_name" id="editSupplierName" class="form-control rounded-4" required>
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label fw-semibold">Transport</label>
+                                            <input
+                                                type="text"
+                                                step="0.01"
+                                                id="transport"
+                                                name="transport"
+                                                placeholder="0.00"
+                                                class="form-control rounded-4">
+                                        </div> 
+                                        
+                                    </div>
+                                </div>
+                                <div class="modal-footer border-0 pt-0">
+                                    <button type="button" class="btn btn-outline-secondary rounded-4 w-100 w-sm-auto" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary rounded-4 w-100 w-sm-auto">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="deleteDieselModal" tabindex="-1" aria-labelledby="deleteDieselModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+                        <div class="modal-content rounded-4 shadow border-0">
+                            <form method="post" id="deleteDieselForm">
+                                {% csrf_token %}
+                                <div class="modal-header border-0 pb-0">
+                                    <h5 class="modal-title fw-bold text-danger" id="deleteDieselModalLabel">Delete Diesel Purchase</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body pt-3">
+                                    <p class="mb-0">Are you sure you want to delete <strong id="deleteDieselName"></strong>?</p>
+                                </div>
+                                <div class="modal-footer border-0 pt-0">
+                                    <button type="button" class="btn btn-outline-secondary rounded-4 w-100 w-sm-auto" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-danger rounded-4 w-100 w-sm-auto">Delete</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const MAX_DIESEL_ROWS = 5;
+    const container = document.getElementById('dieselInputs');
+    const addButton = document.getElementById('addAnotherDiesel');
+
+    function calculateAmount(priceInput, litresInput, amountInput) {
+
+        function update() {
+            const price = parseFloat(priceInput.value) || 0;
+            const litres = parseFloat(litresInput.value) || 0;
+
+            const total = price * litres;
+
+            amountInput.value = total.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        update();
+
+        priceInput.oninput = update;
+        litresInput.oninput = update;
+    }
+
+    function createDieselGroup() {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'border rounded-4 p-3';
+
+        wrapper.innerHTML = `
+            <div class="row g-2">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Litres</label>
+                    <input type="number" step="0.01" name="litres" class="form-control rounded-4" placeholder="0.00" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold small">Price</label>
+                    <input type="number" step="0.01" name="price" class="form-control rounded-4" placeholder="0.00" required>
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-semibold small">Amount</label>
+                    <input type="text" name="amount" class="form-control rounded-4 bg-light" readonly>
+                </div>
+                <div class="col-6">
+                    <label class="form-label fw-semibold small">Supplier Name</label>
+                    <input type="text" name="supplier_name" class="form-control rounded-4" placeholder="Supplier name" required>
+                </div>
+                <div class="col-6">
+                    <label class="form-label fw-semibold">Transport</label>
+                    <input
+                        type="text"
+                        step="0.01"
+                        name="transport"
+                        placeholder="0.00"
+                        class="form-control rounded-4">
+                </div>
+            </div>
+        `;
+
+        const removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.className = 'btn btn-outline-secondary rounded-4 mt-3';
+        removeButton.textContent = 'Remove';
+        removeButton.addEventListener('click', function () {
+            wrapper.remove();
+            updateButtonState();
+        });
+
+        const priceInput = wrapper.querySelector('input[name="price"]');
+        const litresInput = wrapper.querySelector('input[name="litres"]');
+        const amountInput = wrapper.querySelector('input[name="amount"]');
+
+        if (priceInput && litresInput && amountInput) {
+            calculateAmount(priceInput, litresInput, amountInput);
+        }
+
+        wrapper.appendChild(removeButton);
+        return wrapper;
+    }
+
+    function updateButtonState() {
+        if (!container || !addButton) return;
+        const count = container.querySelectorAll('.border').length;
+        if (count >= MAX_DIESEL_ROWS) {
+            addButton.disabled = true;
+            addButton.textContent = `Maximum ${MAX_DIESEL_ROWS} purchases reached`;
+        } else {
+            addButton.disabled = false;
+            addButton.textContent = '+ Add another';
+        }
+    }
+
+    if (container && addButton) {
+        container.appendChild(createDieselGroup());
+        addButton.addEventListener('click', function () {
+            const count = container.querySelectorAll('.border').length;
+            if (count >= MAX_DIESEL_ROWS) return;
+            container.appendChild(createDieselGroup());
+            updateButtonState();
+        });
+        updateButtonState();
+    }
+
+    const selectAllCheckbox = document.getElementById('selectAllDiesel');
+    const dieselCheckboxes = Array.from(document.querySelectorAll('.diesel-checkbox'));
+    const bulkDeleteButton = document.getElementById('bulkDeleteButton');
+    const bulkDeleteSummary = document.getElementById('bulkDeleteSummary');
+    const bulkDeleteInputs = document.getElementById('bulkDeleteInputs');
+    const bulkDeleteForm = document.getElementById('bulkDeleteForm');
+    const editButtons = Array.from(document.querySelectorAll('.edit-diesel-btn'));
+    const deleteButtons = Array.from(document.querySelectorAll('.delete-diesel-btn'));
+    const editDieselForm = document.getElementById('editDieselForm');
+    const deleteDieselForm = document.getElementById('deleteDieselForm');
+    const editSupplierName = document.getElementById('editSupplierName');
+    const editLitres = document.getElementById('editLitres');
+    const editPrice = document.getElementById('editPrice');
+    const editAmount = document.getElementById('editAmount');
+    const editMonth = document.getElementById('editMonth');
+    const editTransport = document.getElementById("transport");
+    const deleteDieselName = document.getElementById('deleteDieselName');
+
+    function updateBulkDeleteState() {
+        const checkedBoxes = dieselCheckboxes.filter(function (checkbox) { return checkbox.checked; });
+        const selectedCount = checkedBoxes.length;
+
+        if (bulkDeleteButton) {
+            bulkDeleteButton.disabled = selectedCount < 2;
+            bulkDeleteButton.textContent = selectedCount < 2 ? 'Delete Selected' : `Delete Selected (${selectedCount})`;
+        }
+
+        if (bulkDeleteSummary) {
+            bulkDeleteSummary.textContent = selectedCount < 2 ? 'Select at least 2 diesel records to use bulk delete.' : `${selectedCount} diesel records will be deleted.`;
+        }
+
+        if (bulkDeleteInputs) {
+            bulkDeleteInputs.innerHTML = '';
+            checkedBoxes.forEach(function (checkbox) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'diesel_ids';
+                input.value = checkbox.value;
+                bulkDeleteInputs.appendChild(input);
+            });
+        }
+
+        if (selectAllCheckbox) {
+            if (dieselCheckboxes.length === 0) {
+                selectAllCheckbox.checked = false;
+                return;
+            }
+            selectAllCheckbox.checked = selectedCount > 0 && selectedCount === dieselCheckboxes.length;
+        }
+    }
+
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function () {
+            dieselCheckboxes.forEach(function (checkbox) {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+            updateBulkDeleteState();
+        });
+    }
+
+    dieselCheckboxes.forEach(function (checkbox) {
+        checkbox.addEventListener('change', updateBulkDeleteState);
+    });
+
+    editButtons.forEach(function (button) {
+    button.addEventListener("click", function () {
+        const dieselId = button.getAttribute("data-diesel-id");
+        const supplierName = button.getAttribute("data-supplier-name") || "";
+        const litres = button.getAttribute("data-litres") || "";
+        const price = button.getAttribute("data-price") || "";
+        const amount = button.getAttribute("data-amount") || "";
+        const transport = button.getAttribute("data-transport") || "";
+
+        if (editDieselForm) {
+            editDieselForm.action = `/dashboard/expense/edit/diesel/${dieselId}/edit/`;
+        }
+
+        if (editSupplierName) editSupplierName.value = supplierName;
+        if (editLitres) editLitres.value = litres;
+        if (editPrice) editPrice.value = price;
+
+        // Prepopulate Amount
+        if (editAmount) {
+            editAmount.value = Number(amount).toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        // Prepopulate Transport
+
+        if (editTransport) {
+                editTransport.value = Number(transport).toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            })
+            }
+
+        // Keep amount updating when price/litres change
+        if (editPrice && editLitres && editAmount) {
+            calculateAmount(editPrice, editLitres, editAmount);
+            }
+        });
+    });
+
+    deleteButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            const dieselId = button.getAttribute('data-diesel-id');
+            const supplierName = button.getAttribute('data-supplier-name') || '';
+
+            if (deleteDieselForm) {
+                deleteDieselForm.action = `/dashboard/expense/delete/diesel/${dieselId}/delete/`;
+            }
+            if (deleteDieselName) deleteDieselName.textContent = supplierName;
+        });
+    });
+
+    if (bulkDeleteForm) {
+        bulkDeleteForm.addEventListener('submit', function () {
+            updateBulkDeleteState();
+        });
+    }
+
+    updateBulkDeleteState();
+
+    const price = document.getElementById('price');
+    const litres = document.getElementById('litres');
+    const amount = document.getElementById('amount');
+
+    if (price && litres && amount) {
+        calculateAmount(price, litres, amount);
+    }
+
+});
+</script>
+{% endblock %}

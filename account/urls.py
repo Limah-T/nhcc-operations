@@ -6,7 +6,7 @@ from .views import (
 )
 
 urlpatterns = [
-    path("login/", LoginView.as_view(), name="login"),
+    path("login", LoginView.as_view(), name="login"),
     path("signup/", SignUpView.as_view(), name="signup"),
     path(
         "forgot/password/", PasswordResetView.as_view(), name="forgot-password"
