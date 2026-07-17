@@ -57,7 +57,8 @@ class Dashboard(View):
                 "monthly_expenditure": total_ekedc+total_diesel,
                 "yearly_expenditure": yearly_ekdc+yearly_diesel,
                 "total_diesel":total_diesel,
-                "total_ekedc":total_ekedc
+                "total_ekedc":total_ekedc,
+                "user_name":request.user.first_name[0]+request.user.last_name[0]
             }
         )
     
@@ -68,14 +69,19 @@ class Dashboard(View):
 class OfficeExpenseDashboard(View):
     def get(self, request):
         return render(
-            request, expense_temp_name,
+            request, 
+            expense_temp_name,
+            {"user_name":request.user.first_name[0]+request.user.last_name[0]}
+
         )
 
 @method_decorator(login_required, name="dispatch")
 class OfficeExpenseCategory(View):
     def get(self, request):
         return render(
-            request, category_temp_name
+            request, 
+            category_temp_name,
+            {"user_name":request.user.first_name[0]+request.user.last_name[0]}
         )   
 
 

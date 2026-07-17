@@ -27,6 +27,7 @@ class ElectricityView(View):
                 "electricity_records": queryset,
                 "count": queryset.count(),
                 "monthly_total_display": f"₦{monthly_total:,.2f}",
+                "user_name":request.user.first_name[0]+request.user.last_name[0]
             },
         )
 
