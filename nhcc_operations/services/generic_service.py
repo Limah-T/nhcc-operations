@@ -8,15 +8,9 @@ def emptyFields(fields:list) -> bool:
         return True
     return False
 
-def custom_form_errors(queryset, form, value, message:list) -> dict:
-    return {
-        "records": queryset, 
-        "count": queryset.count(),
-        "form": form,
-        "errors":[
-        {"value": value, 
-            "errors": {"name": message}
-        }]
-    }
+   
 
-server_error = {"error":["An error occurred, please try again later"]}
+server_error = {"error":["An error occurred, please try again later"], "status":500}
+queue_error = {"error": ["Another device is processing this request."], "status":400}
+ekedc_404 = {"error": ["Electricity record not found."], "status":404}
+diesel_404 = {"error": ["Diesel record not found."], "status":404}

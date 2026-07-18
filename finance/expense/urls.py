@@ -33,27 +33,27 @@ urlpatterns = [
         "add/diesel/", DieselView.as_view(), name="add_diesel"
     ),
     path(
-        "edit/diesel/<int:pk>/edit/", edit_diesel, name="edit_diesel"
+        "diesel/<int:pk>/edit/", edit_diesel, name="edit_diesel"
     ),
     path(
-        "delete/diesel/<int:pk>/delete/", delete_diesel, name="delete_diesel"
+        "diesel/<int:pk>/delete/", delete_diesel, name="delete_diesel"
     ),
     path(
         "delete/diesels/", delete_diesels, name="delete_diesels"
     ),
     path(
-        "electricity", ElectricityView.as_view(), name="electricity"
+        "ekedc", ElectricityView.as_view(), name="electricity"
     ),
     path(
-        "add/electricity/", ElectricityView.as_view(), name="add-electricity"
+        "add/ekedc/", ElectricityView.as_view(), name="add_electricity"
     ),
     path(
-        "edit/electricity/<int:pk>/edit/", edit_electricity, name="edit_electricity"
+        "ekedc/<int:pk>/edit/", edit_electricity, name="edit_electricity"
     ),
     path(
-        "delete/electricity/<int:pk>/delete/", delete_electricity, name="delete_electricity"
+        "ekedc/<int:pk>/delete/", delete_electricity, name="delete_electricity"
     ),
     path(
-        "delete/electricities/", delete_electricities, name="delete_electricities"
+        "delete/ekedc/", delete_electricities, name="delete_electricities"
     ),
 ]

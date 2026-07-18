@@ -26,18 +26,18 @@
                         <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
                             <h5 class="fw-bold mb-0">Diesel Records ({{ count }})</h5>
 
-                            {% if diesel_errors %}
+                            {% if errors %}
                                 <div class="alert alert-danger rounded-4 mb-3">
                                     <div class="fw-semibold mb-2">
                                         Please correct the following:
                                     </div>
 
                                     <ul class="mb-0 ps-3">
-                                        {% for error in diesel_errors %}
+                                        {% for field, messages in errors.items %}
                                             <li class="mb-2">
-                                                <strong>{{ error.value }}</strong><br>
+                                                <strong>{{ field|capfirst }}</strong><br>
 
-                                                {% for message in error.errors.name %}
+                                                {% for message in messages %}
                                                     <small>{{ message }}</small>
                                                 {% endfor %}
                                             </li>
@@ -222,19 +222,21 @@
                 <div class="card border-0 shadow-sm rounded-4">
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
+                            <table class="table table-hover align-middle mb-0" style="min-width: 980px;">
                                 <thead class="table-light">
                                     <tr>
                                         <th class="px-3 py-3" style="width:48px;">
                                             <input class="form-check-input" type="checkbox" id="selectAllDiesel" aria-label="Select all diesel records">
                                         </th>
-                                        <th class="px-4 py-3">Litres</th>
-                                        <th class="px-4 py-3">Price</th>
-                                        <th class="px-4 py-3">Amount</th>
-                                        <th class="px-4 py-3">T-Fare</th>
-                                        <th class="px-4 py-3">Total</th>
-                                        <th class="px-4 py-3">Date</th>
-                                        <th class="text-end" style="width:120px;">Actions</th>
+                                        <th class="px-4 py-4">Litres</th>
+                                        <th class="px-4 py-4">Price</th>
+                                        <th class="px-4 py-4">Amount</th>
+                                        <th class="px-4 py-4">T-Fare</th>
+                                        <th class="px-4 py-4">Total</th>
+                                        <th class="px-4 py-4 text-nowrap">Date</th>
+                                        <th class="px-4 py-4 text-end" style="width:120px;">
+    Actions
+</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -244,14 +246,14 @@
                                             <input class="form-check-input diesel-checkbox" type="checkbox" value="{{ diesel.id }}" aria-label="Select diesel {{ diesel.supplier_name }}">
                                         </td>
                                         
-                                        <td class="px-4 py-3">{{ diesel.litres }}</td>
-                                        <td class="px-4 py-3">₦{{ diesel.price|floatformat|intcomma }}</td>
-                                        <td class="px-4 py-3">₦{{ diesel.amount|floatformat|intcomma }}</td>
-                                        <td class="px-4 py-3">₦{{ diesel.transport|floatformat|intcomma }}</td>
-                                        <td class="px-4 py-3">₦{{ diesel.total|floatformat|intcomma }}</td>
-                                        <td class="px-4 py-3">{{ diesel.created_at|date:"M d, Y" }}</td>
+                                        <td class="px-4 py-4">{{ diesel.litres }}</td>
+                                        <td class="px-4 py-4">₦{{ diesel.price|floatformat|intcomma }}</td>
+                                        <td class="px-4 py-4">₦{{ diesel.amount|floatformat|intcomma }}</td>
+                                        <td class="px-4 py-4">₦{{ diesel.transport|floatformat|intcomma }}</td>
+                                        <td class="px-4 py-4">₦{{ diesel.total|floatformat|intcomma }}</td>
+                                        <td class="px-4 py-4 text-nowrap">{{ diesel.created_at|date:"d M Y" }}</td>
 
-                                        <td class="text-end align-middle">
+                                        <td class="px-4 py-4 text-end">
                                             <div class="d-flex justify-content-end align-items-center">
 
                                                 <!-- Desktop buttons -->
@@ -284,13 +286,13 @@
                                                 </div>
 
                                                 <!-- Mobile dropdown -->
-                                                <div class="dropdown d-lg-none">
+                                                <div class="dropdown d-inline-block d-lg-none">
                                                     <button
-                                                        class="btn p-0 border-0 shadow-none"
+                                                        class="btn p-0 border-0 bg-transparent shadow-none"
                                                         type="button"
                                                         data-bs-toggle="dropdown"
                                                         aria-expanded="false">
-                                                        <i class="bi bi-three-dots-vertical fs-5"></i>
+                                                        <i class="bi bi-three-dots-vertical fs-5 text-dark"></i>
                                                     </button>
 
                                                     <ul class="dropdown-menu dropdown-menu-end rounded-4 border-0 shadow-sm">
@@ -606,7 +608,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const transport = button.getAttribute("data-transport") || "";
 
         if (editDieselForm) {
-            editDieselForm.action = `/dashboard/expense/edit/diesel/${dieselId}/edit/`;
+            editDieselForm.action = `/dashboard/expense/diesel/${dieselId}/edit/`;
         }
 
         if (editSupplierName) editSupplierName.value = supplierName;
@@ -643,7 +645,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const supplierName = button.getAttribute('data-supplier-name') || '';
 
             if (deleteDieselForm) {
-                deleteDieselForm.action = `/dashboard/expense/delete/diesel/${dieselId}/delete/`;
+                deleteDieselForm.action = `/dashboard/expense/diesel/${dieselId}/delete/`;
             }
             if (deleteDieselName) deleteDieselName.textContent = supplierName;
         });

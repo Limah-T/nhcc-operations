@@ -9,20 +9,29 @@
             <div class="card-body p-4 p-lg-5">
                 <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
                     <div>
-                        <div class="text-primary fw-semibold small text-uppercase">Office Expenses</div>
-                        <h3 class="fw-bold mb-1">Manage Categories</h3>
-                        <p class="text-muted mb-0">Create and organize office expense categories.</p>
+                        <div class="text-primary fw-semibold small text-uppercase">
+                            Office Expenses
+                        </div>
+                        <p class="text-muted mb-0">
+                            Create and organize office expense categories.
+                        </p>
                     </div>
-                    <div class="d-flex flex-wrap gap-2">
-                        <a href="{% url 'dashboard' %}" class="btn btn-outline-primary rounded-4">Dashboard</a>
-                        <a href="/office-expense-record/" class="btn btn-outline-primary rounded-4">Record Expense</a>
+
+                    <div class="mb-4">
+                        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary rounded-4">
+                            <i class="bi bi-arrow-left me-1"></i>
+                            Dashboard
+                        </a>
                     </div>
                 </div>
 
                 <div class="card border-0 shadow-sm rounded-4 mb-4">
                     <div class="card-body p-4">
                         <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
-                            <h5 class="fw-bold mb-0">List of Categories ({{count}})</h5>
+                            <h5 class="fw-bold mb-0 flex-shrink-0">
+    List of Categories ({{ count }})
+</h5>
+                        <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between justify-content-lg-start w-100 w-lg-auto">
                             {% if category_errors %}
                                 <div class="alert alert-danger rounded-4 mb-3">
                                     <div class="fw-semibold mb-2">
@@ -42,6 +51,7 @@
                                     </ul>
                                 </div>
                                 {% endif %}
+                            </div>
                             <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between justify-content-lg-start w-100 w-lg-auto">
                                 <button
                                     type="button"
@@ -50,22 +60,22 @@
                                     data-bs-toggle="modal"
                                     data-bs-target="#bulkDeleteModal"
                                     disabled>
-                                    Delete Selected
+                                    <i class="bi bi-trash"></i>Delete Selected
                                 </button>
 
                                 <div class="dropdown ms-auto ms-lg-0">
                                     <button class="btn btn-primary rounded-4 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        Add Category
+                                        <i class="bi bi-plus-lg"></i>New
                                     </button>
                                     <ul class="dropdown-menu rounded-4 border-0 shadow-sm">
                                         <li>
                                             <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
-                                                Add One Category
+                                                Single Emtry
                                             </button>
                                         </li>
                                         <li>
                                             <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#addMultipleCategoriesModal">
-                                                Add Multiple Categories
+                                                Bulk Entries
                                             </button>
                                         </li>
                                     </ul>
@@ -159,7 +169,8 @@
                                             <input class="form-check-input" type="checkbox" id="selectAllCategories" aria-label="Select all categories">
                                         </th>
                                         <th class="px-4 py-3">Category Name</th>
-                                        <th class="px-4 py-3" style="width:220px;">Actions</th>
+                                        <th class="px-4 py-3 text-end" style="width:120px;">
+    Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -194,17 +205,16 @@
                                                     </button>
                                                 </div>
 
-                                                <div class="dropdown d-inline-flex d-lg-none">
+                                                <div class="dropdown d-inline-block d-lg-none">
                                                     <button
+                                                        class="btn p-0 border-0 bg-transparent shadow-none"
                                                         type="button"
-                                                        class="btn p-0 border-0 shadow-none text-dark d-flex align-items-center justify-content-center"
-                                                        style="width: 40px; height: 40px;"
                                                         data-bs-toggle="dropdown"
-                                                        aria-expanded="false"
-                                                        aria-label="Open actions for {{ category.name }}">
-                                                        <i class="bi bi-three-dots-vertical fs-5" aria-hidden="true"></i>
+                                                        aria-expanded="false">
+                                                        <i class="bi bi-three-dots-vertical fs-5 text-dark"></i>
                                                     </button>
-                                                    <ul class="dropdown-menu dropdown-menu-end rounded-4 border-0 shadow-sm">
+
+                                                    <ul class="dropdown-menu dropdown-menu-end shadow rounded-4">
                                                         <li>
                                                             <button
                                                                 type="button"
@@ -213,9 +223,11 @@
                                                                 data-category-name="{{ category.name }}"
                                                                 data-bs-toggle="modal"
                                                                 data-bs-target="#editCategoryModal">
-                                                                <i class="bi bi-pencil me-2"></i>Edit
+                                                                <i class="bi bi-pencil me-2"></i>
+                                                                Edit
                                                             </button>
                                                         </li>
+
                                                         <li>
                                                             <button
                                                                 type="button"
@@ -224,12 +236,19 @@
                                                                 data-category-name="{{ category.name }}"
                                                                 data-bs-toggle="modal"
                                                                 data-bs-target="#deleteCategoryModal">
-                                                                <i class="bi bi-trash me-2"></i>Delete
+                                                                <i class="bi bi-trash me-2"></i>
+                                                                Delete
                                                             </button>
                                                         </li>
                                                     </ul>
                                                 </div>
                                             </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="3" class="px-4 py-5 text-center text-muted">
+                                            No categories yet. Add your first category to get started.
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -312,7 +331,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function createInputGroup() {
             const wrapper = document.createElement('div');
-            wrapper.className = 'input-group';
+            wrapper.className = 'border rounded-4 p-3';
 
             const input = document.createElement('input');
             input.type = 'text';
@@ -444,7 +463,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const categoryName = button.getAttribute('data-category-name') || '';
 
             if (deleteCategoryForm) {
-                deleteCategoryForm.action = `/dashboard/expense/delete/category${categoryId}/delete/`;
+                deleteCategoryForm.action =
+    `/dashboard/expense/delete/category/${categoryId}/delete/`;
             }
 
             if (deleteCategoryName) {

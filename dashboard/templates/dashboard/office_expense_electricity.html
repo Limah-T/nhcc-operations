@@ -14,10 +14,8 @@
                         <p class="text-muted mb-0">Record and manage monthly electricity consumption and payments.</p>
                     </div>
                     <div class="d-flex flex-wrap gap-2">
-                        <a href="{% url 'dashboard' %}" class="btn btn-outline-primary rounded-4">Dashboard</a>
-                        <button type="button" class="btn btn-primary rounded-4" data-bs-toggle="modal" data-bs-target="#addElectricityModal">
-                            Record Electricity
-                        </button>
+                        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary rounded-4"><i class="bi bi-arrow-left"></i>
+Dashboard</a>
                     </div>
                 </div>
 
@@ -26,14 +24,14 @@
                         <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
                             <h5 class="fw-bold mb-0">Electricity Records ({{ count }})</h5>
 
-                            {% if electricity_errors %}
+                            {% if errors %}
                                 <div class="alert alert-danger rounded-4 mb-3 w-100">
                                     <div class="fw-semibold mb-2">Please correct the following:</div>
                                     <ul class="mb-0 ps-3">
-                                        {% for error in electricity_errors %}
+                                        {% for field, messages in errors.items %}
                                             <li class="mb-2">
-                                                <strong>{{ error.value }}</strong><br>
-                                                {% for message in error.errors.name %}
+                                                <strong>{{ field }}</strong><br>
+                                                {% for message in messages %}
                                                     <small>{{ message }}</small>
                                                 {% endfor %}
                                             </li>
@@ -50,22 +48,24 @@
                                     data-bs-toggle="modal"
                                     data-bs-target="#bulkDeleteModal"
                                     disabled>
+                                    <i class="bi bi-trash"></i>
                                     Delete Selected
                                 </button>
 
                                 <div class="dropdown ms-auto ms-lg-0">
                                     <button class="btn btn-primary rounded-4 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        Add Electricity
+                                        <i class="bi bi-plus-lg"></i>
+                                        New
                                     </button>
                                     <ul class="dropdown-menu rounded-4 border-0 shadow-sm">
                                         <li>
                                             <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#addElectricityModal">
-                                                Add Electricity Record
+                                                Single Entry
                                             </button>
                                         </li>
                                         <li>
                                             <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#addMultipleElectricityModal">
-                                                Add Multiple Electricity Records
+                                                Bulk Entries
                                             </button>
                                         </li>
                                     </ul>
@@ -90,7 +90,7 @@
                 <div class="modal fade" id="addElectricityModal" tabindex="-1" aria-labelledby="addElectricityModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
                         <div class="modal-content rounded-4 shadow border-0">
-                            <form method="post" action="{% url 'add-electricity' %}">
+                            <form method="post" action="{% url 'add_electricity' %}">
                                 {% csrf_token %}
                                 <div class="modal-header border-0 pb-0">
                                     <h5 class="modal-title fw-bold" id="addElectricityModalLabel">Add Electricity Record</h5>
@@ -120,7 +120,7 @@
                 <div class="modal fade" id="addMultipleElectricityModal" tabindex="-1" aria-labelledby="addMultipleElectricityModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                         <div class="modal-content rounded-4 shadow border-0">
-                            <form method="post" action="{% url 'add-electricity' %}"
+                            <form method="post" action="{% url 'add_electricity' %}"
                                 class="d-flex flex-column"
                                 style="max-height:90vh;">
                                 {% csrf_token %}
@@ -170,16 +170,18 @@
                 <div class="card border-0 shadow-sm rounded-4">
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
+                            <table class="table table-hover align-middle mb-0" style="min-width: 980px;">
                                 <thead class="table-light">
                                     <tr>
                                         <th class="px-3 py-3" style="width:48px;">
                                             <input class="form-check-input" type="checkbox" id="selectAllElectricity" aria-label="Select all electricity records">
                                         </th>
-                                        <th class="px-4 py-3">kWh</th>
-                                        <th class="px-4 py-3">Amount</th>
-                                        <th class="px-4 py-3">Month</th>
-                                        <th class="px-4 py-3" style="width:220px;">Actions</th>
+                                        <th class="px-4 py-4">kWh</th>
+                                        <th class="px-4 py-4">Amount</th>
+                                        <th class="px-4 py-4 text-nowrap">Date</th>
+                                        <th class="px-4 py-4 text-end" style="width:120px;">
+    Actions
+</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -188,74 +190,75 @@
                                         <td class="px-3 py-3">
                                             <input class="form-check-input electricity-checkbox" type="checkbox" value="{{ electricity.id }}" aria-label="Select electricity record">
                                         </td>
-                                        <td class="px-4 py-3">{{ electricity.kwh|floatformat|intcomma }}</td>
-                                        <td class="px-4 py-3">₦{{ electricity.amount|floatformat|intcomma }}</td>
+                                        <td class="px-4 py-4">{{ electricity.kwh|floatformat|intcomma }}</td>
+                                        <td class="px-4 py-4">₦{{ electricity.amount|floatformat|intcomma }}</td>
                                         
-                                        <td class="px-4 py-3">{{ electricity.month }}</td>
-                                        <td class="px-4 py-3">
-                                            <div class="d-flex flex-wrap gap-2 justify-content-end">
-                                                <div class="d-none d-lg-flex gap-2">
-                                                    <button
-                                                        type="button"
-                                                        class="btn btn-sm btn-outline-primary rounded-4 edit-electricity-btn"
-                                                        data-electricity-id="{{ electricity.id }}"
-                                                        data-kwh="{{ electricity.kwh }}"
-                                                        data-amount="{{ electricity.amount }}"
-                                                        data-month="{{ electricity.month }}"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#editElectricityModal">
-                                                        Edit
-                                                    </button>
+                                        <td class="px-4 py-4 text-nowrap"> {{ electricity.created_at|date:"d M Y" }}</td>
+                                        <td class="px-4 py-4 text-end">
+                                            <!-- Desktop -->
+                                            <div class="d-none d-lg-inline-flex gap-2">
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-sm btn-outline-primary rounded-4 edit-electricity-btn"
+                                                    data-electricity-id="{{ electricity.id }}"
+                                                    data-kwh="{{ electricity.kwh }}"
+                                                    data-amount="{{ electricity.amount }}"
+                                                    data-month="{{ electricity.month }}"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#editElectricityModal">
+                                                    Edit
+                                                </button>
 
-                                                    <button
-                                                        type="button"
-                                                        class="btn btn-sm btn-outline-danger rounded-4 delete-electricity-btn"
-                                                        data-electricity-id="{{ electricity.id }}"
-                                                        data-kwh="{{ electricity.kwh }}"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#deleteElectricityModal">
-                                                        Delete
-                                                    </button>
-                                                </div>
-
-                                                <div class="dropdown d-inline-flex d-lg-none">
-                                                    <button
-                                                        type="button"
-                                                        class="btn p-0 border-0 shadow-none text-dark d-flex align-items-center justify-content-center"
-                                                        style="width: 40px; height: 40px;"
-                                                        data-bs-toggle="dropdown"
-                                                        aria-expanded="false"
-                                                        aria-label="Open actions for electricity record">
-                                                        <i class="bi bi-three-dots-vertical fs-5" aria-hidden="true"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu dropdown-menu-end rounded-4 border-0 shadow-sm">
-                                                        <li>
-                                                            <button
-                                                                type="button"
-                                                                class="dropdown-item edit-electricity-btn"
-                                                                data-electricity-id="{{ electricity.id }}"
-                                                                data-kwh="{{ electricity.kwh }}"
-                                                                data-amount="{{ electricity.amount }}"
-                                                                data-month="{{ electricity.month }}"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#editElectricityModal">
-                                                                <i class="bi bi-pencil me-2"></i>Edit
-                                                            </button>
-                                                        </li>
-                                                        <li>
-                                                            <button
-                                                                type="button"
-                                                                class="dropdown-item text-danger delete-electricity-btn"
-                                                                data-electricity-id="{{ electricity.id }}"
-                                                                data-kwh="{{ electricity.kwh }}"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#deleteElectricityModal">
-                                                                <i class="bi bi-trash me-2"></i>Delete
-                                                            </button>
-                                                        </li>
-                                                    </ul>
-                                                </div>
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-sm btn-outline-danger rounded-4 delete-electricity-btn"
+                                                    data-electricity-id="{{ electricity.id }}"
+                                                    data-kwh="{{ electricity.kwh }}"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#deleteElectricityModal">
+                                                    Delete
+                                                </button>
                                             </div>
+
+                                            <!-- Mobile -->
+                                            <div class="dropdown d-inline-block d-lg-none">
+                                                <button
+                                                    class="btn p-0 border-0 bg-transparent shadow-none"
+                                                    type="button"
+                                                    data-bs-toggle="dropdown"
+                                                    aria-expanded="false">
+                                                    <i class="bi bi-three-dots-vertical fs-5 text-dark"></i>
+                                                </button>
+
+                                                <ul class="dropdown-menu dropdown-menu-end shadow rounded-4">
+                                                    <li>
+                                                        <button
+                                                            type="button"
+                                                            class="dropdown-item edit-electricity-btn"
+                                                            data-electricity-id="{{ electricity.id }}"
+                                                            data-kwh="{{ electricity.kwh }}"
+                                                            data-amount="{{ electricity.amount }}"
+                                                            data-month="{{ electricity.month }}"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#editElectricityModal">
+                                                            Edit
+                                                        </button>
+                                                    </li>
+
+                                                    <li>
+                                                        <button
+                                                            type="button"
+                                                            class="dropdown-item text-danger delete-electricity-btn"
+                                                            data-electricity-id="{{ electricity.id }}"
+                                                            data-kwh="{{ electricity.kwh }}"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#deleteElectricityModal">
+                                                            Delete
+                                                        </button>
+                                                    </li>
+                                                </ul>
+                                            </div>
+
                                         </td>
                                     </tr>
                                     {% empty %}
@@ -454,7 +457,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const month = button.getAttribute('data-month') || '';
 
             if (editElectricityForm) {
-                editElectricityForm.action = `/dashboard/expense/edit/electricity/${electricityId}/edit/`;
+                editElectricityForm.action = `/dashboard/expense/ekedc/${electricityId}/edit/`;
             }
             if (editKwh) editKwh.value = kwh;
             if (editAmount) {
@@ -470,7 +473,7 @@ document.addEventListener('DOMContentLoaded', function () {
         button.addEventListener('click', function () {
             const electricityId = button.getAttribute('data-electricity-id');
             if (deleteElectricityForm) {
-                deleteElectricityForm.action = `/dashboard/expense/delete/electricity/${electricityId}/delete/`;
+                deleteElectricityForm.action = `/dashboard/expense/ekedc/${electricityId}/delete/`;
             }
         });
     });

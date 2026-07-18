@@ -1,7 +1,9 @@
 from django.utils import timezone
 from decimal import Decimal
-from django.db import transaction, IntegrityError
-from nhcc_operations.services.generic_service import server_error
+from django.db import transaction, IntegrityError, DatabaseError
+from nhcc_operations.services.generic_service import (
+    server_error, queue_error
+)
 from ..models import Diesel
 from ..forms import DieselForm
 
@@ -41,7 +43,7 @@ def dieselUpdate(
     ) -> None:
     
     Diesel.objects.filter(
-        id=diesel.id).select_for_update(
+        id=diesel.id).select_for_update(nowait=True
     ).update(
         litres=litres, price=price,
         supplier_name=supplier,
@@ -80,14 +82,14 @@ def prepareCreate(
                 transport=transport, created_by=user_name
             )
         )
-        return diesel_list
+    return diesel_list
     
-def create(diesel_list:list[Diesel]) -> dict | None:
+def create(diesel_list:list) -> dict | None:
     try:
         with transaction.atomic():
             dieselCreate(diesel_list)
     except IntegrityError:
-        return server_error
+        return queue_error
     except Exception:
         return server_error
     return None
@@ -107,18 +109,34 @@ def update(
                 diesel, price, litres, tfare, 
                 supplier, user, user_name 
             )
-    except IntegrityError:
-        return server_error
+    except DatabaseError:
+        return queue_error
     except Exception:
         return server_error
     return None
 
-def delete(ids) -> dict | None:
+def delete_one(diesel:Diesel) -> dict | None:
     try:
         with transaction.atomic():
-            Diesel.objects.select_for_update().filter(
-                id__in=ids
+            Diesel.objects.select_for_update(
+                nowait=True).get(
+                id=diesel.id
             ).delete()
+    except DatabaseError:
+        return queue_error
+    except Exception:
+        return server_error
+    return None
+
+def delete_many(diesel_ids) -> dict | None:
+    try:
+        with transaction.atomic():
+            Diesel.objects.select_for_update(
+                nowait=True).filter(
+                id__in=diesel_ids
+            ).delete()
+    except DatabaseError:
+        return queue_error
     except Exception:
         return server_error
     return None
