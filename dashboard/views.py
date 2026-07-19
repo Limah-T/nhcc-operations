@@ -3,10 +3,20 @@ from django.views import View
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.utils import timezone
-from finance.expense.models import EKEDC, Diesel, Expense
+from finance.expense.services.diesel_service import (
+    totalMonthlyDiesel, totalAnnualDiesel, dieselQueryset, 
+)
+from finance.expense.services.electricity_service import (
+    totalMonthlyPrepaid, totalAnnualPrepaid, ekedcQuerySet
+)
+from finance.expense.services.expense_service import (
+    totalMonthlyExpenses, totalAnnualExpenses, expenseQueryset
+)
+from account.services.profile_service import getFullName
 
 dashboard_temp_name = "dashboard/dashboard.html"
 expense_temp_name = "dashboard/office_expense_dashboard.html"
+expense_record_temp_name = "dashboard/office_expense_record.html"
 category_temp_name = "dashboard/office_expense_category.html"
 diesel_temp_name = "dashboard/office_expense_diesel.html"
 electricity_temp_name = "dashboard/office_expense_electricity.html"
@@ -29,36 +39,25 @@ class Dashboard(View):
     def get(self, request):
         name = request.user.first_name+" "+request.user.last_name
         now = timezone.localtime()
-        total_ekedc = sum(
-            item.amount for item in EKEDC.objects.all() 
-                if (item.created_at.year and item.created_at.month
-                    ) == (now.year and now.month
-                )
-        )
-        total_diesel = sum(
-            item.total for item in Diesel.objects.all() 
-                if (item.created_at.year and item.created_at.month
-                    ) == (now.year and now.month
-                )
-        )
-        yearly_ekdc = sum(
-            item.amount for item in EKEDC.objects.all() 
-                if (item.created_at.year == now.year)
-        )
-        yearly_diesel = sum(
-            item.total for item in Diesel.objects.all() 
-                if (item.created_at.year == now.year)
-        )
+        total_ekedc = totalMonthlyPrepaid(ekedcQuerySet())
+        total_diesel = totalMonthlyDiesel(dieselQueryset())
+        total_expenses = totalMonthlyExpenses(expenseQueryset())
+        yearly_ekdc = totalAnnualPrepaid(ekedcQuerySet())
+        yearly_diesel = totalAnnualDiesel(dieselQueryset())
+        yearly_expenses = totalAnnualExpenses(expenseQueryset())
+        monthly_expenses = total_ekedc+total_diesel+total_expenses
+        yearly_expenses = yearly_ekdc+yearly_diesel+yearly_expenses
         return render(
             request, dashboard_temp_name,
             context={
                 "greet":get_greeting(), 
                 "user_name":name, "now":now,
-                "monthly_expenditure": total_ekedc+total_diesel,
-                "yearly_expenditure": yearly_ekdc+yearly_diesel,
+                "monthly_expenditure": monthly_expenses,
+                "yearly_expenditure": yearly_expenses,
                 "total_diesel":total_diesel,
                 "total_ekedc":total_ekedc,
-                "user_name":request.user.first_name[0]+request.user.last_name[0]
+                "total_expenses": total_expenses,
+                "user_name":getFullName(request)
             }
         )
     

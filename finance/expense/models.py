@@ -74,5 +74,5 @@ class Expense(models.Model):
     total = models.DecimalField(max_digits=15, decimal_places=2)
     created_by = models.CharField(max_length=200)
     updated_by = models.CharField(max_length=200)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)

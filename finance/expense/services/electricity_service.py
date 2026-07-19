@@ -23,6 +23,13 @@ def totalMonthlyPrepaid(queryset:EKEDC) -> int:
                 )
         )
 
+def totalAnnualPrepaid(queryset:EKEDC) -> int:
+    now = timezone.now()
+    return sum(
+            item.amount for item in queryset
+            if (item.created_at.year == now.year)
+    )
+
 def ekedcFormValidator(kwh, amount) -> ElectricityForm:
     return ElectricityForm(
         data={"kwh":kwh, "amount":amount}

@@ -21,6 +21,14 @@ def totalMonthlyDiesel(queryset:Diesel) -> int:
         ) == (now.month and now.year)
         )
 
+
+def totalAnnualDiesel(queryset:Diesel) -> int:
+    now = timezone.now()
+    return sum(
+            item.amount for item in queryset
+            if (item.created_at.year == now.year)
+    )
+
 def dieselCreate(diesel_list:list[Diesel]) -> None:
     Diesel.objects.bulk_create(diesel_list)  
     return None

@@ -5,6 +5,25 @@
 {% block content %}
 <div class="row g-4">
     <div class="col-12">
+        {% if errors %}
+            <div class="alert alert-danger rounded-4 mb-4">
+                <div class="fw-semibold mb-2">
+                    Please correct the following:
+                </div>
+
+                <ul class="mb-0 ps-3">
+                    {% for field, messages in errors.items %}
+                        <li class="mb-2">
+                            <strong>{{ field|capfirst }}</strong><br>
+                            {% for message in messages %}
+                                <small>{{ message }}</small>
+                            {% endfor %}
+                        </li>
+                    {% endfor %}
+
+                </ul>
+            </div>
+        {% endif %}
         <div class="card border-0 shadow-sm rounded-4">
             <div class="card-body p-4 p-lg-5">
                 <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
@@ -22,24 +41,8 @@ Dashboard</a>
                 <div class="card border-0 shadow-sm rounded-4 mb-4">
                     <div class="card-body p-4">
                         <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
-                            <h5 class="fw-bold mb-0">Electricity Records ({{ count }})</h5>
-
-                            {% if errors %}
-                                <div class="alert alert-danger rounded-4 mb-3 w-100">
-                                    <div class="fw-semibold mb-2">Please correct the following:</div>
-                                    <ul class="mb-0 ps-3">
-                                        {% for field, messages in errors.items %}
-                                            <li class="mb-2">
-                                                <strong>{{ field }}</strong><br>
-                                                {% for message in messages %}
-                                                    <small>{{ message }}</small>
-                                                {% endfor %}
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-                            {% endif %}
-
+                            <h5 class="fw-bold mb-0 text-nowrap">
+                                Electricity Records ({{ count }})</h5>
                             <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between justify-content-lg-start w-100 w-lg-auto">
                                 <button
                                     type="button"
@@ -199,6 +202,19 @@ Dashboard</a>
                                             <div class="d-none d-lg-inline-flex gap-2">
                                                 <button
                                                     type="button"
+                                                    class="btn btn-sm btn-outline-secondary rounded-4 view-electricity-btn"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#viewElectricityModal"
+                                                    data-kwh="{{ electricity.kwh }}"
+                                                    data-amount="{{ electricity.amount }}"
+                                                    data-created="{{ electricity.created_at|date:'d M Y, g:ia' }}"
+                                                    data-created-by="{{ electricity.created_by }}"
+                                                    data-updated="{{ electricity.updated_at|date:'d M Y, g:ia' }}"
+                                                    data-updated-by="{{ electricity.updated_by }}">
+                                                    View
+                                                </button>
+                                                <button
+                                                    type="button"
                                                     class="btn btn-sm btn-outline-primary rounded-4 edit-electricity-btn"
                                                     data-electricity-id="{{ electricity.id }}"
                                                     data-kwh="{{ electricity.kwh }}"
@@ -234,6 +250,21 @@ Dashboard</a>
                                                     <li>
                                                         <button
                                                             type="button"
+                                                            class="dropdown-item view-electricity-btn"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#viewElectricityModal"
+                                                            data-kwh="{{ electricity.kwh }}"
+                                                            data-amount="{{ electricity.amount }}"
+                                                            data-created="{{ electricity.created_at|date:'d M Y, g:ia' }}"
+                                                            data-created-by="{{ electricity.created_by }}"
+                                                            data-updated="{{ electricity.updated_at|date:'d M Y, g:ia' }}"
+                                                            data-updated-by="{{ electricity.updated_by }}">
+                                                            <i class="bi bi-eye me-2"></i>View
+                                                        </button>
+                                                    </li>
+                                                    <li>
+                                                        <button
+                                                            type="button"
                                                             class="dropdown-item edit-electricity-btn"
                                                             data-electricity-id="{{ electricity.id }}"
                                                             data-kwh="{{ electricity.kwh }}"
@@ -241,6 +272,7 @@ Dashboard</a>
                                                             data-month="{{ electricity.month }}"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#editElectricityModal">
+                                                            <i class="bi bi-pencil me-2"></i>
                                                             Edit
                                                         </button>
                                                     </li>
@@ -253,7 +285,7 @@ Dashboard</a>
                                                             data-kwh="{{ electricity.kwh }}"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#deleteElectricityModal">
-                                                            Delete
+                                                            <i class="bi bi-trash me-2"></i>Delete
                                                         </button>
                                                     </li>
                                                 </ul>
@@ -274,6 +306,122 @@ Dashboard</a>
                     </div>
                 </div>
 
+                <div class="modal fade"
+                    id="viewElectricityModal"
+                    tabindex="-1"
+                    aria-hidden="true">
+
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg modal-fullscreen-sm-down">
+
+                        <div class="modal-content rounded-4 border-0 shadow">
+
+                            <div class="modal-header border-0 pb-0">
+
+                                <h5 class="modal-title fw-bold">
+                                    Electricity Details
+                                </h5>
+
+                                <button
+                                    type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="modal">
+                                </button>
+
+                            </div>
+
+                            <div class="modal-body pt-3">
+
+                                <div class="row g-3">
+
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">
+                                            kWh
+                                        </label>
+
+                                        <div
+                                            id="viewKwh"
+                                            class="form-control rounded-4 bg-light">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">
+                                            Amount
+                                        </label>
+
+                                        <div
+                                            id="viewAmount"
+                                            class="form-control rounded-4 bg-light">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">
+                                            Created At
+                                        </label>
+
+                                        <div
+                                            id="viewCreated"
+                                            class="form-control rounded-4 bg-light">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">
+                                            Created By
+                                        </label>
+
+                                        <div
+                                            id="viewCreatedBy"
+                                            class="form-control rounded-4 bg-light">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">
+                                            Updated At
+                                        </label>
+
+                                        <div
+                                            id="viewUpdated"
+                                            class="form-control rounded-4 bg-light">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">
+                                            Updated By
+                                        </label>
+
+                                        <div
+                                            id="viewUpdatedBy"
+                                            class="form-control rounded-4 bg-light">
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="modal-footer border-0 pt-0">
+
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-secondary rounded-4"
+                                    data-bs-dismiss="modal">
+
+                                    Close
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+                
                 <div class="modal fade" id="editElectricityModal" tabindex="-1" aria-labelledby="editElectricityModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
                         <div class="modal-content rounded-4 shadow border-0">
@@ -396,6 +544,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const bulkDeleteSummary = document.getElementById('bulkDeleteSummary');
     const bulkDeleteInputs = document.getElementById('bulkDeleteInputs');
     const bulkDeleteForm = document.getElementById('bulkDeleteForm');
+    const viewButtons = Array.from(document.querySelectorAll(".view-electricity-btn"));
+    const viewCreatedAt = document.getElementById("viewCreatedAt");
+    const viewCreatedBy = document.getElementById("viewCreatedBy");
+    const viewUpdatedAt = document.getElementById("viewUpdatedAt");
+    const viewUpdatedBy = document.getElementById("viewUpdatedBy");
     const editButtons = Array.from(document.querySelectorAll('.edit-electricity-btn'));
     const deleteButtons = Array.from(document.querySelectorAll('.delete-electricity-btn'));
     const editElectricityForm = document.getElementById('editElectricityForm');
@@ -448,6 +601,32 @@ document.addEventListener('DOMContentLoaded', function () {
     electricityCheckboxes.forEach(function (checkbox) {
         checkbox.addEventListener('change', updateBulkDeleteState);
     });
+    viewButtons.forEach(function (button) {
+
+        button.addEventListener("click", function () {
+
+            document.getElementById("viewKwh").textContent =
+                Number(button.dataset.kwh).toLocaleString("en-NG");
+
+            document.getElementById("viewAmount").textContent =
+                "₦" + Number(button.dataset.amount).toLocaleString("en-NG", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+
+            document.getElementById("viewCreated").textContent =
+                button.dataset.created || "-";
+
+            document.getElementById("viewCreatedBy").textContent =
+                button.dataset.createdBy || "-";
+
+            document.getElementById("viewUpdated").textContent =
+                button.dataset.updated || "-";
+
+            document.getElementById("viewUpdatedBy").textContent =
+                button.dataset.updatedBy || "-";
+                });
+            });
 
     editButtons.forEach(function (button) {
         button.addEventListener('click', function () {

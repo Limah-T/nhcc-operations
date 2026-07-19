@@ -5,6 +5,25 @@
 {% block content %}
 <div class="row g-4">
     <div class="col-12">
+        {% if errors %}
+            <div class="alert alert-danger rounded-4 mb-4">
+                <div class="fw-semibold mb-2">
+                    Please correct the following:
+                </div>
+
+                <ul class="mb-0 ps-3">
+                    {% for field, messages in errors.items %}
+                        <li class="mb-2">
+                            <strong>{{ field|capfirst }}</strong><br>
+                            {% for message in messages %}
+                                <small>{{ message }}</small>
+                            {% endfor %}
+                        </li>
+                    {% endfor %}
+
+                </ul>
+            </div>
+        {% endif %}
         <div class="card border-0 shadow-sm rounded-4">
             <div class="card-body p-4 p-lg-5">
                 <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
@@ -31,27 +50,7 @@
                             <h5 class="fw-bold mb-0 flex-shrink-0">
     List of Categories ({{ count }})
 </h5>
-                        <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between justify-content-lg-start w-100 w-lg-auto">
-                            {% if category_errors %}
-                                <div class="alert alert-danger rounded-4 mb-3">
-                                    <div class="fw-semibold mb-2">
-                                        Please correct the following:
-                                    </div>
-
-                                    <ul class="mb-0 ps-3">
-                                        {% for error in category_errors %}
-                                            <li class="mb-2">
-                                                <strong>{{ error.value }}</strong><br>
-
-                                                {% for message in error.errors.name %}
-                                                    <small>{{ message }}</small>
-                                                {% endfor %}
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-                                {% endif %}
-                            </div>
+                        <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between justify-content-lg-start w-100 w-lg-auto">    
                             <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between justify-content-lg-start w-100 w-lg-auto">
                                 <button
                                     type="button"
@@ -186,6 +185,19 @@
                                                 <div class="d-none d-lg-flex gap-2">
                                                     <button
                                                         type="button"
+                                                        class="btn btn-sm btn-outline-secondary rounded-4 view-category-btn"
+                                                        data-category-id="{{ category.id }}"
+                                                        data-category-name="{{ category.name }}"
+                                                        data-created-at="{{ category.created_at|date:'d M Y, g:ia' }}"
+                                                        data-updated-at="{{ category.updated_at|date:'d M Y, g:ia' }}"
+                                                        data-created-by="{{ category.created_by }}"
+                                                        data-updated-by="{{ category.updated_by }}"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#viewCategoryModal">
+                                                        View
+                                                    </button>
+                                                    <button
+                                                        type="button"
                                                         class="btn btn-sm btn-outline-primary rounded-4 edit-category-btn"
                                                         data-category-id="{{ category.id }}"
                                                         data-category-name="{{ category.name }}"
@@ -215,6 +227,21 @@
                                                     </button>
 
                                                     <ul class="dropdown-menu dropdown-menu-end shadow rounded-4">
+                                                        <li>
+                                                            <button
+                                                                type="button"
+                                                                class="dropdown-item view-category-btn"
+                                                                data-category-id="{{ category.id }}"
+                                                                data-category-name="{{ category.name }}"
+                                                                data-created-at="{{ category.created_at|date:'d M Y, g:ia' }}"
+                                                                data-updated-at="{{ category.updated_at|date:'d M Y, g:ia' }}"
+                                                                data-created-by="{{ category.created_by }}"
+                                                                data-updated-by="{{ category.updated_by }}"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#viewCategoryModal">
+                                                                <i class="bi bi-eye me-2"></i>View
+                                                            </button>
+                                                        </li>
                                                         <li>
                                                             <button
                                                                 type="button"
@@ -258,7 +285,58 @@
                         </div>
                     </div>
                 </div>
+                <div class="modal fade" id="viewCategoryModal" tabindex="-1" aria-labelledby="viewCategoryModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+                        <div class="modal-content rounded-4 shadow border-0">
+                            <div class="modal-header border-0 pb-0">
+                                <h5 class="modal-title fw-bold" id="viewCategoryModalLabel">
+                                    Category Details
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
 
+                            <div class="modal-body pt-3">
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold text-muted">Category Name</label>
+                                    <div class="form-control rounded-4 bg-light" id="viewCategoryName"></div>
+                                </div>
+
+                                <div class="row g-3">
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold text-muted">Created At</label>
+                                        <div class="form-control rounded-4 bg-light" id="viewCreatedAt"></div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold text-muted">Updated At</label>
+                                        <div class="form-control rounded-4 bg-light" id="viewUpdatedAt"></div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold text-muted">Created By</label>
+                                        <div class="form-control rounded-4 bg-light" id="viewCreatedBy"></div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold text-muted">Updated By</label>
+                                        <div class="form-control rounded-4 bg-light" id="viewUpdatedBy"></div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                            <div class="modal-footer border-0 pt-0">
+                                <button type="button"
+                                        class="btn btn-primary rounded-4"
+                                        data-bs-dismiss="modal">
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
                         <div class="modal-content rounded-4 shadow border-0">
@@ -377,6 +455,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const bulkDeleteSummary = document.getElementById('bulkDeleteSummary');
     const bulkDeleteInputs = document.getElementById('bulkDeleteInputs');
     const bulkDeleteForm = document.getElementById('bulkDeleteForm');
+    const viewButtons = Array.from(document.querySelectorAll('.view-category-btn'));
+    const viewCategoryName = document.getElementById('viewCategoryName');
+    const viewCreatedAt = document.getElementById('viewCreatedAt');
+    const viewUpdatedAt = document.getElementById('viewUpdatedAt');
+    const viewCreatedBy = document.getElementById('viewCreatedBy');
+    const viewUpdatedBy = document.getElementById('viewUpdatedBy');
     const editButtons = Array.from(document.querySelectorAll('.edit-category-btn'));
     const deleteButtons = Array.from(document.querySelectorAll('.delete-category-btn'));
     const editCategoryForm = document.getElementById('editCategoryForm');
@@ -440,6 +524,36 @@ document.addEventListener('DOMContentLoaded', function () {
 
     categoryCheckboxes.forEach(function (checkbox) {
         checkbox.addEventListener('change', updateBulkDeleteState);
+    });
+
+    viewButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+
+            if (viewCategoryName) {
+                viewCategoryName.textContent =
+                    button.getAttribute('data-category-name') || '';
+            }
+
+            if (viewCreatedAt) {
+                viewCreatedAt.textContent =
+                    button.getAttribute('data-created-at') || '-';
+            }
+
+            if (viewUpdatedAt) {
+                viewUpdatedAt.textContent =
+                    button.getAttribute('data-updated-at') || '-';
+            }
+
+            if (viewCreatedBy) {
+                viewCreatedBy.textContent =
+                    button.getAttribute('data-created-by') || '-';
+            }
+
+            if (viewUpdatedBy) {
+                viewUpdatedBy.textContent =
+                    button.getAttribute('data-updated-by') || '-';
+            }
+        });
     });
 
     editButtons.forEach(function (button) {

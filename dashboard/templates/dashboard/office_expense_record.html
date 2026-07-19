@@ -1,87 +1,1479 @@
 {% extends "dashboard/dashboard_base.html" %}
-
+{% load humanize %}
 {% block title %}Record Office Expense | NHCC Operations{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-12 col-xl-8">
+<div class="row g-4">
+    <div class="col-12">
+        {% if errors %}
+            <div class="alert alert-danger rounded-4 mb-4">
+                <div class="fw-semibold mb-2">
+                    Please correct the following:
+                </div>
+
+                <ul class="mb-0 ps-3">
+                    {% for field, messages in errors.items %}
+                        <li class="mb-2">
+                            <strong>{{ field|capfirst }}</strong><br>
+                            {% for message in messages %}
+                                <small>{{ message }}</small>
+                            {% endfor %}
+                        </li>
+                    {% endfor %}
+
+                </ul>
+            </div>
+        {% endif %}
         <div class="card border-0 shadow-sm rounded-4">
             <div class="card-body p-4 p-lg-5">
                 <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
                     <div>
-                        <div class="text-primary fw-semibold small text-uppercase">Office Expenses</div>
-                        <h3 class="fw-bold mb-1">Record Expense</h3>
-                        <p class="text-muted mb-0">Add a new office expense entry below.</p>
+                        <div class="text-primary fw-semibold small text-uppercase">
+                            Office Expenses
+                        </div>
+
+                        <h3 class="fw-bold mb-1">
+                            Manage Expense Records
+                        </h3>
+
+                        <p class="text-muted mb-0">
+                            Track and manage all office expense records.
+                        </p>
                     </div>
-                    <div class="d-flex flex-wrap gap-2">
-                        <a href="{% url 'dashboard'%}" class="btn btn-outline-primary rounded-4">Dashboard</a>
-                        <a href="{% url 'category'%}" class="btn btn-outline-primary rounded-4">Categories</a>
+
+                    <div class="mb-4">
+                        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary rounded-4">
+                            <i class="bi bi-arrow-left me-1"></i>
+                            Dashboard
+                        </a>
                     </div>
                 </div>
 
-                <form>
-                    <div class="row g-3">
-                        <div class="col-12 col-md-6">
-                            <label for="expenseCategory" class="form-label fw-semibold">Category</label>
-                            <select class="form-select rounded-4" id="expenseCategory" name="expenseCategory">
-                                <option selected>Select category</option>
-                                <option value="1">Stationery</option>
-                                <option value="2">Utilities</option>
-                                <option value="3">Maintenance</option>
-                                <option value="4">Office Supplies</option>
-                            </select>
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+
+                    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+                        <h5 class="fw-bold mb-0 text-nowrap">
+                            Expense Records ({{ count }})
+                        </h5>
+
+                        <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between justify-content-lg-start w-100 w-lg-auto">
+
+                            <button
+                                type="button"
+                                id="bulkDeleteButton"
+                                class="btn btn-outline-danger rounded-4"
+                                data-bs-toggle="modal"
+                                data-bs-target="#bulkDeleteModal"
+                                disabled>
+
+                                <i class="bi bi-trash"></i>
+                                Delete Selected
+
+                            </button>
+
+                            <div class="dropdown ms-auto ms-lg-0">
+
+                                <button
+                                    class="btn btn-primary rounded-4 dropdown-toggle"
+                                    data-bs-toggle="dropdown">
+
+                                    <i class="bi bi-plus-lg"></i>
+                                    New
+
+                                </button>
+
+                                <ul class="dropdown-menu rounded-4 border-0 shadow-sm">
+
+                                    <li>
+                                        <button
+                                            class="dropdown-item"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#addExpenseModal">
+
+                                            Single Entry
+
+                                        </button>
+                                    </li>
+
+                                    <li>
+                                        <button
+                                            class="dropdown-item"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#addMultipleExpenseModal">
+
+                                            Bulk Entries
+
+                                        </button>
+                                    </li>
+
+                                </ul>
+
+                            </div>
+
                         </div>
 
-                        <div class="col-12 col-md-6">
-                            <label for="expenseName" class="form-label fw-semibold">Expense Name</label>
-                            <input type="text" class="form-control rounded-4" id="expenseName" name="expenseName" placeholder="Enter expense name">
-                        </div>
-
-                        <div class="col-12 col-md-6">
-                            <label for="amount" class="form-label fw-semibold">Amount</label>
-                            <input type="number" class="form-control rounded-4" id="amount" name="amount" min="0" step="0.01" placeholder="0.00">
-                        </div>
-
-                        <div class="col-12 col-md-6">
-                            <label for="quantity" class="form-label fw-semibold">Quantity</label>
-                            <input type="number" class="form-control rounded-4" id="quantity" name="quantity" min="0" step="1" placeholder="1">
-                        </div>
-
-                        <div class="col-12">
-                            <label for="total" class="form-label fw-semibold">Total</label>
-                            <input type="text" class="form-control rounded-4" id="total" name="total" readonly placeholder="0.00">
-                        </div>
                     </div>
 
-                    <div class="d-flex flex-wrap gap-2 mt-4">
-                        <button type="submit" class="btn btn-primary rounded-4">Save Expense</button>
-                        <a href="/office-expense-dashboard/" class="btn btn-outline-secondary rounded-4">Cancel</a>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="text-muted small text-uppercase fw-semibold">This Month</div>
+                        <div class="fw-bold fs-4 mb-0">{{ monthly_total_display }}</div>
+                </div>
+                <div class="text-primary"> <i class="bi bi-fuel-pump fs-4"></i></div>
+            </div>
+        </div>
+    </div>
+   
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="min-width: 980px;">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th class="px-3 py-3" style="width:48px;">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    id="selectAllExpenses">
+                            </th>
+
+                            <th class="px-4 py-4">Category</th>
+                            <th class="px-4 py-4">Expense</th>
+                            <th class="px-4 py-4">Amount</th>
+                            <th class="px-4 py-4">Qty</th>
+                            <th class="px-4 py-4">Total</th>
+                            <th class="px-4 py-4 text-nowrap">Date</th>
+
+                            <th class="px-4 py-4 text-end" style="width:120px;">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        {% for expense in expenses %}
+
+                        <tr>
+
+                            <td class="px-3 py-3">
+                                <input
+                                    class="form-check-input expense-checkbox"
+                                    type="checkbox"
+                                    value="{{ expense.id }}">
+                            </td>
+
+                            <td class="px-4 py-3">
+                                {{ expense.category.name }}
+                            </td>
+
+                            <td class="px-4 py-3">
+                                {{ expense.name }}
+                            </td>
+
+                            <td class="px-4 py-3">
+                                ₦{{ expense.amount|floatformat|intcomma }}
+                            </td>
+
+                            <td class="px-4 py-3">
+                                {{ expense.quantity }}
+                            </td>
+
+                            <td class="px-4 py-3">
+                                ₦{{ expense.total|floatformat|intcomma }}
+                            </td>
+
+                            <td class="px-4 py-3">
+                                {{ expense.created_at|date:"d M, Y" }}
+                            </td>
+
+                            <td class="px-4 py-3">
+                                <div class="d-flex justify-content-end align-items-center">
+                            
+                                    <!-- Desktop buttons -->
+                                    <div class="d-none d-lg-inline-flex gap-2">
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm btn-outline-secondary rounded-4 view-expense-btn"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#viewExpenseModal"
+                                            data-category="{{ expense.category.name }}"
+                                            data-name="{{ expense.name }}"
+                                            data-amount="{{ expense.amount }}"
+                                            data-quantity="{{ expense.quantity }}"
+                                            data-total="{{ expense.total }}"
+                                            data-created-at="{{ expense.created_at|date:'d M, Y h:i A' }}"
+                                            data-created-by="{{ expense.created_by }}"
+                                            data-updated-at="{{ expense.updated_at|date:'d M, Y h:i A' }}"
+                                            data-updated-by="{{ expense.updated_by }}">
+                                            View
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm btn-outline-primary rounded-4 edit-expense-btn"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editExpenseModal"
+                                            data-id="{{ expense.id }}"
+                                            data-category="{{ expense.category.id }}"
+                                            data-name="{{ expense.name }}"
+                                            data-amount="{{ expense.amount }}"
+                                            data-quantity="{{ expense.quantity }}"
+                                            data-total="{{ expense.total }}"
+                                            data-date="{{ expense.created_at|date:'Y-m-d' }}">
+                                            Edit
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm btn-outline-danger rounded-4 delete-expense-btn"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteExpenseModal"
+                                            data-id="{{ expense.id }}"
+                                            data-name="{{ expense.name }}"
+                                            data-category="{{ expense.category.name }}"
+                                            data-total="{{ expense.total }}">
+                                            Delete
+                                        </button>
+
+                                    </div>
+
+                                    <!-- Mobile dropdown -->
+                                    <div class="dropdown d-inline-block d-lg-none">
+
+                                        <button
+                                            class="btn p-0 border-0 bg-transparent shadow-none"
+                                            type="button"
+                                            data-bs-toggle="dropdown"
+                                            aria-expanded="false">
+
+                                            <i class="bi bi-three-dots-vertical fs-5 text-dark"></i>
+
+                                        </button>
+
+                                        <ul class="dropdown-menu dropdown-menu-end rounded-4 border-0 shadow-sm">
+
+                                            <li>
+                                                
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-sm btn-outline-secondary rounded-4 view-expense-btn"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#viewExpenseModal"
+                                                    data-category="{{ expense.category.name }}"
+                                                    data-name="{{ expense.name }}"
+                                                    data-amount="{{ expense.amount }}"
+                                                    data-quantity="{{ expense.quantity }}"
+                                                    data-total="{{ expense.total }}"
+                                                    data-created-at="{{ expense.created_at|date:'d M, Y h:i A' }}"
+                                                    data-created-by="{{ expense.created_by }}"
+                                                    data-updated-at="{{ expense.updated_at|date:'d M, Y h:i A' }}"
+                                                    data-updated-by="{{ expense.updated_by }}">
+                                                    <i class="bi bi-eye me-2"></i>View
+                                                </button>
+                                            </li>
+
+                                            <li>
+                                                <button
+                                                    type="button"
+                                                    class="dropdown-item edit-expense-btn"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#editExpenseModal"
+                                                    data-id="{{ expense.id }}"
+                                                    data-category="{{ expense.category.id }}"
+                                                    data-name="{{ expense.name }}"
+                                                    data-amount="{{ expense.amount }}"
+                                                    data-quantity="{{ expense.quantity }}"
+                                                    data-total="{{ expense.total }}"
+                                                    data-date="{{ expense.created_at|date:'Y-m-d' }}">
+                                                    <i class="bi bi-pencil me-2"></i>Edit
+                                                </button>
+                                            </li>
+
+                                            <li>
+                                                <button
+                                                    type="button"
+                                                    class="dropdown-item text-danger delete-expense-btn"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#deleteExpenseModal"
+                                                    data-id="{{ expense.id }}"
+                                                    data-name="{{ expense.name }}"
+                                                    data-category="{{ expense.category.name }}"
+                                                    data-total="{{ expense.total }}">
+                                                    <i class="bi bi-trash me-2"></i>Delete
+                                                </button>
+                                            </li>
+
+                                        </ul>
+
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+
+                        {% empty %}
+
+                        <tr>
+
+                            <td colspan="8" class="text-center py-5 text-muted">
+
+                                No expense records yet.
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade"
+        id="addExpenseModal"
+        tabindex="-1"
+        aria-hidden="true">
+    
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+
+            <div class="modal-content rounded-4 border-0 shadow">
+
+                <form method="post"
+                    action="{% url 'expenses'%}">
+
+                    {% csrf_token %}
+
+                    <div class="modal-header border-0 pb-0">
+
+                        <h5 class="modal-title fw-bold">
+                            Add Expense
+                        </h5>
+
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                        </button>
+
+                    </div>
+
+                    <div class="modal-body pt-3">
+
+                        <div class="row g-3 expense-row">
+
+                            <div class="col-md-6">
+
+                                <label class="form-label fw-semibold">
+                                    Category
+                                </label>
+
+                                <select
+                                    class="form-select rounded-4"
+                                    name="category"
+                                    required>
+
+                                    <option value="">
+                                        Select Category
+                                    </option>
+
+                                    {% for category in categories %}
+                                        <option value="{{ category.id }}">
+                                            {{ category.name }}
+                                        </option>
+                                    {% endfor %}
+
+                                </select>
+
+                            </div>
+
+                            <div class="col-md-6">
+
+                                <label class="form-label fw-semibold">
+                                    Expense Name
+                                </label>
+
+                                <input
+                                    type="text"
+                                    class="form-control rounded-4"
+                                    name="name"
+                                    placeholder="Expense name"
+                                    required>
+
+                            </div>
+
+                            <div class="col-md-4">
+
+                                <label class="form-label fw-semibold">
+                                    Amount
+                                </label>
+
+                                <input
+                                    type="number"
+                                    class="form-control rounded-4 expense-amount"
+                                    name="amount"
+                                    min="0"
+                                    step="0.01"
+                                    required>
+
+                            </div>
+
+                            <div class="col-md-4">
+
+                                <label class="form-label fw-semibold">
+                                    Quantity
+                                </label>
+
+                                <input
+                                    type="number"
+                                    class="form-control rounded-4 expense-quantity"
+                                    name="quantity"
+                                    min="1"
+                                    value="1"
+                                    required>
+
+                            </div>
+
+                            <div class="col-md-4">
+
+                                <label class="form-label fw-semibold">
+                                    Total
+                                </label>
+
+                                <input
+                                    type="text"
+                                    class="form-control rounded-4 expense-total bg-light"
+                                    readonly>
+
+                            </div>
+
+                            <div class="col-12">
+
+                                <label class="form-label fw-semibold">
+                                    Expense Date
+                                </label>
+
+                                <input
+                                    type="date"
+                                    class="form-control rounded-4"
+                                    name="date"
+                                >
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer border-0 pt-0">
+
+                        <button
+                            type="button"
+                            class="btn btn-outline-secondary rounded-4"
+                            data-bs-dismiss="modal">
+
+                            Cancel
+
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary rounded-4">
+
+                            Save Expense
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+    <div class="modal fade"
+        id="addMultipleExpenseModal"
+        tabindex="-1"
+        aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+
+            <div class="modal-content rounded-4 border-0 shadow">
+
+                <form method="post"
+                    action="#">
+
+                    {% csrf_token %}
+
+                    <div class="modal-header border-0 pb-0">
+
+                        <h5 class="modal-title fw-bold">
+                            Add Multiple Expenses
+                        </h5>
+
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                        </button>
+
+                    </div>
+
+                    <div class="modal-body pt-3">
+
+                        <div id="expenseRows" class="d-grid gap-3">
+
+                            <div class="border rounded-4 p-3 expense-row">
+
+                                <div class="row g-3">
+
+                                    <div class="col-lg-4">
+
+                                        <label class="form-label fw-semibold">
+                                            Category
+                                        </label>
+
+                                        <select
+                                            class="form-select rounded-4"
+                                            name="category"
+                                            required>
+
+                                            <option value="">
+                                                Select Category
+                                            </option>
+
+                                            {% for category in categories %}
+                                                <option value="{{ category.id }}">
+                                                    {{ category.name }}
+                                                </option>
+                                            {% endfor %}
+
+                                        </select>
+
+                                    </div>
+
+                                    <div class="col-lg-4">
+
+                                        <label class="form-label fw-semibold">
+                                            Expense Name
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            class="form-control rounded-4"
+                                            name="name"
+                                            placeholder="Expense name"
+                                            required>
+
+                                    </div>
+
+                                    <div class="col-lg-4">
+
+                                        <label class="form-label fw-semibold">
+                                            Date
+                                        </label>
+
+                                        <input
+                                            type="date"
+                                            class="form-control rounded-4"
+                                            name="date"
+                                            >
+
+                                    </div>
+
+                                    <div class="col-md-4">
+
+                                        <label class="form-label fw-semibold">
+                                            Amount
+                                        </label>
+
+                                        <input
+                                            type="number"
+                                            class="form-control rounded-4 expense-amount"
+                                            name="amount"
+                                            min="0"
+                                            step="0.01"
+                                            required>
+
+                                    </div>
+
+                                    <div class="col-md-4">
+
+                                        <label class="form-label fw-semibold">
+                                            Quantity
+                                        </label>
+
+                                        <input
+                                            type="number"
+                                            class="form-control rounded-4 expense-quantity"
+                                            name="quantity"
+                                            value="1"
+                                            min="1"
+                                            required>
+
+                                    </div>
+
+                                    <div class="col-md-4">
+
+                                        <label class="form-label fw-semibold">
+                                            Total
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            class="form-control rounded-4 expense-total bg-light"
+                                            readonly>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <button
+                            type="button"
+                            id="addAnotherExpense"
+                            class="btn btn-outline-primary rounded-4 mt-3">
+
+                            + Add another
+
+                        </button>
+
+                    </div>
+
+                    <div class="modal-footer border-0 pt-0 justify-content-end">
+
+                        <button
+                            type="button"
+                            class="btn btn-outline-secondary rounded-4 me-2"
+                            data-bs-dismiss="modal">
+                            Cancel
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary rounded-4">
+                            Save Expenses
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-</div>
-{% endblock %}
+    <div class="modal fade"
+        id="viewExpenseModal"
+        tabindex="-1"
+        aria-hidden="true">
 
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg modal-fullscreen-sm-down">
+
+            <div class="modal-content rounded-4 border-0 shadow">
+
+                <div class="modal-header border-0 pb-0">
+
+                    <h5 class="modal-title fw-bold">
+                        Expense Details
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+                <div class="modal-body pt-3">
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">
+                                Category
+                            </label>
+
+                            <div id="viewCategory"
+                                class="form-control rounded-4 bg-light">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">
+                                Expense Name
+                            </label>
+
+                            <div id="viewName"
+                                class="form-control rounded-4 bg-light">
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label text-muted small">
+                                Amount
+                            </label>
+
+                            <div id="viewAmount"
+                                class="form-control rounded-4 bg-light">
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label text-muted small">
+                                Quantity
+                            </label>
+
+                            <div id="viewQuantity"
+                                class="form-control rounded-4 bg-light">
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label text-muted small">
+                                Total
+                            </label>
+
+                            <div id="viewTotal"
+                                class="form-control rounded-4 bg-light fw-semibold">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">
+                                Created At
+                            </label>
+
+                            <div id="viewCreatedAt"
+                                class="form-control rounded-4 bg-light">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">
+                                Created By
+                            </label>
+
+                            <div id="viewCreatedBy"
+                                class="form-control rounded-4 bg-light">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">
+                                Updated At
+                            </label>
+
+                            <div id="viewUpdatedAt"
+                                class="form-control rounded-4 bg-light">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">
+                                Updated By
+                            </label>
+
+                            <div id="viewUpdatedBy"
+                                class="form-control rounded-4 bg-light">
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer border-0 pt-0">
+
+                    <button
+                        type="button"
+                        class="btn btn-outline-secondary rounded-4"
+                        data-bs-dismiss="modal">
+
+                        Close
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    <div class="modal fade"
+        id="editExpenseModal"
+        tabindex="-1"
+        aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg modal-fullscreen-sm-down">
+
+            <div class="modal-content rounded-4 border-0 shadow">
+
+                <form method="post"
+                    id="editExpenseForm">
+
+                    {% csrf_token %}
+
+                    <div class="modal-header border-0 pb-0">
+
+                        <h5 class="modal-title fw-bold">
+                            Edit Expense
+                        </h5>
+
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                        </button>
+
+                    </div>
+
+                    <div class="modal-body pt-3">
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+
+                                <label class="form-label fw-semibold">
+                                    Category
+                                </label>
+
+                                <select
+                                    id="editCategory"
+                                    name="category"
+                                    class="form-select rounded-4"
+                                    required>
+
+                                    {% for category in categories %}
+                                        <option value="{{ category.id }}">
+                                            {{ category.name }}
+                                        </option>
+                                    {% endfor %}
+
+                                </select>
+
+                            </div>
+
+                            <div class="col-md-6">
+
+                                <label class="form-label fw-semibold">
+                                    Expense Name
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="editName"
+                                    name="name"
+                                    class="form-control rounded-4"
+                                    required>
+
+                            </div>
+
+                            <div class="col-md-4">
+
+                                <label class="form-label fw-semibold">
+                                    Amount
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="editAmount"
+                                    name="amount"
+                                    class="form-control rounded-4"
+                                    min="0"
+                                    step="0.01"
+                                    required>
+
+                            </div>
+
+                            <div class="col-md-4">
+
+                                <label class="form-label fw-semibold">
+                                    Quantity
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="editQuantity"
+                                    name="quantity"
+                                    class="form-control rounded-4"
+                                    min="1"
+                                    required>
+
+                            </div>
+
+                            <div class="col-md-4">
+
+                                <label class="form-label fw-semibold">
+                                    Total
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="editTotal"
+                                    class="form-control rounded-4 bg-light"
+                                    readonly>
+
+                            </div>
+
+                            <div class="col-12">
+
+                                <label class="form-label fw-semibold">
+                                    Expense Date
+                                </label>
+
+                                <input
+                                    type="date"
+                                    id="editDate"
+                                    name="date"
+                                    class="form-control rounded-4"
+                                    required>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer border-0 pt-0">
+
+                        <button
+                            type="button"
+                            class="btn btn-outline-secondary rounded-4"
+                            data-bs-dismiss="modal">
+
+                            Cancel
+
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary rounded-4">
+
+                            Save Changes
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+    <div class="modal fade"
+        id="deleteExpenseModal"
+        tabindex="-1"
+        aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+
+            <div class="modal-content rounded-4 border-0 shadow">
+
+                <form method="post"
+                    id="deleteExpenseForm">
+
+                    {% csrf_token %}
+
+                    <div class="modal-header border-0 pb-0">
+
+                        <h5 class="modal-title fw-bold text-danger">
+                            Delete Expense
+                        </h5>
+
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                        </button>
+
+                    </div>
+
+                    <div class="modal-body pt-3">
+
+                        <p class="mb-2">
+                            Are you sure you want to delete this expense?
+                        </p>
+
+                        <div class="border rounded-4 p-3 bg-light">
+
+                            <div class="mb-2">
+                                <small class="text-muted">
+                                    Expense
+                                </small>
+
+                                <div id="deleteExpenseName"
+                                    class="fw-semibold">
+                                </div>
+                            </div>
+
+                            <div class="mb-2">
+                                <small class="text-muted">
+                                    Category
+                                </small>
+
+                                <div id="deleteExpenseCategory">
+                                </div>
+                            </div>
+
+                            <div>
+                                <small class="text-muted">
+                                    Total
+                                </small>
+
+                                <div id="deleteExpenseTotal"
+                                    class="fw-semibold text-danger">
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <p class="text-muted small mt-3 mb-0">
+                            This action cannot be undone.
+                        </p>
+
+                    </div>
+
+                    <div class="modal-footer border-0 pt-0">
+
+                        <button
+                            type="button"
+                            class="btn btn-outline-secondary rounded-4"
+                            data-bs-dismiss="modal">
+
+                            Cancel
+
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="btn btn-danger rounded-4">
+
+                            Delete Expense
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+    <div class="modal fade"
+        id="bulkDeleteModal"
+        tabindex="-1"
+        aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+
+            <div class="modal-content rounded-4 border-0 shadow">
+
+                <form
+                    method="post"
+                    action="{% url 'delete_expenses' %}"
+                    id="bulkDeleteForm">
+
+                    {% csrf_token %}
+
+                    <div class="modal-header border-0 pb-0">
+
+                        <h5 class="modal-title fw-bold text-danger">
+                            Delete Selected Expenses
+                        </h5>
+
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                        </button>
+
+                    </div>
+
+                    <div class="modal-body pt-3">
+
+                        <p class="mb-2">
+                            Are you sure you want to delete the selected expense records?
+                        </p>
+
+                        <p class="text-muted small mb-3">
+                            This action cannot be undone.
+                        </p>
+
+                        <div
+                            id="bulkDeleteSummary"
+                            class="fw-semibold">
+
+                            Select at least 2 expense records.
+
+                        </div>
+
+                        <div
+                            id="bulkDeleteInputs">
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer border-0 pt-0">
+
+                        <button
+                            type="button"
+                            class="btn btn-outline-secondary rounded-4"
+                            data-bs-dismiss="modal">
+
+                            Cancel
+
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="btn btn-danger rounded-4">
+
+                            Delete Selected
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+{% endblock %}
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const amountInput = document.getElementById('amount');
-    const quantityInput = document.getElementById('quantity');
-    const totalInput = document.getElementById('total');
+document.addEventListener("DOMContentLoaded", function () {
 
-    function updateTotal() {
-        const amount = parseFloat(amountInput.value) || 0;
-        const quantity = parseInt(quantityInput.value, 10) || 0;
-        totalInput.value = (amount * quantity).toFixed(2);
+    const selectAll = document.getElementById("selectAllExpenses");
+    const checkboxes = Array.from(document.querySelectorAll(".expense-checkbox"));
+    const MAX_EXPENSE_ROWS = 5;
+    const bulkDeleteButton = document.getElementById("bulkDeleteButton");
+    const bulkDeleteSummary = document.getElementById("bulkDeleteSummary");
+    const bulkDeleteInputs = document.getElementById("bulkDeleteInputs");
+
+    const viewButtons = document.querySelectorAll(".view-expense-btn");
+    const editButtons = document.querySelectorAll(".edit-expense-btn");
+    const deleteButtons = document.querySelectorAll(".delete-expense-btn");
+
+    const editForm = document.getElementById("editExpenseForm");
+    const deleteForm = document.getElementById("deleteExpenseForm");
+
+    /* ------------------------------
+       SELECT ALL
+    ------------------------------ */
+
+    function updateBulkDelete() {
+
+        const selected = checkboxes.filter(cb => cb.checked);
+
+        if (bulkDeleteButton) {
+            bulkDeleteButton.disabled = selected.length < 2;
+            bulkDeleteButton.innerHTML = selected.length < 2
+                ? '<i class="bi bi-trash"></i> Delete Selected'
+                : `<i class="bi bi-trash"></i> Delete Selected (${selected.length})`;
+        }
+
+        if (bulkDeleteSummary) {
+            bulkDeleteSummary.textContent =
+                selected.length < 2
+                    ? "Select at least 2 expense records."
+                    : `${selected.length} expense record(s) will be deleted.`;
+        }
+
+        if (bulkDeleteInputs) {
+
+            bulkDeleteInputs.innerHTML = "";
+
+            selected.forEach(function (checkbox) {
+
+                const input = document.createElement("input");
+                input.type = "hidden";
+                input.name = "expense_ids";
+                input.value = checkbox.value;
+
+                bulkDeleteInputs.appendChild(input);
+
+            });
+
+        }
+
+        if (selectAll) {
+            selectAll.checked =
+                selected.length > 0 &&
+                selected.length === checkboxes.length;
+        }
+
     }
 
-    if (amountInput && quantityInput && totalInput) {
-        [amountInput, quantityInput].forEach(function (input) {
-            input.addEventListener('input', updateTotal);
+    if (selectAll) {
+
+        selectAll.addEventListener("change", function () {
+
+            checkboxes.forEach(function (checkbox) {
+
+                checkbox.checked = selectAll.checked;
+
+            });
+
+            updateBulkDelete();
+
         });
+
     }
+
+    checkboxes.forEach(function (checkbox) {
+
+        checkbox.addEventListener("change", updateBulkDelete);
+
+    });
+
+
+    /* ------------------------------
+       VIEW MODAL
+    ------------------------------ */
+
+    viewButtons.forEach(function (button) {
+
+        button.addEventListener("click", function () {
+
+            document.getElementById("viewCategory").textContent = button.dataset.category;
+            document.getElementById("viewName").textContent = button.dataset.name;
+            document.getElementById("viewAmount").textContent = "₦" + button.dataset.amount;
+            document.getElementById("viewQuantity").textContent = button.dataset.quantity;
+            document.getElementById("viewTotal").textContent = "₦" + button.dataset.total;
+            document.getElementById("viewCreatedAt").textContent = 
+                button.dataset.createdAt || "-";
+
+            document.getElementById("viewCreatedBy").textContent =
+                button.dataset.createdBy || "-";
+
+            document.getElementById("viewUpdatedAt").textContent =
+                button.dataset.updatedAt || "-";
+
+            document.getElementById("viewUpdatedBy").textContent =
+                button.dataset.updatedBy || "-";
+
+        });
+
+    });
+
+
+    /* ------------------------------
+       EDIT MODAL
+    ------------------------------ */
+
+    editButtons.forEach(function (button) {
+
+        button.addEventListener("click", function () {
+
+            const id = button.dataset.id;
+
+            if (editForm) {
+                editForm.action = `/dashboard/expense/${id}/edit/`;
+            }
+
+            document.getElementById("editCategory").value = button.dataset.category;
+            document.getElementById("editName").value = button.dataset.name;
+            document.getElementById("editAmount").value = button.dataset.amount;
+            document.getElementById("editQuantity").value = button.dataset.quantity;
+            document.getElementById("editDate").value = button.dataset.date;
+
+            updateEditTotal();
+        });
+
+    });
+
+    /* ------------------------------
+    EDIT TOTAL CALCULATION
+    ------------------------------ */
+
+    const editAmount = document.getElementById("editAmount");
+    const editQuantity = document.getElementById("editQuantity");
+    const editTotal = document.getElementById("editTotal");
+
+    function updateEditTotal() {
+
+        const amount = parseFloat(editAmount.value) || 0;
+        const quantity = parseInt(editQuantity.value) || 0;
+
+        editTotal.value = (amount * quantity).toLocaleString("en-NG", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+    }
+
+    editAmount.addEventListener("input", updateEditTotal);
+    editQuantity.addEventListener("input", updateEditTotal);
+
+    /* ------------------------------
+       DELETE MODAL
+    ------------------------------ */
+
+    deleteButtons.forEach(function (button) {
+
+        button.addEventListener("click", function () {
+
+            const id = button.dataset.id;
+
+            if (deleteForm) {
+                deleteForm.action = `/dashboard/expense/${id}/delete/`;
+            }
+
+            document.getElementById("deleteExpenseName").textContent = button.dataset.name;
+            document.getElementById("deleteExpenseCategory").textContent = button.dataset.category;
+            document.getElementById("deleteExpenseTotal").textContent = "₦" + button.dataset.total;
+
+        });
+
+    });
+
+
+    /* ------------------------------
+       TOTAL CALCULATION
+    ------------------------------ */
+
+    function attachRowCalculation(row) {
+
+        const amount = row.querySelector(".expense-amount");
+        const quantity = row.querySelector(".expense-quantity");
+        const total = row.querySelector(".expense-total");
+
+        if (!amount || !quantity || !total) return;
+
+        function update() {
+
+            const a = parseFloat(amount.value) || 0;
+            const q = parseInt(quantity.value) || 0;
+
+            const totalAmount = a * q;
+
+            total.value = totalAmount.toLocaleString("en-NG", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+        }
+
+        amount.addEventListener("input", update);
+        quantity.addEventListener("input", update);
+
+        update();
+
+    }
+
+    document.querySelectorAll(".expense-row").forEach(function (row) {
+        attachRowCalculation(row);
+    });
+
+
+    /* ------------------------------
+       ADD MULTIPLE EXPENSES
+    ------------------------------ */
+
+    const addAnotherExpense = document.getElementById("addAnotherExpense");
+    const expenseRows = document.getElementById("expenseRows");
+
+    if (addAnotherExpense && expenseRows) {
+
+        addAnotherExpense.addEventListener("click", function () {
+            const count = expenseRows.querySelectorAll(".expense-row").length;
+
+        if (count >= MAX_EXPENSE_ROWS) {
+            alert(`You can only add ${MAX_EXPENSE_ROWS} expenses at a time.`);
+            return;
+}
+            const firstRow = expenseRows.querySelector(".expense-row");
+
+            if (!firstRow) return;
+
+            const clone = firstRow.cloneNode(true);
+
+            clone.querySelectorAll("input").forEach(function (input) {
+
+                if (input.classList.contains("expense-quantity")) {
+                    input.value = 1;
+                } else {
+                    input.value = "";
+                }
+
+            });
+
+            clone.querySelectorAll("select").forEach(function (select) {
+                select.selectedIndex = 0;
+            });
+
+            if (!clone.querySelector(".remove-expense-row")) {
+
+                const removeButton = document.createElement("button");
+
+                removeButton.type = "button";
+                removeButton.className = "btn btn-outline-danger btn-sm rounded-4 mt-3 remove-expense-row";
+                removeButton.innerHTML = '<i class="bi bi-trash"></i> Remove';
+                removeButton.addEventListener("click", function () {
+
+                    if (expenseRows.querySelectorAll(".expense-row").length > 1) {
+                        clone.remove();
+                        updateExpenseButtonState();
+                    }
+
+                });
+
+                clone.appendChild(removeButton);
+
+            }
+
+            expenseRows.appendChild(clone);
+
+            attachRowCalculation(clone);
+            updateExpenseButtonState();
+
+            });
+
+        }
+    function updateExpenseButtonState() {
+
+        if (!expenseRows || !addAnotherExpense) return;
+
+        const count = expenseRows.querySelectorAll(".expense-row").length;
+
+        if (count >= MAX_EXPENSE_ROWS) {
+
+            addAnotherExpense.disabled = true;
+            addAnotherExpense.textContent = `Maximum ${MAX_EXPENSE_ROWS} records reached`;
+
+        } else {
+
+            addAnotherExpense.disabled = false;
+            addAnotherExpense.textContent = "+ Add another";
+
+        }
+
+    }
+    updateExpenseButtonState();
+    updateBulkDelete();
+
 });
 </script>
 {% endblock %}

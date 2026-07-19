@@ -251,42 +251,51 @@
             }
         }
 
-    .modal-dialog-scrollable .modal-content{
-        max-height:calc(100vh - 1rem);
+        .modal-dialog-scrollable .modal-content{
+            max-height:calc(100vh - 1rem);
+            }
+
+            .modal-dialog-scrollable .modal-body{
+                overflow-y:auto;
+            }
+
+        .search-box{
+            position: relative;
+            flex: 1;
+            min-width: 0;
+            max-width: 500px;
         }
 
-        .modal-dialog-scrollable .modal-body{
-            overflow-y:auto;
+        .search-box .form-control{
+            padding-left: 2.5rem;
+            border-radius: 999px;
         }
 
-    .search-box{
-        position: relative;
-        flex: 1;
-        min-width: 0;
-        max-width: 500px;
+        .search-icon{
+            position: absolute;
+            top: 50%;
+            left: 14px;
+            transform: translateY(-50%);
+            color: var(--muted);
+            pointer-events: none;
+        }
+
+        .expense-card {
+        transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+        .expense-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.12) !important;
+        }
+
+        #addMultipleExpenseModal .modal-content{
+        max-height:90vh;
     }
 
-    .search-box .form-control{
-        padding-left: 2.5rem;
-        border-radius: 999px;
-    }
-
-    .search-icon{
-        position: absolute;
-        top: 50%;
-        left: 14px;
-        transform: translateY(-50%);
-        color: var(--muted);
-        pointer-events: none;
-    }
-
-    .expense-card {
-    transition: transform .2s ease, box-shadow .2s ease;
-    }
-
-    .expense-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 .5rem 1rem rgba(0,0,0,.12) !important;
+    #addMultipleExpenseModal .modal-body{
+        overflow-y:auto;
+        max-height:calc(90vh - 140px);
     }
 
     </style>

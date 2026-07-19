@@ -1,5 +1,5 @@
 from django import forms
-from decimal import Decimal
+from .models import Category
 import re
 
 class CategoryForm(forms.Form):
@@ -14,7 +14,8 @@ class CategoryForm(forms.Form):
 
 Categoryformset = forms.formset_factory(
             CategoryForm, extra=5
-        )       
+        )   
+
 
 class DieselForm(forms.Form):
     litres = forms.DecimalField(max_digits=15, decimal_places=2)
@@ -35,6 +36,17 @@ class ElectricityForm(forms.Form):
     kwh = forms.DecimalField(max_digits=15, decimal_places=2)
     amount = forms.DecimalField(max_digits=15, decimal_places=2)
 
-Categoryformset = forms.formset_factory(
-            CategoryForm, extra=5
-        ) 
+class ExpenseForm(forms.Form):
+    category = forms.ModelChoiceField(queryset=Category.objects.all())
+    name = forms.CharField(max_length=100, min_length=2)
+    amount = forms.DecimalField(max_digits=15, decimal_places=2)
+    quantity = forms.DecimalField(max_digits=15, decimal_places=2)
+    date = forms.DateField(input_formats=["%Y-%m-%d"], required=False)
+
+
+    def clean_name(self):
+        name = self.cleaned_data.get("name")
+        if not re.match(r"^[a-zA-Z0-9\s&,'.-]+$", name):
+            raise forms.ValidationError("Invalid name")
+        return name.title() 
+

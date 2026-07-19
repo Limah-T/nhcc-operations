@@ -5,6 +5,25 @@
 {% block content %}
 <div class="row g-4">
     <div class="col-12">
+        {% if errors %}
+            <div class="alert alert-danger rounded-4 mb-4">
+                <div class="fw-semibold mb-2">
+                    Please correct the following:
+                </div>
+
+                <ul class="mb-0 ps-3">
+                    {% for field, messages in errors.items %}
+                        <li class="mb-2">
+                            <strong>{{ field|capfirst }}</strong><br>
+                            {% for message in messages %}
+                                <small>{{ message }}</small>
+                            {% endfor %}
+                        </li>
+                    {% endfor %}
+
+                </ul>
+            </div>
+        {% endif %}
         <div class="card border-0 shadow-sm rounded-4">
             <div class="card-body p-4 p-lg-5">
                 <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
@@ -24,28 +43,11 @@
                 <div class="card border-0 shadow-sm rounded-4 mb-4">
                     <div class="card-body p-4">
                         <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
-                            <h5 class="fw-bold mb-0">Diesel Records ({{ count }})</h5>
+                            <h5 class="fw-bold mb-0 text-nowrap">
+                                Diesel Records ({{ count }})
+                            </h5>
 
-                            {% if errors %}
-                                <div class="alert alert-danger rounded-4 mb-3">
-                                    <div class="fw-semibold mb-2">
-                                        Please correct the following:
-                                    </div>
-
-                                    <ul class="mb-0 ps-3">
-                                        {% for field, messages in errors.items %}
-                                            <li class="mb-2">
-                                                <strong>{{ field|capfirst }}</strong><br>
-
-                                                {% for message in messages %}
-                                                    <small>{{ message }}</small>
-                                                {% endfor %}
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-                                {% endif %}
-
+    
                             <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between justify-content-lg-start w-100 w-lg-auto">
                                 <button
                                     type="button"
@@ -155,45 +157,45 @@
                 </div>
 
                 <div class="modal fade" id="addMultipleDieselModal" tabindex="-1" aria-labelledby="addMultipleDieselModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content rounded-4 shadow border-0">
+                    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-content rounded-4 shadow border-0">
 
-            <form method="post" action="{% url 'add_diesel' %}" class="d-flex flex-column" style="max-height:90vh;">
-                {% csrf_token %}
+                            <form method="post" action="{% url 'add_diesel' %}" class="d-flex flex-column" style="max-height:90vh;">
+                                {% csrf_token %}
 
-                <div class="modal-header border-0">
-                    <h5 class="modal-title fw-bold" id="addMultipleDieselModalLabel">
-                        Add Multiple Diesel Purchases
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                <div class="modal-header border-0">
+                                    <h5 class="modal-title fw-bold" id="addMultipleDieselModalLabel">
+                                        Add Multiple Diesel Purchases
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+
+                                <div class="modal-body overflow-auto">
+                                    <div id="dieselInputs" class="d-grid gap-3"></div>
+
+                                    <button
+                                        type="button"
+                                        id="addAnotherDiesel"
+                                        class="btn btn-outline-primary rounded-4 mt-3">
+                                        + Add another
+                                    </button>
+                                </div>
+
+                                <div class="modal-footer border-0">
+                                    <button type="button" class="btn btn-outline-secondary rounded-4" data-bs-dismiss="modal">
+                                        Cancel
+                                    </button>
+
+                                    <button type="submit" class="btn btn-primary rounded-4">
+                                        Save Diesel
+                                    </button>
+                                </div>
+
+                            </form>
+
+                        </div>
+                    </div>
                 </div>
-
-                <div class="modal-body overflow-auto">
-                    <div id="dieselInputs" class="d-grid gap-3"></div>
-
-                    <button
-                        type="button"
-                        id="addAnotherDiesel"
-                        class="btn btn-outline-primary rounded-4 mt-3">
-                        + Add another
-                    </button>
-                </div>
-
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-outline-secondary rounded-4" data-bs-dismiss="modal">
-                        Cancel
-                    </button>
-
-                    <button type="submit" class="btn btn-primary rounded-4">
-                        Save Diesel
-                    </button>
-                </div>
-
-            </form>
-
-        </div>
-    </div>
-</div>
 
                 <div class="modal fade" id="bulkDeleteModal" tabindex="-1" aria-labelledby="bulkDeleteModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
@@ -254,10 +256,29 @@
                                         <td class="px-4 py-4 text-nowrap">{{ diesel.created_at|date:"d M Y" }}</td>
 
                                         <td class="px-4 py-4 text-end">
-                                            <div class="d-flex justify-content-end align-items-center">
 
+                                            <div class="d-flex justify-content-end align-items-center"></div>
                                                 <!-- Desktop buttons -->
                                                 <div class="d-none d-lg-inline-flex gap-2">
+                                                    <button
+                                                        type="button"
+                                                        class="btn btn-sm btn-outline-secondary rounded-4 view-diesel-btn"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#viewDieselModal"
+                                                        data-id="{{ diesel.id }}"
+                                                        data-supplier="{{ diesel.supplier_name }}"
+                                                        data-litres="{{ diesel.litres }}"
+                                                        data-price="{{ diesel.price }}"
+                                                        data-amount="{{ diesel.amount }}"
+                                                        data-transport="{{ diesel.transport }}"
+                                                        data-total="{{ diesel.total }}"
+                                                        data-created="{{ diesel.created_at|date:'d M Y, g:ia' }}"
+                                                        data-created-by="{{ diesel.created_by }}"
+                                                        data-updated="{{ diesel.updated_at|date:'d M Y, g:ia' }}"
+                                                        data-updated-by="{{ diesel.updated_by }}">
+                                                        View
+                                                    </button>
+
                                                     <button
                                                         type="button"
                                                         class="btn btn-sm btn-outline-primary rounded-4 edit-diesel-btn"
@@ -266,9 +287,7 @@
                                                         data-litres="{{ diesel.litres }}"
                                                         data-price="{{ diesel.price }}"
                                                         data-amount="{{ diesel.amount }}"
-                                                        data-transport="{{ diesel.transport }}"
-                                                        
-                                                        
+                                                        data-transport="{{ diesel.transport }}"    
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#editDieselModal">
                                                         Edit
@@ -296,6 +315,28 @@
                                                     </button>
 
                                                     <ul class="dropdown-menu dropdown-menu-end rounded-4 border-0 shadow-sm">
+                                                        <li>
+                                                            <button
+                                                                type="button"
+                                                                class="dropdown-item view-diesel-btn"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#viewDieselModal"
+                                                                data-id="{{ diesel.id }}"
+                                                                data-supplier="{{ diesel.supplier_name }}"
+                                                                data-litres="{{ diesel.litres }}"
+                                                                data-price="{{ diesel.price }}"
+                                                                data-amount="{{ diesel.amount }}"
+                                                                data-transport="{{ diesel.transport }}"
+                                                                data-total="{{ diesel.total }}"
+                                                                data-created="{{ diesel.created_at|date:'d M Y, g:ia' }}"
+                                                                data-created-by="{{ diesel.created_by }}"
+                                                                data-updated="{{ diesel.updated_at|date:'d M Y, g:ia' }}"
+                                                                data-updated-by="{{ diesel.updated_by }}">
+
+                                                                <i class="bi bi-eye me-2"></i>
+                                                                View
+                                                            </button>
+                                                        </li>
                                                         <li>
                                                             <button
                                                                 type="button"
@@ -343,7 +384,151 @@
                         </div>
                     </div>
                 </div>
+                <div class="modal fade"
+                    id="viewDieselModal"
+                    tabindex="-1"
+                    aria-hidden="true">
 
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg modal-fullscreen-sm-down">
+
+                        <div class="modal-content rounded-4 border-0 shadow">
+
+                            <div class="modal-header border-0 pb-0">
+
+                                <h5 class="modal-title fw-bold">
+                                    Diesel Purchase Details
+                                </h5>
+
+                                <button
+                                    type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="modal">
+                                </button>
+
+                            </div>
+
+                            <div class="modal-body pt-3">
+
+                                <div class="row g-3">
+
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">
+                                            Supplier
+                                        </label>
+
+                                        <div id="viewSupplier"
+                                            class="form-control rounded-4 bg-light">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">
+                                            Litres
+                                        </label>
+
+                                        <div id="viewLitres"
+                                            class="form-control rounded-4 bg-light">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label text-muted small">
+                                            Price
+                                        </label>
+
+                                        <div id="viewPrice"
+                                            class="form-control rounded-4 bg-light">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label text-muted small">
+                                            Amount
+                                        </label>
+
+                                        <div id="viewAmount"
+                                            class="form-control rounded-4 bg-light">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label text-muted small">
+                                            Transport
+                                        </label>
+
+                                        <div id="viewTransport"
+                                            class="form-control rounded-4 bg-light">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">
+                                            Total
+                                        </label>
+
+                                        <div id="viewTotal"
+                                            class="form-control rounded-4 bg-light fw-semibold">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">
+                                            Created At
+                                        </label>
+
+                                        <div id="viewCreated"
+                                            class="form-control rounded-4 bg-light">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">
+                                            Created By
+                                        </label>
+
+                                        <div id="viewCreatedBy"
+                                            class="form-control rounded-4 bg-light">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">
+                                            Updated At
+                                        </label>
+
+                                        <div id="viewUpdated"
+                                            class="form-control rounded-4 bg-light">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">
+                                            Updated By
+                                        </label>
+
+                                        <div id="viewUpdatedBy"
+                                            class="form-control rounded-4 bg-light">
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="modal-footer border-0 pt-0">
+
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-secondary rounded-4"
+                                    data-bs-dismiss="modal">
+
+                                    Close
+
+                                </button>
+
+                            </div>
+
+                </div>
                 <div class="modal fade" id="editDieselModal" tabindex="-1" aria-labelledby="editDieselModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
                         <div class="modal-content rounded-4 shadow border-0">
@@ -540,6 +725,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const bulkDeleteSummary = document.getElementById('bulkDeleteSummary');
     const bulkDeleteInputs = document.getElementById('bulkDeleteInputs');
     const bulkDeleteForm = document.getElementById('bulkDeleteForm');
+    const viewButtons = Array.from(document.querySelectorAll(".view-diesel-btn"));
     const editButtons = Array.from(document.querySelectorAll('.edit-diesel-btn'));
     const deleteButtons = Array.from(document.querySelectorAll('.delete-diesel-btn'));
     const editDieselForm = document.getElementById('editDieselForm');
@@ -596,6 +782,59 @@ document.addEventListener('DOMContentLoaded', function () {
 
     dieselCheckboxes.forEach(function (checkbox) {
         checkbox.addEventListener('change', updateBulkDeleteState);
+    });
+    /* ------------------------------
+    VIEW MODAL
+    ------------------------------ */
+
+    viewButtons.forEach(function (button) {
+
+        button.addEventListener("click", function () {
+
+            document.getElementById("viewSupplier").textContent =
+                button.dataset.supplier;
+
+            document.getElementById("viewLitres").textContent =
+                button.dataset.litres;
+
+            document.getElementById("viewPrice").textContent =
+                "₦" + Number(button.dataset.price).toLocaleString("en-NG", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+
+            document.getElementById("viewAmount").textContent =
+                "₦" + Number(button.dataset.amount).toLocaleString("en-NG", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+
+            document.getElementById("viewTransport").textContent =
+                "₦" + Number(button.dataset.transport).toLocaleString("en-NG", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+
+            document.getElementById("viewTotal").textContent =
+                "₦" + Number(button.dataset.total).toLocaleString("en-NG", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+
+            document.getElementById("viewCreated").textContent =
+                button.dataset.created;
+
+            document.getElementById("viewCreatedBy").textContent =
+                button.dataset.createdBy || "-";
+
+            document.getElementById("viewUpdated").textContent =
+                button.dataset.updated || "-";
+
+            document.getElementById("viewUpdatedBy").textContent =
+                button.dataset.updatedBy || "-";
+
+        });
+
     });
 
     editButtons.forEach(function (button) {

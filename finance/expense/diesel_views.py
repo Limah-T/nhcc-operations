@@ -28,8 +28,7 @@ def diesel_home_context(request, error_message)->dict:
                 "monthly_total_display": f"₦{total:,.2f}",
                 "errors": error_message,
                 "user_name":request.user.first_name[0]+request.user.last_name[0],
-                
-                
+                    
             }
 
 @method_decorator(login_required, "dispatch")
