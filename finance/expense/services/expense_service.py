@@ -23,6 +23,11 @@ def totalMonthlyExpenses(queryset:Expense) -> int:
         ) == (now.month and now.year)
     )
 
+def totalExpenseRecords(start_date, end_date) -> int:
+    return Expense.objects.filter(
+        created_at__gte=start_date, 
+        created_at__lt=end_date
+    ).count()
 
 def totalAnnualExpenses(queryset:Expense) -> int:
     now = timezone.now()

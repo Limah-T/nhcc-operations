@@ -1,0 +1,173 @@
+{% extends "report/base_report.html" %}
+{% load humanize %}
+
+{% block title %}
+Expense Report
+{% endblock %}
+
+{% block report_title %}
+Office Expense Report
+{% endblock %}
+
+{% block content %}
+
+<!-- ===========================
+     REPORT SUMMARY
+=========================== -->
+
+<section class="summary-section">
+
+    <h3 class="section-title">
+        Report Summary
+    </h3>
+
+    <table class="summary-table">
+
+        <tbody>
+
+            <tr>
+                <th>Total Records</th>
+                <td>{{ total_records }}</td>
+            </tr>
+
+            <tr>
+                <th>Total Expenses</th>
+                <td>
+                    ₦{{ total_expenses|floatformat:2|intcomma }}
+                </td>
+            </tr>
+
+        </tbody>
+
+    </table>
+
+</section>
+
+
+<!-- ===========================
+     DETAILED RECORDS
+=========================== -->
+
+<section class="table-section">
+
+    <h3 class="section-title">
+        Expense Details
+    </h3>
+
+    <table class="report-table">
+
+        <thead>
+
+            <tr>
+
+                <th style="width:6%;">
+                    #
+                </th>
+
+                <th style="width:18%;">
+                    Category
+                </th>
+
+                <th style="width:26%;">
+                    Expense
+                </th>
+
+                <th style="width:14%;" class="text-end">
+                    Unit Price
+                </th>
+
+                <th style="width:10%;" class="text-center">
+                    Qty
+                </th>
+
+                <th style="width:16%;" class="text-end">
+                    Total
+                </th>
+
+                <th style="width:10%;">
+                    Date
+                </th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            {% for expense in expenses %}
+
+            <tr>
+
+                <td class="text-center">
+                    {{ forloop.counter }}
+                </td>
+
+                <td>
+                    {{ expense.category.name }}
+                </td>
+
+                <td>
+                    {{ expense.name }}
+                </td>
+
+                <td class="text-end">
+                    ₦{{ expense.amount|floatformat:2|intcomma }}
+                </td>
+
+                <td class="text-center">
+                    {{ expense.quantity }}
+                </td>
+
+                <td class="text-end">
+                    ₦{{ expense.total|floatformat:2|intcomma }}
+                </td>
+
+                <td>
+                    {{ expense.created_at|date:"d M Y" }}
+                </td>
+
+            </tr>
+
+            {% empty %}
+
+            <tr>
+
+                <td colspan="7" class="empty-state">
+
+                    No expense records available for this reporting period.
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+        <tfoot>
+
+            <tr>
+
+                <th colspan="5" class="text-end">
+
+                    GRAND TOTAL
+
+                </th>
+
+                <th class="text-end">
+
+                    ₦{{ total_expenses|floatformat:2|intcomma }}
+
+                </th>
+
+                <th></th>
+
+            </tr>
+
+        </tfoot>
+
+    </table>
+
+</section>
+
+{% endblock %}

@@ -57,3 +57,6 @@ django-cors-headers==4.9.0
 django-csp==4.0
 
 django-silk==5.5.0
+
+# PDF Generator
+weasyprint==69.0

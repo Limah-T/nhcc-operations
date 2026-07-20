@@ -20,6 +20,7 @@ expense_record_temp_name = "dashboard/office_expense_record.html"
 category_temp_name = "dashboard/office_expense_category.html"
 diesel_temp_name = "dashboard/office_expense_diesel.html"
 electricity_temp_name = "dashboard/office_expense_electricity.html"
+report_temp_name = "dashboard/office_report.html"
 
 def get_greeting():
     hour = timezone.localtime().hour
