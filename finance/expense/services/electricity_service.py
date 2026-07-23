@@ -6,12 +6,17 @@ from nhcc_operations.services.generic_service import (
 from ..models import EKEDC
 from ..forms import ElectricityForm
 
-
 def ekedcQuerySet() -> EKEDC:
     return EKEDC.objects.all().order_by('-created_at')
 
 def ekedcRetrieval(pk:int) -> EKEDC | None:
     return EKEDC.objects.filter(id=pk).first()
+
+def totalEkedcRecords(start_date, end_date)-> int:
+    return EKEDC.objects.filter(
+        created_at__gte=start_date,
+        created_at__lt=end_date
+    ).count()
 
 def totalMonthlyPrepaid(queryset:EKEDC) -> int:
     now = timezone.now()

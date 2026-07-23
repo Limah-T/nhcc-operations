@@ -5,24 +5,24 @@
 {% block content %}
 <div class="row g-4">
     <div class="col-12">
-        {% if errors %}
-            <div class="alert alert-danger rounded-4 mb-4">
-                <div class="fw-semibold mb-2">
-                    Please correct the following:
+        <!-- ===========================
+            MESSAGES
+        =========================== -->
+    
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} rounded-4 mb-4 alert-dismissible fade show">
+
+                    {{ message }}
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert">
+                    </button>
+
                 </div>
-
-                <ul class="mb-0 ps-3">
-                    {% for field, messages in errors.items %}
-                        <li class="mb-2">
-                            <strong>{{ field|capfirst }}</strong><br>
-                            {% for message in messages %}
-                                <small>{{ message }}</small>
-                            {% endfor %}
-                        </li>
-                    {% endfor %}
-
-                </ul>
-            </div>
+            {% endfor %}
         {% endif %}
         <div class="card border-0 shadow-sm rounded-4">
             <div class="card-body p-4 p-lg-5">
@@ -71,6 +71,7 @@
                                 Delete Selected
 
                             </button>
+                            
 
                             <div class="dropdown ms-auto ms-lg-0">
 
@@ -133,8 +134,12 @@
     </div>
    
     <div class="card border-0 shadow-sm rounded-4">
-        <div class="card-body p-0">
-            <div class="table-responsive">
+    <div class="card-body p-0">
+        <div id="swipeHint" class="swipe-hint d-lg-none">
+            <i class="bi bi-arrow-left-right"></i>
+            Swipe left to view more columns
+        </div>
+        <div class="table-responsive expense-table-container">
                 <table class="table table-hover align-middle mb-0" style="min-width: 980px;">
 
                     <thead class="table-light">
@@ -146,7 +151,6 @@
                                     id="selectAllExpenses">
                             </th>
 
-                            <th class="px-4 py-4">Category</th>
                             <th class="px-4 py-4">Expense</th>
                             <th class="px-4 py-4">Amount</th>
                             <th class="px-4 py-4">Qty</th>
@@ -161,6 +165,13 @@
                     <tbody>
 
                         {% for expense in expenses %}
+                        {% ifchanged expense.category_name %}
+                                <tr class="table-light">
+                                    <td colspan="8" class="fw-bold text-primary">
+                                        {{ expense.category_name }}
+                                    </td>
+                                </tr>
+                            {% endifchanged %}
 
                         <tr>
 
@@ -170,10 +181,7 @@
                                     type="checkbox"
                                     value="{{ expense.id }}">
                             </td>
-
-                            <td class="px-4 py-3">
-                                {{ expense.category.name }}
-                            </td>
+                        
 
                             <td class="px-4 py-3">
                                 {{ expense.name }}
@@ -199,10 +207,10 @@
                                 <div class="d-flex justify-content-end align-items-center">
                             
                                     <!-- Desktop buttons -->
-                                    <div class="d-none d-lg-inline-flex gap-2">
+                                    <div class="btn-group d-none d-lg-inline-flex">
+
                                         <button
-                                            type="button"
-                                            class="btn btn-sm btn-outline-secondary rounded-4 view-expense-btn"
+                                            class="btn btn-sm btn-outline-info view-expense-btn"
                                             data-bs-toggle="modal"
                                             data-bs-target="#viewExpenseModal"
                                             data-category="{{ expense.category.name }}"
@@ -210,16 +218,15 @@
                                             data-amount="{{ expense.amount }}"
                                             data-quantity="{{ expense.quantity }}"
                                             data-total="{{ expense.total }}"
-                                            data-created-at="{{ expense.created_at|date:'d M, Y h:i A' }}"
+                                            data-created-at="{{ expense.created_at|date:'d M, Y' }}"
                                             data-created-by="{{ expense.created_by }}"
-                                            data-updated-at="{{ expense.updated_at|date:'d M, Y h:i A' }}"
+                                            data-updated-at="{{ expense.updated_at|date:'d M, Y' }}"
                                             data-updated-by="{{ expense.updated_by }}">
-                                            View
+                                            <i class="bi bi-eye"></i>
                                         </button>
 
                                         <button
-                                            type="button"
-                                            class="btn btn-sm btn-outline-primary rounded-4 edit-expense-btn"
+                                            class="btn btn-sm btn-outline-primary edit-expense-btn"
                                             data-bs-toggle="modal"
                                             data-bs-target="#editExpenseModal"
                                             data-id="{{ expense.id }}"
@@ -229,19 +236,18 @@
                                             data-quantity="{{ expense.quantity }}"
                                             data-total="{{ expense.total }}"
                                             data-date="{{ expense.created_at|date:'Y-m-d' }}">
-                                            Edit
+                                            <i class="bi bi-pencil-square"></i>
                                         </button>
 
                                         <button
-                                            type="button"
-                                            class="btn btn-sm btn-outline-danger rounded-4 delete-expense-btn"
+                                            class="btn btn-sm btn-outline-danger delete-expense-btn"
                                             data-bs-toggle="modal"
                                             data-bs-target="#deleteExpenseModal"
                                             data-id="{{ expense.id }}"
                                             data-name="{{ expense.name }}"
                                             data-category="{{ expense.category.name }}"
                                             data-total="{{ expense.total }}">
-                                            Delete
+                                            <i class="bi bi-trash"></i>
                                         </button>
 
                                     </div>
@@ -273,9 +279,9 @@
                                                     data-amount="{{ expense.amount }}"
                                                     data-quantity="{{ expense.quantity }}"
                                                     data-total="{{ expense.total }}"
-                                                    data-created-at="{{ expense.created_at|date:'d M, Y h:i A' }}"
+                                                    data-created-at="{{ expense.created_at|date:'d M, Y' }}"
                                                     data-created-by="{{ expense.created_by }}"
-                                                    data-updated-at="{{ expense.updated_at|date:'d M, Y h:i A' }}"
+                                                    data-updated-at="{{ expense.updated_at|date:'d M, Y' }}"
                                                     data-updated-by="{{ expense.updated_by }}">
                                                     <i class="bi bi-eye me-2"></i>View
                                                 </button>
@@ -399,9 +405,10 @@
                             </div>
 
                             <div class="col-md-6">
+                                <input type="hidden" name="action" value="single">
 
                                 <label class="form-label fw-semibold">
-                                    Expense Name
+                                    Item Name
                                 </label>
 
                                 <input
@@ -461,15 +468,21 @@
                             <div class="col-12">
 
                                 <label class="form-label fw-semibold">
-                                    Expense Date
+                                    Date
                                 </label>
 
-                                <input
-                                    type="date"
-                                    class="form-control rounded-4"
-                                    name="date"
-                                >
+                               <div class="form-floating position-relative">
+                                    <i class="bi bi-calendar-event position-absolute top-50 start-0 translate-middle-y ms-3 text-muted" style="z-index:5;"></i>
 
+                                    <input
+                                        type="date"
+                                        class="form-control ps-5"
+                                        id="expenseDate"
+                                        name="date">
+
+                                    <label for="expenseDate" class="ps-5">Expense Date</label>
+                                </div>
+                                
                             </div>
 
                         </div>
@@ -541,6 +554,7 @@
                                 <div class="row g-3">
 
                                     <div class="col-lg-4">
+                                        <input type="hidden" name="action" value="bulk">
 
                                         <label class="form-label fw-semibold">
                                             Category
@@ -568,7 +582,7 @@
                                     <div class="col-lg-4">
 
                                         <label class="form-label fw-semibold">
-                                            Expense Name
+                                            Item Name
                                         </label>
 
                                         <input
@@ -586,11 +600,17 @@
                                             Date
                                         </label>
 
-                                        <input
-                                            type="date"
-                                            class="form-control rounded-4"
-                                            name="date"
-                                            >
+                                        <div class="form-floating position-relative">
+                                            <i class="bi bi-calendar-event position-absolute top-50 start-0 translate-middle-y ms-3 text-muted" style="z-index:5;"></i>
+
+                                            <input
+                                                type="date"
+                                                class="form-control ps-5"
+                                                id="expenseDate"
+                                                name="date">
+
+                                            <label for="expenseDate" class="ps-5">Expense Date</label>
+                                        </div>
 
                                     </div>
 
@@ -847,6 +867,8 @@
                         <div class="row g-3">
 
                             <div class="col-md-6">
+                                
+                                <input type="hidden" name="action" value="single">
 
                                 <label class="form-label fw-semibold">
                                     Category
@@ -988,7 +1010,7 @@
 
                 <form method="post"
                     id="deleteExpenseForm">
-
+                    <input type="hidden" name="action" value="single">
                     {% csrf_token %}
 
                     <div class="modal-header border-0 pb-0">
@@ -1093,6 +1115,7 @@
                     id="bulkDeleteForm">
 
                     {% csrf_token %}
+                    <input type="hidden" name="action" value="bulk">
 
                     <div class="modal-header border-0 pb-0">
 
@@ -1473,6 +1496,20 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     updateExpenseButtonState();
     updateBulkDelete();
+    const swipeHint = document.getElementById("swipeHint");
+    const tableContainer = document.querySelector(".expense-table-container");
+
+    if (swipeHint && tableContainer) {
+
+        tableContainer.addEventListener("scroll", function () {
+
+            if (tableContainer.scrollLeft > 20) {
+                swipeHint.style.display = "none";
+            }
+
+        });
+
+    }
 
 });
 </script>

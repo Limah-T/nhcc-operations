@@ -1,170 +1,178 @@
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.shortcuts import render
+from django.http import HttpResponse
 from django.views import View
-from django.shortcuts import redirect
-from account.services.profile_service import getFullName
-from nhcc_operations.services.generic_service import expense_404
-from dashboard.views import expense_record_temp_name
-from nhcc_operations.services.generic_service import (
-    intId, emptyFields
+from account.services.profile_service import getNameAvatar
+from nhcc_operations.services.generic_service import empty_fields_error
+from nhcc_operations.services.http_response_services import (
+    error_response, success_response
 )
+from dashboard.views import expense_record_temp_name, expense_temp_name
 from .services.expense_service import (
-    expenseQueryset, expenseRetrieval, 
-    expenseFormValidator, totalMonthlyExpenses,
-    processCreate, create, update,
-    delete_one, delete_many
+    ExpensePayloadParser,
+    expense_context_data, 
+    create_single, create_bulk,
+    update_single, delete_single, 
+    delete_bulk
 )
-from .services.category_service import categoryQueryset
 from .forms import ExpenseForm
 
-url_name = "expenses"
+expense_url_name = "expenses"
 
-def expense_context_data(request, error_message):
-    categories = categoryQueryset()
-    queryset = expenseQueryset()
-    total = totalMonthlyExpenses(queryset)
-    return {
-        "categories":categories,
-        "expenses":queryset,
-        "count":queryset.count(),
-        "monthly_total_display": f"₦{total:,.2f}",
-        "errors":error_message,
-        "user_name":getFullName(request),
-    }
+   
+@login_required
+def expenseOverview(request):
+    return render(
+        request=request, 
+        template_name=expense_temp_name,
+        context={"user_name":getNameAvatar(request.user)}
+
+    )
+
 
 @method_decorator(login_required, "dispatch")
-class ExpenseView(View):
+class ExpenseManagementView(View):
+
     def get(self, request):
         
         return render(
-            request, expense_record_temp_name,
-            context=expense_context_data(request, error_message=None),
+            request=request, 
+            template_name=expense_record_temp_name,
+            context=expense_context_data(request.user),
             status=200
         )
 
-    def post(self, request):
-        categories = request.POST.getlist("category", [])
-        names = request.POST.getlist("name", [])
-        amounts = request.POST.getlist("amount", [])
-        quantities = request.POST.getlist("quantity", [])
-        dates = request.POST.getlist("date", [])
-
-        if not emptyFields([
-            categories, names, amounts, quantities
-        ]):
-            response = processCreate(
-                categories, names, amounts, 
-                quantities, dates,
-                request.user, getFullName(request)
-            )
-            if not isinstance(response, ExpenseForm):
-                error = create(response)
-                if error is None:
-                    return redirect(url_name) 
-                message, code = {"Create Error": error["error"]}, error["status"]
-            else: message, code = response.errors, 400
-        else: 
-            message, code = {"Empty Fields": ["All fields are empty"]}, 400
-        return render(
-            request, expense_record_temp_name,
-            context=expense_context_data(request, error_message=message),
-            status=code
-        )
-    
-@login_required
-def retrieve_expenses(request, pk):
-    expense = expenseRetrieval(pk)
-    if expense:
-        return render(
-            request, expense_record_temp_name,
-            context={"expense":expense},
-            status=200
-        )
-    message = {"Not Found": expense_404["error"]}
-    code = expense_404["status"]
-    return render(
-        request, expense_record_temp_name,
-        context=expense_context_data(request, error_message=message),
-        status=code
-    )
-
-@login_required
-def edit_expense(request, pk):
-    if request.method != "POST":
-        return redirect(url_name)
-    
-    if intId(pk):
-        expense = expenseRetrieval(pk)
-        if expense:
-            category = request.POST.get("category", expense.category)
-            name = request.POST.get("name", expense.name)
-            quantity = request.POST.get("quantity", expense.quantity)
-            amount = request.POST.get("amount", expense.amount)
-            date = request.POST.get("date", expense.created_at.date)
-            form = expenseFormValidator(
-                category, name, amount, quantity, date,
-                )
-            if form.is_valid():
-                error = update(
-                    expense, category, name, quantity, 
-                    amount, date, request.user, getFullName(request)
-                )
-                if error is None:
-                    return redirect(url_name)
-                message, code = {"Update Error": error["error"]}, error["status"]
-            else: message, code = form.errors, 400
-        else: message, code = {"Not found": expense_404["error"]}, expense_404["status"]
-    else: message, code = {"Not found": expense_404["error"]}, expense_404["status"]
-    return render(
-        request, expense_record_temp_name,
-        context=expense_context_data(request, error_message=message),
-        status=code
-    )
-
-@login_required
-def delete_expense(request, pk):
-    if request.method != "POST":
-        return redirect(url_name)
-    
-    if intId(pk):
-        expense = expenseRetrieval(pk)
-        if expense: 
-            error = delete_one(expense)
+    def _handle_single_action(self, request):
+        """Orchestrates single workflow"""
+        field_data = ExpensePayloadParser(request).parse_single()
+        
+        form = ExpenseForm(data=field_data)
+        if form.is_valid():
+            error = create_single(form.cleaned_data, request.user)
             if error is None:
-                return redirect(url_name)
-            else:
-                message, code = {"Delete Error": error["error"]}, error["status"]
-        else: 
-            message, code = {"Not Found": expense_404["error"]}, expense_404["status"]
-    else: 
-        message, code = {"Not Found": expense_404["error"]}, expense_404["status"]
+                message = "Expense created successfully."
+                return success_response(request, expense_url_name, message)
+            
+            message, code = error[0], error[1]
+        else: message, code = form.errors, 400
+        return error_response(
+            request, expense_record_temp_name, 
+            expense_context_data(request.user), message, code
+        )
 
-    return render(
-        request, expense_record_temp_name,
-        expense_context_data(request, error_message=message),
-        status=code
-    )
+    def _handle_bulk_action(self, request):
+        """Orchestrates bulk workflow"""
+        field_data = ExpensePayloadParser(request).parse_bulk()
+        expense_list = []
+        can_proceed = True
 
+        for category, name, amount, quantity, date in zip(
+                field_data["category"], field_data["name"],
+                field_data["amount"], field_data["quantity"],
+                field_data["date"]
+            ):
+            form = ExpenseForm(data={
+                    "category":category,
+                    "name":name, "amount":amount,
+                    "quantity":quantity, "date":date
+                }
+            )
+            if not form.is_valid():
+               message, code = form.errors, 400
+               can_proceed = False
+               break
+            expense_list.append(form.cleaned_data)
+        if can_proceed:
+            error = create_bulk(expense_list, request.user)
+            if error is None:
+                message = "Expenses created successfully."
+                return success_response(request, expense_url_name, message)
+            else: 
+                message, code = error[0], error[1]
 
-@login_required
-def delete_expenses(request):
-    if request.method != "POST":
-        return redirect(url_name)
+        return error_response(
+            request, expense_record_temp_name, 
+            expense_context_data(request.user), message, code
+        )
 
-    expense_ids = request.POST.getlist("expense_ids")
-    print(expense_ids, "in views")
-    if expense_ids:
-        error = delete_many(expense_ids)
+    def post(self, request) -> HttpResponse:
+        action = request.POST.get("action")
+
+        if action == "single":
+           return self._handle_single_action(request)
+        
+        return self._handle_bulk_action(request)
+
+@method_decorator(login_required, "dispatch")
+class ExpenseUpdateView(View):
+    def get(self, request, pk=None):
+        return success_response(request, expense_url_name, None)
+
+    def _handle_single_action(self, request, id):
+        """Orchestrates a single workflow"""
+
+        field_data = ExpensePayloadParser(request).parse_single()
+        form = ExpenseForm(data=field_data)
+        if form.is_valid():
+            error = update_single(id, form.cleaned_data, request.user)
+            if error is None:
+                message = "Expense updated successfully."
+                return success_response(request, expense_url_name, message)
+            
+            message, code = error[0], error[1]
+        else: message, code = form.errors, 400
+        return error_response(
+            request, expense_record_temp_name, 
+            expense_context_data(request.user), message, code
+        )
+
+    def post(self, request, pk=None):
+        action = request.POST.get("action")
+        if action == "single":
+           
+           return self._handle_single_action(request, pk)
+
+        return success_response(request, expense_url_name, None)
+    
+@method_decorator(login_required, "dispatch")
+class ExpenseDeleteView(View):
+    def get(self, request):
+       return success_response(request, expense_url_name, None)
+
+    def _handle_single_action(self, request, pk:int):
+        """Orchestrates a single workflow"""
+        
+        error = delete_single(pk)
         if error is None:
-            return redirect(url_name)
-        else:
-            message, code = {"Delete Error": error["error"]}, error["status"]
-    else: 
-        message, code = {"Not Found": expense_404["error"]}, expense_404["status"]
+            message = "Expense deleted successfully."
+            return success_response(request, expense_url_name, message)
+        
+        message, code = error[0], error[1]
+        return error_response(
+            request, expense_record_temp_name, 
+            expense_context_data(request.user), message, code
+        )
 
-    return render(
-        request, expense_record_temp_name,
-        expense_context_data(request, error_message=message),
-        status=code
-    )
+    def _handle_bulk_action(self, request, expense_ids:list):
+        """Orchestrates bulk workflow"""
+        if expense_ids:
+            error = delete_bulk(expense_ids)
+            if error is None:
+                message = "Expenses deleted successfully"
+                return success_response(request, expense_url_name, message)
+            
+            message, code = error[0], error[1]
+        else: message, code = empty_fields_error, 400
+        return error_response(
+            request, expense_record_temp_name, 
+            expense_context_data(request.user), message, code
+        )
+
+    def post(self, request, pk=None) -> HttpResponse:
+        action = request.POST.get("action")
+        if action == "single":
+            return self._handle_single_action(request, pk)
+        
+        expense_ids = request.POST.getlist("expense_ids")
+        return self._handle_bulk_action(request, expense_ids)

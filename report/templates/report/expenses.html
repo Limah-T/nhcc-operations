@@ -6,7 +6,7 @@ Expense Report
 {% endblock %}
 
 {% block report_title %}
-Office Expense Report
+ {{month}} {{year}} Office Expense Report
 {% endblock %}
 
 {% block content %}
@@ -56,83 +56,75 @@ Office Expense Report
 
     <table class="report-table">
 
-        <thead>
-
-            <tr>
-
-                <th style="width:6%;">
-                    #
-                </th>
-
-                <th style="width:18%;">
-                    Category
-                </th>
-
-                <th style="width:26%;">
-                    Expense
-                </th>
-
-                <th style="width:14%;" class="text-end">
-                    Unit Price
-                </th>
-
-                <th style="width:10%;" class="text-center">
-                    Qty
-                </th>
-
-                <th style="width:16%;" class="text-end">
-                    Total
-                </th>
-
-                <th style="width:10%;">
-                    Date
-                </th>
-
-            </tr>
-
-        </thead>
-
         <tbody>
 
-            {% for expense in expenses %}
+            {% for category, data in expenses.items %}
 
-            <tr>
+                <!-- Category Header -->
+                <tr class="category-row">
+                    <th colspan="5">
+                        {{ category }}
+                    </th>
+                </tr>
 
-                <td class="text-center">
-                    {{ forloop.counter }}
-                </td>
+                <!-- Column Header -->
+                <tr class="sub-header">
 
-                <td>
-                    {{ expense.category.name }}
-                </td>
+                    <th style="width:36%;">
+                        Expense
+                    </th>
 
-                <td>
-                    {{ expense.name }}
-                </td>
+                    <th style="width:16%;" class="text-end">
+                        Unit Price
+                    </th>
 
-                <td class="text-end">
-                    ₦{{ expense.amount|floatformat:2|intcomma }}
-                </td>
+                    <th style="width:10%;" class="text-center">
+                        Qty
+                    </th>
 
-                <td class="text-center">
-                    {{ expense.quantity }}
-                </td>
+                    <th style="width:18%;" class="text-end">
+                        Total
+                    </th>
 
-                <td class="text-end">
-                    ₦{{ expense.total|floatformat:2|intcomma }}
-                </td>
+                    <th style="width:20%;">
+                        Date
+                    </th>
 
-                <td>
-                    {{ expense.created_at|date:"d M Y" }}
-                </td>
+                </tr>
 
-            </tr>
+                {% for expense in data.expenses %}
+
+                <tr>
+
+                    <td>
+                        {{ expense.name }}
+                    </td>
+
+                    <td class="text-end">
+                        ₦{{ expense.amount|floatformat:2|intcomma }}
+                    </td>
+
+                    <td class="text-center">
+                        {{ expense.quantity }}
+                    </td>
+
+                    <td class="text-end">
+                        ₦{{ expense.total|floatformat:2|intcomma }}
+                    </td>
+
+                    <td class="nowrap">
+                        {{ expense.created_at|date:"d M, Y" }}
+                    </td>
+
+                </tr>
+
+                {% endfor %}
 
             {% empty %}
 
             <tr>
 
-                <td colspan="7" class="empty-state">
+                <td colspan="5" class="empty-state">
 
                     No expense records available for this reporting period.
 
@@ -142,31 +134,20 @@ Office Expense Report
 
             {% endfor %}
 
-        </tbody>
-
-        <tfoot>
-
-            <tr>
-
-                <th colspan="5" class="text-end">
-
-                    GRAND TOTAL
-
-                </th>
-
-                <th class="text-end">
-
-                    ₦{{ total_expenses|floatformat:2|intcomma }}
-
-                </th>
-
-                <th></th>
-
-            </tr>
-
-        </tfoot>
+            </tbody>
 
     </table>
+    <div class="grand-total">
+
+        <span class="grand-total-label">
+            GRAND TOTAL
+        </span>
+
+        <span class="grand-total-value">
+            ₦{{ total_expenses|floatformat:2|intcomma }}
+        </span>
+
+    </div>
 
 </section>
 

@@ -1,0 +1,2750 @@
+{% extends "dashboard/dashboard_base.html" %}
+{% load humanize %}
+
+{% block title %}
+Staff Accounts | NHCC Operations
+{% endblock %}
+
+{% block content %}
+
+<div class="row g-4">
+
+    <div class="col-12">
+
+        <div class="card shadow-sm border-0 rounded-4">
+
+            <div class="card-body p-4">
+                <!-- ===========================
+                    HEADER
+                =========================== -->
+
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+                    <div>
+
+                        <h3 class="fw-bold mb-1">
+                            Staff Management
+                        </h3>
+
+                        <p class="text-muted mb-0">
+                            Manage staff records, salaries and bank account information.
+                        </p>
+
+                    </div>
+
+                    <div class="d-flex gap-2">
+
+                        <div class="dropdown">
+
+                            <button
+                                class="btn btn-outline-primary dropdown-toggle rounded-3"
+                                data-bs-toggle="dropdown">
+
+                                <i class="bi bi-person-badge me-2"></i>
+
+                                Manage Roles
+
+                            </button>
+
+                            <ul class="dropdown-menu dropdown-menu-end">
+
+                                <li>
+
+                                    <button
+                                        class="dropdown-item"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#addRoleModal">
+
+                                        <i class="bi bi-plus-circle me-2"></i>
+
+                                        Add One Role
+
+                                    </button>
+
+                                </li>
+
+                                <li>
+
+                                    <button
+                                        class="dropdown-item"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#addMultipleRoleModal">
+
+                                        <i class="bi bi-collection me-2"></i>
+
+                                        Add Multiple Roles
+
+                                    </button>
+
+                                </li>
+
+                                <li><hr class="dropdown-divider"></li>
+
+                                <li>
+
+                                    <button
+                                        class="dropdown-item"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#manageRolesModal">
+
+                                        <i class="bi bi-pencil-square me-2"></i>
+
+                                        Edit / Delete Roles
+
+                                    </button>
+
+                                </li>
+
+                            </ul>
+
+                        </div>
+                        <div class="dropdown">
+
+                            <button
+                                class="btn btn-primary dropdown-toggle rounded-3"
+                                data-bs-toggle="dropdown">
+
+                                <i class="bi bi-plus-circle me-2"></i>
+
+                                Add Staff
+
+                            </button>
+
+                            <ul class="dropdown-menu dropdown-menu-end">
+
+                                <li>
+
+                                    <button
+                                        class="dropdown-item"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#addStaffModal">
+
+                                        <i class="bi bi-person-plus me-2"></i>
+
+                                        Add One Staff
+
+                                    </button>
+
+                                </li>
+
+                                <li>
+
+                                    <button
+                                        class="dropdown-item"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#addMultipleStaffModal">
+
+                                        <i class="bi bi-people me-2"></i>
+
+                                        Add Multiple Staff
+
+                                    </button>
+
+                                </li>
+
+                            </ul>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ===========================
+                    MESSAGES
+                =========================== -->
+            
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} rounded-4 mb-4 alert-dismissible fade show">
+
+                            {{ message }}
+
+                            <button
+                                type="button"
+                                class="btn-close"
+                                data-bs-dismiss="alert">
+                            </button>
+
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                <div class="d-flex justify-content-between align-items-center mb-4">
+
+                    <div>
+
+                        <h5 class="mb-1 fw-bold">
+                            Role Management
+                        </h5>
+
+                        <div class="fs-5 fw-semibold text-primary">
+                            {{ total_roles }} role{{ total_roles|pluralize }} available
+                        </div>
+
+                        <small class="text-muted d-block">
+                            Create, edit and delete staff roles.
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ===========================
+                    SEARCH / FILTER
+                =========================== -->
+
+                <div class="d-flex justify-content-between align-items-end flex-wrap gap-3 mb-4">
+
+    <form method="get" class="row g-3 flex-grow-1">
+
+        <div class="col-lg-5">
+
+            <input
+                type="text"
+                name="search"
+                value="{{ request.GET.search }}"
+                class="form-control rounded-3"
+                placeholder="Search by name, email or phone">
+
+        </div>
+
+        <div class="col-lg-3">
+
+            <select
+                name="role"
+                class="form-select rounded-3">
+
+                <option value="">
+                    All Roles
+                </option>
+
+                {% for role in roles %}
+
+                <option
+                    value="{{ role.id }}"
+                    {% if request.GET.role == role.id|stringformat:"s" %}selected{% endif %}>
+
+                    {{ role.name }}
+
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+        <div class="col-lg-auto">
+
+            <button class="btn btn-outline-primary rounded-3">
+
+                <i class="bi bi-search me-2"></i>
+
+                Search
+
+            </button>
+
+        </div>
+
+    </form>
+
+    <button
+        id="deleteSelectedStaffBtn"
+        class="btn btn-danger rounded-3 d-none"
+        type="button"
+        data-bs-toggle="modal"
+        data-bs-target="#deleteSelectedStaffModal">
+
+        <i class="bi bi-trash me-2"></i>
+
+        Delete Selected
+
+    </button>
+
+</div>
+               
+
+                <!-- ===========================
+                     TABLE
+                ============================ -->
+
+                <div class="table-responsive">
+                    <table
+                        class="table align-middle mb-0"
+                        style="min-width:1500px;">
+
+                        <thead class="table-light">
+
+                            <tr>
+                                <th style="width:45px;">
+
+                                    <input
+                                        type="checkbox"
+                                        id="selectAllStaff">
+
+                                </th>
+                                <th class="px-4 py-3">
+                                    Full Name
+                                </th>
+
+                                <th class="px-4 py-3">
+                                    Role
+                                </th>
+
+                                <th class="px-4 py-3">
+                                    Email
+                                </th>
+
+                                <th class="px-4 py-3">
+                                    Phone
+                                </th>
+
+                                <th class="px-4 py-3 text-end">
+                                    Salary
+                                </th>
+
+                                <th class="px-4 py-3">
+                                    Bank
+                                </th>
+
+                                <th class="px-4 py-3">
+                                    Employment Date
+                                </th>
+
+                                <th class="text-center px-4 py-3"
+                                    style="width:130px;">
+
+                                    Actions
+
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            {% for staff in staff_records %}
+
+                            <tr>
+                                <td>
+
+                                    <input
+                                        type="checkbox"
+                                        class="staff-checkbox"
+                                        value="{{ staff.id }}">
+
+                                </td>
+
+                                <td class="px-4">
+
+                                    <div class="fw-semibold">
+
+                                        {{ staff.full_name }}
+
+                                    </div>
+
+                                </td>
+
+                                <td class="px-4">
+
+                                    {{ staff.role.name }}
+
+                                </td>
+
+                                <td class="px-4">
+
+                                    {{ staff.email }}
+
+                                </td>
+
+                                <td class="px-4">
+
+                                    {{ staff.phone_number }}
+
+                                </td>
+
+                                <td class="px-4 text-end">
+
+                                    ₦{{ staff.salary|floatformat:2|intcomma }}
+
+                                </td>
+
+                                <td class="px-4">
+
+                                    {% if staff.account_detail %}
+
+                                        {{ staff.account_detail.bank_name }}
+
+                                    {% else %}
+
+                                        —
+
+                                    {% endif %}
+
+                                </td>
+
+                                <td class="px-4">
+
+                                    {{ staff.employment_date|date:"d M Y" }}
+
+                                </td>
+
+                                <!-- =====================
+                                    DESKTOP ACTIONS
+                                ====================== -->
+
+                                <td class="text-center d-none d-md-table-cell">
+
+                                    <div class="btn-group">
+
+                                        <button
+                                            class="btn btn-sm btn-outline-info"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#viewStaffModal"
+                                            data-id="{{ staff.id }}"
+                                            data-full-name="{{ staff.full_name }}"
+                                            data-role="{{ staff.role.name }}"
+                                            data-email="{{ staff.email }}"
+                                            data-phone="{{ staff.phone_number }}"
+                                            data-salary="{{ staff.salary|floatformat:2|intcomma }}"
+                                            data-employment-date="{{ staff.employment_date|date:'d M Y' }}"
+                                            data-bank="{{ staff.account_detail.bank_name }}"
+                                            data-account-name="{{ staff.account_detail.bank_full_name }}"
+                                            data-account-number="{{ staff.account_detail.account_number }}">
+
+                                            <i class="bi bi-eye"></i>
+
+                                        </button>
+
+                                        <button
+                                            class="btn btn-sm btn-outline-primary"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editStaffModal"
+                                            data-id="{{ staff.id }}"
+                                            data-full-name="{{ staff.full_name }}"
+                                            data-role="{{ staff.role.id }}"
+                                            data-email="{{ staff.email }}"
+                                            data-phone="{{ staff.phone_number }}"
+                                            data-salary="{{ staff.salary|floatformat:2|intcomma }}"
+                                            data-employment-date="{{ staff.employment_date|date:'Y-m-d' }}"
+                                            data-bank="{{ staff.account_detail.bank_name }}"
+                                            data-account-name="{{ staff.account_detail.bank_full_name }}"
+                                            data-account-number="{{ staff.account_detail.account_number }}">
+
+                                            <i class="bi bi-pencil-square"></i>
+
+                                        </button>
+
+                                        <button
+                                            class="btn btn-sm btn-outline-danger"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteStaffModal"
+                                            data-id="{{ staff.id }}"
+                                            data-name="{{ staff.full_name }}">
+
+                                            <i class="bi bi-trash"></i>
+
+                                        </button>
+
+                                    </div>
+
+                                </td>
+
+                                <!-- =====================
+                                    MOBILE ACTIONS
+                                ====================== -->
+
+                                <td class="text-center d-md-none">
+
+                                    <div class="dropdown d-inline-block d-lg-none">
+
+                                        <button
+                                            class="btn p-0 border-0 bg-transparent shadow-none"
+                                            type="button"
+                                            data-bs-toggle="dropdown"
+                                            aria-expanded="false">
+
+                                            <i class="bi bi-three-dots-vertical fs-5 text-dark"></i>
+
+                                        </button>
+
+                                        <ul class="dropdown-menu dropdown-menu-end rounded-4 border-0 shadow-sm">
+
+                                            <li>
+
+                                                <button
+                                                    class="dropdown-item"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#viewStaffModal"
+                                                    data-id="{{ staff.id }}"
+                                                    data-full-name="{{ staff.full_name }}"
+                                                    data-role="{{ staff.role.name }}"
+                                                    data-email="{{ staff.email }}"
+                                                    data-phone="{{ staff.phone_number }}"
+                                                    data-salary="{{ staff.salary|floatformat:2|intcomma }}"
+                                                    data-employment-date="{{ staff.employment_date|date:'d M Y' }}"
+                                                    data-bank="{{ staff.account_detail.bank_name }}"
+                                                    data-account-name="{{ staff.account_detail.bank_full_name }}"
+                                                    data-account-number="{{ staff.account_detail.account_number }}">
+
+                                                    <i class="bi bi-eye"></i>
+                                                     View
+                                                </button>
+
+                                            </li>
+
+                                            <li>
+
+                                                <button
+                                                    class="dropdown-item"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#editStaffModal"
+                                                    data-id="{{ staff.id }}"
+                                                    data-full-name="{{ staff.full_name }}"
+                                                    data-role="{{ staff.role.id }}"
+                                                    data-email="{{ staff.email }}"
+                                                    data-phone="{{ staff.phone_number }}"
+                                                    data-salary="{{ staff.salary|floatformat:2|intcomma }}"
+                                                    data-employment-date="{{ staff.employment_date|date:'Y-m-d' }}"
+                                                    data-bank="{{ staff.account_detail.bank_name }}"
+                                                    data-account-name="{{ staff.account_detail.bank_full_name }}"
+                                                    data-account-number="{{ staff.account_detail.account_number }}">
+
+                                                    <i class="bi bi-pencil-square me-2"></i>
+
+                                                    Edit
+
+                                                </button>
+
+                                            </li>
+
+                                            <li>
+
+                                                <button
+                                                    class="dropdown-item text-danger"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#deleteStaffModal"
+                                                    data-id="{{ staff.id }}"
+                                                    data-name="{{ staff.full_name }}">
+
+                                                    <i class="bi bi-trash me-2"></i>
+
+                                                    Delete
+
+                                                </button>
+
+                                            </li>
+
+                                        </ul>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                            {% empty %}
+
+                            <tr>
+
+                                <td colspan="9"
+                                    class="text-center py-5 text-muted">
+
+                                    No staff records available.
+
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ==========================================================
+     ADD STAFF MODAL
+=========================================================== -->
+
+<div
+    class="modal fade"
+    id="addStaffModal"
+    tabindex="-1">
+
+    <div class="modal-dialog modal-xl">
+
+        <div class="modal-content rounded-4">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+
+                    Add Staff
+
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <form
+                method="post"
+                action="{% url 'staff' %}">
+
+                {% csrf_token %}
+
+                <div class="modal-body">
+
+                    <div class="row g-3">
+
+                        <!-- Full Name -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+
+                                Full Name
+
+                            </label>
+
+                            <input
+                                type="text"
+                                placeholder="John Doe"
+                                name="full_names"
+                                class="form-control rounded-3"
+                                required>
+
+                        </div>
+
+
+                        <!-- Role -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+
+                                Role
+
+                            </label>
+
+                            <select
+                                name="roles"
+                                class="form-select rounded-3"
+                                required>
+
+                                <option value="">
+
+                                    Select Role
+
+                                </option>
+
+                                {% for role in roles %}
+
+                                <option value="{{ role.id }}">
+
+                                    {{ role.name }}
+
+                                </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- Email -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+
+                                Email
+
+                            </label>
+
+                            <input
+                                type="email"
+                                name="emails"
+                                placeholder="johndoe@gmail.com"
+                                class="form-control rounded-3">
+
+                        </div>
+
+
+                        <!-- Phone -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+
+                                Phone Number
+
+                            </label>
+
+                            <input
+                                type="number"
+                                name="phone_numbers"
+                                placeholder="+2349037485959"
+                                class="form-control rounded-3">
+
+                        </div>
+
+
+                        <!-- Salary -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+
+                                Monthly Salary
+
+                            </label>
+
+                            <input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                name="salaries"
+                                class="form-control rounded-3"
+                                required>
+
+                        </div>
+
+
+                        <!-- Employment Date -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+
+                                Employment Date
+
+                            </label>
+
+                            <input
+                                type="date"
+                                name="employment_dates"
+                                class="form-control rounded-3"
+                                >
+
+                        </div>
+
+
+                        <hr class="my-3">
+
+
+                        <div class="col-12">
+
+                            <h6 class="fw-bold">
+
+                                Bank Details
+
+                            </h6>
+
+                        </div>
+
+
+                        <!-- Bank -->
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+
+                                Bank Name
+
+                            </label>
+
+                            <input
+                                type="text"
+                                name="bank_names"
+                                class="form-control rounded-3">
+
+                        </div>
+
+
+                        <!-- Account Name -->
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+
+                                Account Name
+
+                            </label>
+
+                            <input
+                                type="text"
+                                name="bank_full_names"
+                                class="form-control rounded-3">
+
+                        </div>
+
+
+                        <!-- Account Number -->
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+
+                                Account Number
+
+                            </label>
+
+                            <input
+                                type="number"
+                                name="account_numbers"
+                                class="form-control rounded-3">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-light rounded-3"
+                        data-bs-dismiss="modal">
+
+                        Cancel
+
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary rounded-3">
+
+                        <i class="bi bi-check-circle me-2"></i>
+
+                        Save Staff
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ==========================================================
+     ADD MULTIPLE STAFF MODAL
+=========================================================== -->
+
+<div
+    class="modal fade"
+    id="addMultipleStaffModal"
+    tabindex="-1">
+
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+
+        <div class="modal-content rounded-4">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+                    Add Multiple Staff
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <form method="post" action="{% url 'staff' %}">
+
+                {% csrf_token %}
+
+                <!-- Scrollable body -->
+                <div class="modal-body" style="max-height:70vh; overflow-y:auto;">
+
+                    <div class="alert alert-info rounded-3">
+
+                        Add up to <strong>5 staff records</strong>.
+
+                        Use the <strong>Add More</strong> button below to reveal
+                        another form.
+
+                    </div>
+
+                    <div id="bulkStaffContainer">
+
+                        <!-- =============================
+                             STAFF 1
+                        ============================== -->
+
+                        <div class="border rounded-4 p-3 mb-4 bulk-staff-item">
+
+                            <h6 class="fw-bold mb-3">
+
+                                Staff 1
+
+                            </h6>
+
+                            <div class="row g-3">
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label">
+                                        Full Name
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        name="full_names"
+                                        placeholder="John Doe"
+                                        class="form-control rounded-3">
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label">
+                                        Role
+                                    </label>
+
+                                    <select
+                                        name="roles"
+                                        class="form-select rounded-3">
+
+                                        <option value="">
+                                            Select Role
+                                        </option>
+
+                                        {% for role in roles %}
+
+                                        <option value="{{ role.id }}">
+                                            {{ role.name }}
+                                        </option>
+
+                                        {% endfor %}
+
+                                    </select>
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label">
+                                        Email
+                                    </label>
+
+                                    <input
+                                        type="email"
+                                        placeholder="johndoe@gmail.com"
+                                        name="emails"
+                                        class="form-control rounded-3">
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label">
+                                        Phone Number
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        name="phone_numbers"
+                                        placeholder="+2349037485959"
+                                        class="form-control rounded-3">
+
+                                </div>
+
+                                <div class="col-md-4">
+
+                                    <label class="form-label">
+                                        Salary
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        name="salaries"
+                                        class="form-control rounded-3">
+
+                                </div>
+
+                                <div class="col-md-4">
+
+                                    <label class="form-label">
+                                        Employment Date
+                                    </label>
+
+                                    <input
+                                        type="date"
+                                        name="employment_dates"
+                                        class="form-control rounded-3">
+
+                                </div>
+
+                                <div class="col-md-4">
+
+                                    <label class="form-label">
+                                        Bank
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        name="bank_names"
+                                        class="form-control rounded-3">
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label">
+                                        Account Name
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        name="bank_full_names"
+                                        class="form-control rounded-3">
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label">
+                                        Account Number
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        name="account_numbers"
+                                        class="form-control rounded-3">
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer justify-content-between">
+
+                    <button
+                        type="button"
+                        class="btn btn-outline-primary"
+                        id="addMoreStaff">
+
+                        <i class="bi bi-plus-circle me-2"></i>
+
+                        Add More
+
+                    </button>
+
+                    <div>
+
+                        <button
+                            type="button"
+                            class="btn btn-light rounded-3"
+                            data-bs-dismiss="modal">
+
+                            Cancel
+
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary rounded-3">
+
+                            <i class="bi bi-check-circle me-2"></i>
+
+                            Save Staff
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ==========================================================
+     EDIT STAFF MODAL
+=========================================================== -->
+
+<div
+    class="modal fade"
+    id="editStaffModal"
+    tabindex="-1">
+
+    <div class="modal-dialog modal-xl">
+
+        <div class="modal-content rounded-4">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+
+                    Edit Staff
+
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <form
+                method="post"
+                action="#">
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="action"
+                    value="update">
+
+                <input
+                    type="hidden"
+                    name="staff_id"
+                    id="editStaffId">
+
+                <div class="modal-body">
+
+                    <div class="row g-3">
+
+                        <!-- Full Name -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+
+                                Full Name
+
+                            </label>
+
+                            <input
+                                type="text"
+                                id="editFullName"
+                                name="full_name"
+                                class="form-control rounded-3"
+                                required>
+
+                        </div>
+
+                        <!-- Role -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+
+                                Role
+
+                            </label>
+
+                            <select
+                                id="editRole"
+                                name="role"
+                                class="form-select rounded-3"
+                                required>
+
+                                <option value="">
+
+                                    Select Role
+
+                                </option>
+
+                                {% for role in roles %}
+
+                                <option value="{{ role.id }}">
+
+                                    {{ role.name }}
+
+                                </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+                        <!-- Email -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+
+                                Email
+
+                            </label>
+
+                            <input
+                                type="email"
+                                id="editEmail"
+                                name="email"
+                                class="form-control rounded-3">
+
+                        </div>
+
+                        <!-- Phone -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+
+                                Phone Number
+
+                            </label>
+
+                            <input
+                                type="number"
+                                id="editPhone"
+                                name="phone_number"
+                                class="form-control rounded-3">
+
+                        </div>
+
+                        <!-- Salary -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+
+                                Monthly Salary
+
+                            </label>
+
+                            <input
+                                type="text"
+                                step="0.01"
+                                min="0"
+                                id="editSalary"
+                                name="amount"
+                                class="form-control rounded-3">
+
+                        </div>
+
+                        <!-- Employment Date -->
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+
+                                Employment Date
+
+                            </label>
+
+                            <input
+                                type="date"
+                                id="editEmploymentDate"
+                                name="employment_date"
+                                class="form-control rounded-3">
+
+                        </div>
+
+                        <hr class="my-3">
+
+                        <div class="col-12">
+
+                            <h6 class="fw-bold">
+
+                                Bank Details
+
+                            </h6>
+
+                        </div>
+
+                        <!-- Bank -->
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+
+                                Bank Name
+
+                            </label>
+
+                            <input
+                                type="text"
+                                id="editBank"
+                                name="bank_name"
+                                class="form-control rounded-3">
+
+                        </div>
+
+                        <!-- Account Name -->
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+
+                                Account Name
+
+                            </label>
+
+                            <input
+                                type="text"
+                                id="editAccountName"
+                                name="account_name"
+                                class="form-control rounded-3">
+
+                        </div>
+
+                        <!-- Account Number -->
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+
+                                Account Number
+
+                            </label>
+
+                            <input
+                                type="text"
+                                id="editAccountNumber"
+                                name="account_numbers"
+                                class="form-control rounded-3">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-light rounded-3"
+                        data-bs-dismiss="modal">
+
+                        Cancel
+
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary rounded-3">
+
+                        <i class="bi bi-save me-2"></i>
+
+                        Update Staff
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ==========================================================
+     VIEW STAFF MODAL
+=========================================================== -->
+
+<div
+    class="modal fade"
+    id="viewStaffModal"
+    tabindex="-1">
+
+    <div class="modal-dialog modal-lg">
+
+        <div class="modal-content rounded-4">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+
+                    Staff Details
+
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <div class="text-center mb-4">
+
+                    <div
+                        class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center"
+                        style="width:90px;height:90px;font-size:34px;font-weight:bold;"
+                        id="viewInitials">
+
+                    </div>
+
+                    <h4
+                        class="fw-bold mt-3 mb-1"
+                        id="viewFullName">
+
+                    </h4>
+
+                    <div
+                        class="text-muted"
+                        id="viewRole">
+
+                    </div>
+
+                </div>
+
+                <table class="table table-borderless align-middle mb-0">
+
+                    <tbody>
+
+                        <tr class="border-bottom">
+
+                            <th class="py-3 text-muted fw-semibold" style="width:40%;">
+                                Email
+                            </th>
+
+                            <td class="py-3 text-end fw-medium" id="viewEmail"></td>
+
+                        </tr>
+
+                        <tr class="border-bottom">
+
+                            <th class="py-3 text-muted fw-semibold">
+                                Phone Number
+                            </th>
+
+                            <td class="py-3 text-end fw-medium" id="viewPhone"></td>
+
+                        </tr>
+
+                        <tr class="border-bottom">
+
+                            <th class="py-3 text-muted fw-semibold">
+                                Monthly Salary
+                            </th>
+
+                            <td class="py-3 text-end fw-medium" id="viewSalary"></td>
+
+                        </tr>
+
+                        <tr class="border-bottom">
+
+                            <th class="py-3 text-muted fw-semibold">
+                                Employment Date
+                            </th>
+
+                            <td class="py-3 text-end fw-medium" id="viewEmploymentDate"></td>
+
+                        </tr>
+
+                        <tr class="border-bottom">
+
+                            <th class="py-3 text-muted fw-semibold">
+                                Bank
+                            </th>
+
+                            <td class="py-3 text-end fw-medium" id="viewBank"></td>
+
+                        </tr>
+
+                        <tr class="border-bottom">
+
+                            <th class="py-3 text-muted fw-semibold">
+                                Account Name
+                            </th>
+
+                            <td class="py-3 text-end fw-medium" id="viewAccountName"></td>
+
+                        </tr>
+
+                        <tr>
+
+                            <th class="py-3 text-muted fw-semibold">
+                                Account Number
+                            </th>
+
+                            <td class="py-3 text-end fw-medium" id="viewAccountNumber"></td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ==========================================================
+     DELETE STAFF MODAL
+=========================================================== -->
+
+<div
+    class="modal fade"
+    id="deleteStaffModal"
+    tabindex="-1">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content rounded-4">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title text-danger">
+
+                    Delete Staff
+
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal">
+
+                </button>
+
+            </div>
+
+            <form
+                method="post"
+                action="#">
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="action"
+                    value="delete">
+
+                <input
+                    type="hidden"
+                    id="deleteStaffId"
+                    name="staff_id">
+
+                <div class="modal-body text-center">
+
+                    <i
+                        class="bi bi-trash text-danger"
+                        style="font-size:3rem;">
+
+                    </i>
+
+                    <h5 class="fw-bold mt-3">
+
+                        Delete Staff?
+
+                    </h5>
+
+                    <p class="text-muted">
+
+                        You are about to permanently delete
+
+                        <strong id="deleteStaffName"></strong>
+
+                    </p>
+
+                    <p class="small text-danger mb-0">
+
+                        This action cannot be undone.
+
+                    </p>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-light rounded-3"
+                        data-bs-dismiss="modal">
+
+                        Cancel
+
+                    </button>
+
+                    <button
+                        class="btn btn-danger rounded-3">
+
+                        <i class="bi bi-trash me-2"></i>
+
+                        Delete
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ==========================================================
+     DELETE SELECTED STAFF MODAL
+=========================================================== -->
+
+<div
+    class="modal fade"
+    id="deleteSelectedStaffModal"
+    tabindex="-1">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content rounded-4">
+
+            <form
+                id="deleteSelectedStaffForm"
+                method="post"
+                action="#">
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="action"
+                    value="#">
+
+                <!-- Hidden staff IDs go here -->
+                <div id="selectedStaffInputs"></div>
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title text-danger">
+
+                        Delete Selected Staff
+
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+                <div class="modal-body text-center">
+
+                    <i
+                        class="bi bi-trash text-danger"
+                        style="font-size:3rem;">
+                    </i>
+
+                    <h5 class="mt-3">
+
+                        Delete Selected Staff?
+
+                    </h5>
+
+                    <p class="mb-1">
+
+                        You are about to delete
+
+                        <strong id="selectedStaffCount"></strong>
+
+                        selected staff member(s).
+
+                    </p>
+
+                    <p class="text-danger mb-0">
+
+                        This action cannot be undone.
+
+                    </p>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        data-bs-dismiss="modal">
+
+                        Cancel
+
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-danger">
+
+                        <i class="bi bi-trash me-2"></i>
+
+                        Delete
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="modal fade"
+     id="manageRolesModal"
+     tabindex="-1">
+
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+
+        <div class="modal-content rounded-4">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+                    Manage Roles
+                </h5>
+
+                <button
+                    class="btn-close"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+
+                    <button
+                        class="btn btn-primary rounded-3"
+                        data-bs-target="#addRoleModal"
+                        data-bs-toggle="modal">
+
+                        <i class="bi bi-plus-circle me-2"></i>
+                        Add Role
+
+                    </button>
+
+                    <button
+                        id="deleteSelectedRolesBtn"
+                        class="btn btn-danger rounded-3 d-none"
+                        type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#deleteSelectedRolesModal">
+
+                        <i class="bi bi-trash me-2"></i>
+                        Delete Selected
+                    </button>
+
+                </div>
+
+                <div class="table-responsive">
+
+                    <table class="table align-middle">
+
+                        <thead>
+
+                            <tr>
+
+                                <th width="40">
+
+                                    <input
+                                        type="checkbox"
+                                        id="selectAllRoles">
+
+                                </th>
+
+                                <th>
+                                    Role
+                                </th>
+
+                                <th width="140"
+                                    class="text-center">
+
+                                    Actions
+
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            {% for role in roles %}
+
+                            <tr>
+
+                                <td>
+
+                                    <input
+                                        type="checkbox"
+                                        class="role-checkbox"
+                                        value="{{ role.id }}">
+
+                                </td>
+
+                                <td>
+
+                                    {{ role.name }}
+
+                                </td>
+
+                                <td class="text-center">
+
+                                    <button
+                                        class="btn btn-sm btn-outline-primary"
+                                        data-bs-target="#editRoleModal"
+                                        data-bs-toggle="modal"
+                                        data-id="{{ role.id }}"
+                                        data-name="{{ role.name }}">
+
+                                        <i class="bi bi-pencil"></i>
+
+                                    </button>
+
+                                    <button
+                                        class="btn btn-sm btn-outline-danger"
+                                        data-bs-target="#deleteRoleModal"
+                                        data-bs-toggle="modal"
+                                        data-id="{{ role.id }}"
+                                        data-name="{{ role.name }}">
+
+                                        <i class="bi bi-trash"></i>
+
+                                    </button>
+
+                                </td>
+
+                            </tr>
+
+                            {% empty %}
+
+                            <tr>
+
+                                <td colspan="3"
+                                    class="text-center text-muted py-4">
+
+                                    No roles available.
+
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="modal fade"
+     id="addRoleModal"
+     tabindex="-1">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content rounded-4">
+
+            <form method="post", action="{% url 'roles' %}">
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="action"
+                    value="create_role">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+
+                        Add Role
+
+                    </h5>
+
+                    <button
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <label class="form-label">
+
+                        Role Name
+
+                    </label>
+
+                    <input
+                        type="text"
+                        name="names"
+                        class="form-control rounded-3"
+                        required>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        data-bs-dismiss="modal">
+
+                        Cancel
+
+                    </button>
+
+                    <button
+                        class="btn btn-primary">
+
+                        Save Role
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+<div class="modal fade"
+     id="addMultipleRoleModal"
+     tabindex="-1">
+
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+
+        <div class="modal-content rounded-4">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+
+                    Add Multiple Roles
+
+                </h5>
+
+                <button
+                    class="btn-close"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <form method="post", action="{% url 'roles' %}">
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="action"
+                    value="bulk_create_role">
+
+                <div
+                    class="modal-body"
+                    style="max-height:70vh;overflow-y:auto;">
+
+                    <div class="alert alert-info rounded-3">
+
+                        Add up to <strong>10 roles</strong>.
+                        Use <strong>Add More</strong> to create another role.
+
+                    </div>
+
+                    <div id="bulkRoleContainer">
+
+                        <div class="border rounded-4 p-3 mb-3 bulk-role-item">
+
+                            <h6 class="fw-bold">
+
+                                Role 1
+
+                            </h6>
+
+                            <label class="form-label">
+
+                                Role Name
+
+                            </label>
+
+                            <input
+                                type="text"
+                                name="names"
+                                class="form-control rounded-3">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer justify-content-between">
+
+                    <button
+                        type="button"
+                        id="addMoreRole"
+                        class="btn btn-outline-primary">
+
+                        <i class="bi bi-plus-circle me-2"></i>
+
+                        Add More
+
+                    </button>
+
+                    <div>
+
+                        <button
+                            type="button"
+                            class="btn btn-light"
+                            data-bs-dismiss="modal">
+
+                            Cancel
+
+                        </button>
+
+                        <button
+                            class="btn btn-primary">
+
+                            Save Roles
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+<div class="modal fade" id="editRoleModal" tabindex="-1">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content rounded-4">
+
+            <form id="editRoleForm" method="post">
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="action"
+                    value="update_role">
+
+                <input
+                    type="hidden"
+                    id="editRoleId"
+                    name="role_id">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+
+                        Edit Role
+
+                    </h5>
+
+                    <button
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <label class="form-label">
+
+                        Role Name
+
+                    </label>
+
+                    <input
+                        id="editRoleName"
+                        type="text"
+                        name="role_name"
+                        class="form-control rounded-3"
+                        required>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        data-bs-dismiss="modal">
+
+                        Cancel
+
+                    </button>
+
+                    <button
+                        class="btn btn-primary">
+
+                        Update Role
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+<div class="modal fade"
+     id="deleteRoleModal"
+     tabindex="-1">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content rounded-4">
+
+            <form method="post" id="deleteRoleForm">
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="action"
+                    value="delete_role">
+
+                <input
+                    type="hidden"
+                    id="deleteRoleId"
+                    name="role_id">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title text-danger">
+
+                        Delete Role
+
+                    </h5>
+
+                    <button
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+                <div class="modal-body text-center">
+
+                    <i class="bi bi-trash text-danger"
+                       style="font-size:3rem;"></i>
+
+                    <h5 class="mt-3">
+
+                        Delete Role?
+
+                    </h5>
+
+                    <p>
+
+                        You are about to delete
+
+                        <strong id="deleteRoleName"></strong>
+
+                    </p>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        data-bs-dismiss="modal">
+
+                        Cancel
+
+                    </button>
+
+                    <button
+                        class="btn btn-danger">
+
+                        Delete
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+<div
+    class="modal fade"
+    id="deleteSelectedRolesModal"
+    tabindex="-1">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content rounded-4">
+
+            <form
+                id="deleteSelectedRolesForm"
+                method="post"
+                action="{% url 'delete_roles' %}">
+
+                {% csrf_token %}
+
+                <input
+                    <!-- type="hidden" -->
+                    name="action"
+                    value="bulk_delete_role">
+
+                <div id="selectedRoleInputs"></div>
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title text-danger">
+
+                        Delete Selected Roles
+
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+                <div class="modal-body text-center">
+
+                    <i
+                        class="bi bi-trash text-danger"
+                        style="font-size:3rem;">
+                    </i>
+
+                    <h5 class="mt-3">
+
+                        Delete Selected Roles?
+
+                    </h5>
+
+                    <p class="mb-1">
+
+                        You are about to delete
+
+                        <strong id="selectedRoleCount"></strong>
+
+                        selected role(s).
+
+                    </p>
+
+                    <p class="text-danger mb-0">
+
+                        This action cannot be undone.
+
+                    </p>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        data-bs-dismiss="modal">
+
+                        Cancel
+
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-danger">
+
+                        <i class="bi bi-trash me-2"></i>
+
+                        Delete
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    /* ===============================
+       VIEW STAFF
+    =============================== */
+
+    const viewModal = document.getElementById("viewStaffModal");
+
+    if (viewModal) {
+        viewModal.addEventListener("show.bs.modal", function (event) {
+
+            const button = event.relatedTarget;
+
+            document.getElementById("viewInitials").textContent =
+                button.dataset.fullName
+                    .split(" ")
+                    .map(name => name[0])
+                    .join("")
+                    .substring(0, 2)
+                    .toUpperCase();
+
+            document.getElementById("viewFullName").textContent = button.dataset.fullName;
+            document.getElementById("viewRole").textContent = button.dataset.role;
+            document.getElementById("viewEmail").textContent = button.dataset.email;
+            document.getElementById("viewPhone").textContent = button.dataset.phone;
+            document.getElementById("viewSalary").textContent = "₦" + button.dataset.salary;
+            document.getElementById("viewEmploymentDate").textContent = button.dataset.employmentDate;
+            document.getElementById("viewBank").textContent = button.dataset.bank;
+            document.getElementById("viewAccountName").textContent = button.dataset.accountName;
+            document.getElementById("viewAccountNumber").textContent = button.dataset.accountNumber;
+
+        });
+    }
+
+    /* ===============================
+    EDIT STAFF
+    =============================== */
+
+    const editModal = document.getElementById("editStaffModal");
+
+    if (editModal) {
+
+        editModal.addEventListener("show.bs.modal", function (event) {
+
+            const button = event.relatedTarget;
+
+            document.getElementById("editStaffId").value =
+                button.dataset.id;
+
+            document.getElementById("editFullName").value =
+                button.dataset.fullName;
+
+            document.getElementById("editRole").value =
+                button.dataset.role;
+
+            document.getElementById("editEmail").value =
+                button.dataset.email;
+
+            document.getElementById("editPhone").value =
+                button.dataset.phone;
+
+            document.getElementById("editSalary").value =
+                button.dataset.salary;
+
+            document.getElementById("editEmploymentDate").value =
+                button.dataset.employmentDate;
+
+            document.getElementById("editBank").value =
+                button.dataset.bank;
+
+            document.getElementById("editAccountName").value =
+                button.dataset.accountName;
+
+            document.getElementById("editAccountNumber").value =
+                button.dataset.accountNumber;
+
+            const form = editModal.querySelector("form");
+
+                form.action = `/dashboard/staff/${button.dataset.id}/edit/`;
+
+        });
+
+    }
+
+    /* ===============================
+       DELETE STAFF
+    =============================== */
+
+    const deleteModal = document.getElementById("deleteStaffModal");
+
+    if (deleteModal) {
+        deleteModal.addEventListener("show.bs.modal", function (event) {
+
+            const button = event.relatedTarget;
+
+            document.getElementById("deleteStaffId").value =
+                button.dataset.id;
+
+            document.getElementById("deleteStaffName").textContent =
+                button.dataset.name;
+
+        });
+    }
+    /* ===============================
+    MULTIPLE STAFF DELETE
+    =============================== */
+
+    const selectAllStaff = document.getElementById("selectAllStaff");
+    const deleteSelectedStaffBtn = document.getElementById("deleteSelectedStaffBtn");
+    const bulkDeleteStaffModal = document.getElementById("deleteSelectedStaffModal");
+
+    if (selectAllStaff && deleteSelectedStaffBtn && bulkDeleteStaffModal) {
+
+        function updateDeleteStaffButton() {
+
+            const checked = document.querySelectorAll(".staff-checkbox:checked");
+
+            const active = checked.length > 1;
+
+            deleteSelectedStaffBtn.classList.toggle("d-none", !active);
+            deleteSelectedStaffBtn.disabled = !active;
+
+            deleteSelectedStaffBtn.classList.toggle("fw-bold", active);
+            deleteSelectedStaffBtn.classList.toggle("shadow-sm", active);
+
+            deleteSelectedStaffBtn.innerHTML = `
+                <i class="bi bi-trash me-2"></i>
+                Delete Selected (${checked.length})
+            `;
+
+        }
+        selectAllStaff.addEventListener("change", function () {
+
+            document.querySelectorAll(".staff-checkbox").forEach(cb => {
+                cb.checked = this.checked;
+            });
+
+            updateDeleteStaffButton();
+
+        });
+
+        document.querySelectorAll(".staff-checkbox").forEach(cb => {
+
+            cb.addEventListener("change", function () {
+
+                const all = document.querySelectorAll(".staff-checkbox");
+                const checked = document.querySelectorAll(".staff-checkbox:checked");
+
+                selectAllStaff.checked = all.length === checked.length;
+
+                updateDeleteStaffButton();
+
+            });
+
+        });
+
+        deleteSelectedStaffBtn.addEventListener("click", function () {
+
+            const checked = document.querySelectorAll(".staff-checkbox:checked");
+
+            const container = document.getElementById("selectedStaffInputs");
+
+            container.innerHTML = "";
+
+            checked.forEach(cb => {
+
+                container.innerHTML += `
+                    <input
+                        type="hidden"
+                        name="staff_ids"
+                        value="${cb.value}">
+                `;
+
+            });
+
+            document.getElementById("selectedStaffCount").textContent =
+                checked.length;
+
+        });
+
+        updateDeleteStaffButton();
+
+    }
+
+    /* ==========================================
+       ADD MORE STAFF
+    ========================================== */
+
+    const container = document.getElementById("bulkStaffContainer");
+    const addMoreBtn = document.getElementById("addMoreStaff");
+
+    if (container && addMoreBtn) {
+
+        let staffCount = 1;
+
+        addMoreBtn.addEventListener("click", function () {
+
+            if (staffCount >= 5) {
+                alert("Maximum of 5 staff can be added at once.");
+                return;
+            }
+
+            staffCount++;
+
+            const first = container.querySelector(".bulk-staff-item");
+            const clone = first.cloneNode(true);
+
+            clone.querySelector("h6").textContent = `Staff ${staffCount}`;
+
+            clone.querySelectorAll("input").forEach(input => {
+                input.value = "";
+            });
+
+            clone.querySelectorAll("select").forEach(select => {
+                select.selectedIndex = 0;
+            });
+
+            container.appendChild(clone);
+
+            clone.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
+            if (staffCount === 5) {
+                addMoreBtn.disabled = true;
+            }
+
+        });
+
+    }
+
+
+    /* ==========================================
+       ADD MORE ROLES
+    ========================================== */
+
+    const roleContainer = document.getElementById("bulkRoleContainer");
+    const addRoleBtn = document.getElementById("addMoreRole");
+
+    if (roleContainer && addRoleBtn) {
+
+        let roleCount = 1;
+
+        addRoleBtn.addEventListener("click", function () {
+
+            if (roleCount >= 10) {
+                alert("Maximum of 10 roles can be added.");
+                return;
+            }
+
+            roleCount++;
+
+            const clone = roleContainer
+                .querySelector(".bulk-role-item")
+                .cloneNode(true);
+
+            clone.querySelector("h6").textContent = `Role ${roleCount}`;
+
+            const input = clone.querySelector("input");
+
+            input.value = "";
+            input.name = "names";
+
+            roleContainer.appendChild(clone);
+
+            clone.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
+            if (roleCount === 10) {
+                addRoleBtn.disabled = true;
+            }
+
+        });
+
+    }
+
+
+    /* ===============================
+       EDIT ROLE
+    =============================== */
+
+    const editRoleModal = document.getElementById("editRoleModal");
+
+    if (editRoleModal) {
+
+        editRoleModal.addEventListener("show.bs.modal", function (event) {
+
+            const button = event.relatedTarget;
+
+            document.getElementById("editRoleId").value =
+                button.dataset.id;
+
+            document.getElementById("editRoleName").value =
+                button.dataset.name;
+
+            const form = document.getElementById("editRoleForm");
+
+            if (form) {
+                form.action =
+                    `/dashboard/staff/role/${button.dataset.id}/edit/`;
+            }
+
+        });
+
+    }
+
+
+    /* ===============================
+       DELETE ROLE
+    =============================== */
+
+    const deleteRoleModal = document.getElementById("deleteRoleModal");
+
+    if (deleteRoleModal) {
+
+        deleteRoleModal.addEventListener("show.bs.modal", function (event) {
+
+            const button = event.relatedTarget;
+
+            document.getElementById("deleteRoleId").value =
+                button.dataset.id;
+
+            document.getElementById("deleteRoleName").textContent =
+                button.dataset.name;
+
+            const form = document.getElementById("deleteRoleForm");
+
+            if (form) {
+                form.action =
+                    `/dashboard/staff/role/${button.dataset.id}/delete/`;
+            }
+
+        });
+
+    }
+
+
+    /* ===============================
+   MULTIPLE ROLE DELETE
+    =============================== */
+
+    const selectAllRoles = document.getElementById("selectAllRoles");
+    const deleteSelectedBtn = document.getElementById("deleteSelectedRolesBtn");
+    const bulkDeleteModal = document.getElementById("deleteSelectedRolesModal");
+
+    if (selectAllRoles && deleteSelectedBtn && bulkDeleteModal) {
+
+        function updateDeleteButton() {
+
+            const checked = document.querySelectorAll(".role-checkbox:checked");
+
+            deleteSelectedBtn.classList.toggle("d-none", checked.length <= 1);
+            deleteSelectedBtn.disabled = checked.length <= 1;
+        }
+
+        selectAllRoles.addEventListener("change", function () {
+
+            document.querySelectorAll(".role-checkbox").forEach(cb => {
+                cb.checked = this.checked;
+            });
+
+            updateDeleteButton();
+
+        });
+
+        document.querySelectorAll(".role-checkbox").forEach(cb => {
+
+            cb.addEventListener("change", function () {
+
+                const all = document.querySelectorAll(".role-checkbox");
+                const checked = document.querySelectorAll(".role-checkbox:checked");
+
+                selectAllRoles.checked = all.length === checked.length;
+
+                updateDeleteButton();
+
+            });
+
+        });
+
+        deleteSelectedBtn.addEventListener("click", function () {
+
+            const checked = document.querySelectorAll(".role-checkbox:checked");
+
+            const container = document.getElementById("selectedRoleInputs");
+
+            container.innerHTML = "";
+
+            checked.forEach(cb => {
+                container.innerHTML += `
+                    <input type="hidden" name="role_ids" value="${cb.value}">
+                `;
+            });
+
+            document.getElementById("selectedRoleCount").textContent = checked.length;
+
+        });
+
+        updateDeleteButton();
+
+    }
+
+
+});
+</script>
+
+{% endblock %}

@@ -11,7 +11,8 @@ from .electricity_views import (
     delete_electricity, delete_electricities
 )
 from .expenses_views import (
-    ExpenseView, edit_expense, delete_expense, delete_expenses
+    ExpenseManagementView, expenseOverview, 
+    ExpenseUpdateView, ExpenseDeleteView
 )
 
 urlpatterns = [
@@ -24,7 +25,7 @@ urlpatterns = [
         name="edit_category"
     ),
     path(
-        "delete/category<int:pk>/delete/", delete_category, 
+        "delete/category/<int:pk>/delete/", delete_category, 
         name="delete_category"
     ),
     path(
@@ -43,8 +44,9 @@ urlpatterns = [
     path("ekedc/<int:pk>/delete/", delete_electricity, name="delete_electricity"),
     path("delete/ekedc/", delete_electricities, name="delete_electricities"),
 
-    path("expense/records/", ExpenseView.as_view(), name="expenses"),
-    path("<int:pk>/edit/", edit_expense, name="edit_expense"),
-     path("<int:pk>/delete/", delete_expense, name="delete_expense"),
-    path("delete/expenses/", delete_expenses, name="delete_expenses"),
+    path("overview/", expenseOverview, name="expense_overview"),
+    path("records/",  ExpenseManagementView.as_view(), name="expenses"),
+    path("<int:pk>/edit/", ExpenseUpdateView.as_view(), name="edit_expense"),
+    path("<int:pk>/delete/", ExpenseDeleteView.as_view(), name="delete_expense"),
+    path("delete/expenses/", ExpenseDeleteView.as_view(), name="delete_expenses"),
 ]

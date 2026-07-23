@@ -193,16 +193,16 @@ Dashboard</a>
                                         <td class="px-3 py-3">
                                             <input class="form-check-input electricity-checkbox" type="checkbox" value="{{ electricity.id }}" aria-label="Select electricity record">
                                         </td>
-                                        <td class="px-4 py-4">{{ electricity.kwh|floatformat|intcomma }}</td>
-                                        <td class="px-4 py-4">₦{{ electricity.amount|floatformat|intcomma }}</td>
+                                        <td class="px-4 py-3">{{ electricity.kwh|floatformat|intcomma }}</td>
+                                        <td class="px-4 py-3">₦{{ electricity.amount|floatformat|intcomma }}</td>
                                         
-                                        <td class="px-4 py-4 text-nowrap"> {{ electricity.created_at|date:"d M Y" }}</td>
-                                        <td class="px-4 py-4 text-end">
+                                        <td class="px-4 py-3 text-nowrap"> {{ electricity.created_at|date:"d M Y" }}</td>
+                                        <td class="px-4 py-3 text-end">
                                             <!-- Desktop -->
-                                            <div class="d-none d-lg-inline-flex gap-2">
+                                            <div class="btn-group">
+
                                                 <button
-                                                    type="button"
-                                                    class="btn btn-sm btn-outline-secondary rounded-4 view-electricity-btn"
+                                                    class="btn btn-sm btn-outline-info view-electricity-btn"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#viewElectricityModal"
                                                     data-kwh="{{ electricity.kwh }}"
@@ -211,28 +211,26 @@ Dashboard</a>
                                                     data-created-by="{{ electricity.created_by }}"
                                                     data-updated="{{ electricity.updated_at|date:'d M Y, g:ia' }}"
                                                     data-updated-by="{{ electricity.updated_by }}">
-                                                    View
+                                                    <i class="bi bi-eye"></i>
                                                 </button>
                                                 <button
-                                                    type="button"
-                                                    class="btn btn-sm btn-outline-primary rounded-4 edit-electricity-btn"
+                                                    class="btn btn-sm btn-outline-primary edit-electricity-btn"
                                                     data-electricity-id="{{ electricity.id }}"
                                                     data-kwh="{{ electricity.kwh }}"
                                                     data-amount="{{ electricity.amount }}"
                                                     data-month="{{ electricity.month }}"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#editElectricityModal">
-                                                    Edit
+                                                    <i class="bi bi-pencil-square"></i>
                                                 </button>
 
                                                 <button
-                                                    type="button"
-                                                    class="btn btn-sm btn-outline-danger rounded-4 delete-electricity-btn"
+                                                    class="btn btn-sm btn-outline-danger delete-electricity-btn"
                                                     data-electricity-id="{{ electricity.id }}"
                                                     data-kwh="{{ electricity.kwh }}"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#deleteElectricityModal">
-                                                    Delete
+                                                    <i class="bi bi-trash"></i>
                                                 </button>
                                             </div>
 

@@ -38,7 +38,7 @@
             Dashboard
         </a>
 
-        <a class="nav-link rounded-3 px-3 py-2 text-white-50" href="#">
+        <a class="nav-link rounded-3 px-3 py-2 text-white-50" href="{% url 'staff_records'%}">
             <i class="bi bi-people me-2"></i>
             Staff
         </a>
@@ -58,7 +58,7 @@
             Electricity
         </a>
 
-        <a class="nav-link rounded-3 px-3 py-2 text-white-50" href="{% url 'expense-dashboard'%}">
+        <a class="nav-link rounded-3 px-3 py-2 text-white-50" href="{% url 'expense_overview'%}">
             <i class="bi bi-receipt me-2"></i>
             Office Expenses
         </a>
@@ -78,7 +78,7 @@
             Settings
         </a>
 
-        <a class="nav-link rounded-3 px-3 py-2 text-danger" href="#">
+        <a class="nav-link rounded-3 px-3 py-2 text-danger" href="{% url 'logout'%}">
             <i class="bi bi-box-arrow-right me-2"></i>
             Logout
         </a>

@@ -1,152 +1,258 @@
-from django.utils import timezone
 from django.db import transaction, IntegrityError, DatabaseError
+from django.utils import timezone
+from django.http.request import HttpRequest
 from nhcc_operations.services.generic_service import (
-    server_error, queue_error
+    server_error, queue_error, expense_404, no_changes
 )
 from decimal import Decimal
+from account.services.profile_service import getFullName
+from ..services.category_service import categoryQueryset
 from ..models import Expense
-from ..forms import ExpenseForm
 
-def expenseRetrieval(pk) -> Expense | None:
-    return Expense.objects.select_related(
-        "category").filter(id=pk).first()
+class ExpensePayloadParser:
+    def __init__(self, request:HttpRequest):
+        self.request = request
 
-def expenseQueryset() -> Expense:
-    return Expense.objects.select_related(
-        "category").all().order_by("category__name")
-
-def totalMonthlyExpenses(queryset:Expense) -> int:
-    now = timezone.now()
-    return sum(
-        item.total for item in queryset if (
-            item.created_at.month and item.created_at.year
-        ) == (now.month and now.year)
-    )
-
-def totalExpenseRecords(start_date, end_date) -> int:
-    return Expense.objects.filter(
-        created_at__gte=start_date, 
-        created_at__lt=end_date
-    ).count()
-
-def totalAnnualExpenses(queryset:Expense) -> int:
-    now = timezone.now()
-    return sum(
-            item.amount for item in queryset
-            if (item.created_at.year == now.year)
-    )
-
-def expenseFormValidator(
-        category, name, amount, quantity, date
-    ) -> ExpenseForm:
-    return ExpenseForm(
-        data={
-            "category":category,
-            "name":name, 
-            "amount":amount,
-            "quantity":quantity,
-            "date":date
+    def parse_single(self) -> dict:
+        return {
+            "category": self.request.POST.get("category"),
+            "name": self.request.POST.get("name"),
+            "amount": self.request.POST.get("amount"),
+            "quantity": self.request.POST.get("quantity"),
+            "date": self.request.POST.get("date")
         }
+
+    def parse_bulk(self) -> dict:
+        return {
+            "category": self.request.POST.getlist("category"),
+            "name": self.request.POST.getlist("name"),
+            "amount": self.request.POST.getlist("amount"),
+            "quantity": self.request.POST.getlist("quantity"),
+            "date": self.request.POST.getlist("date")
+        }
+
+class ExpenseRecordCalculator:
+    def __init__(self):
+        self.current_month = timezone.now().month
+        self.current_year = timezone.now().year
+
+    def total_monthly_records(self, queryset:Expense) -> int:
+        return sum(
+            item.total for item in queryset if (
+                item.created_at.month == self.current_month and 
+                item.created_at.year == self.current_year
+            ) 
+        )
+
+    def count_monthly_records(self, start_date, end_date) -> int:
+        return Expense.objects.filter(
+            created_at__gte=start_date, 
+            created_at__lt=end_date
+        ).count()
+
+    def total_annual_records(self, queryset:Expense) -> int:
+        return sum(
+                item.amount for item in queryset
+                if item.created_at.year == self.current_year
+        )
+
+class ExpenseRetrieval:
+    
+    def retrieve_one(self, pk) -> Expense | None:
+        return Expense.objects.select_related(
+            "category").filter(id=pk).first()
+
+    def retrieve_all_with_category(self) -> Expense:
+        return Expense.objects.select_related(
+            "category").all().order_by("category__name")
+
+    def retrieve_locked_bulk_expenses(self, expense_ids) -> Expense:
+        return Expense.objects.select_for_update(
+            nowait=True).filter(
+            id__in=expense_ids
+        )
+
+def expense_context_data(user):
+    categories = categoryQueryset()
+    expenses = ExpenseRetrieval().retrieve_all_with_category()
+    total_expenses = ExpenseRecordCalculator().total_monthly_records(expenses)
+    return {
+        "categories":categories,
+        "expenses":expenses,
+        "count":expenses.count(),
+        "monthly_total_display": f"₦{total_expenses:,.2f}",
+        "user_name":getFullName(user),
+    }
+
+def expenseOrganizer(queryset:Expense) -> dict:
+    expenses = {}
+    for query in queryset:
+        category = query.category_name
+        data = expenses.get(category)
+        if data:
+            data["expenses"].append({
+                    "name": query.name,
+                    "amount": query.amount,
+                    "quantity": query.quantity,
+                    "total": query.total,
+                    "created_at": query.created_at
+                })
+            data["rowspan"] = len(data["expenses"])
+        else:
+            data = [
+                {
+                    "name": query.name,
+                    "amount": query.amount,
+                    "quantity": query.quantity,
+                    "total": query.total,
+                    "created_at": query.created_at
+                }
+            ]
+            expenses.update({
+                category: {
+                    "rowspan": len(data),
+                    "expenses": data
+                }
+            })
+
+    return expenses
+
+
+class ExpenseDataInserter:
+    def __init__(self, data:list[dict] | dict, user):
+        
+        self.data = data
+        self.user = user
+        self.full_name = getFullName(user)
+
+    def insert_one(self):
+        Expense.objects.create(
+            category=self.data["category"],
+            category_name=self.data["category"].name,
+            name=self.data["name"], 
+            amount=self.data["amount"],
+            quantity=self.data["quantity"],
+            total=Decimal(self.data["quantity"])*Decimal(self.data["amount"]), 
+            created_by_user=self.user, 
+            created_by=self.full_name,
+            created_at=self.data["date"]
     )
 
-def processCreate(
-        categories, names, amounts, quantities, dates, user, full_name
-    ) -> ExpenseForm | list:
-    expense_list = []
-    for category, name, amount, quantity, date in zip(
-        categories, names, amounts, quantities, dates
-    ):
-        form = expenseFormValidator(
-            category, name, amount, quantity, date
-        )
-        if not form.is_valid(): return form
-        now = timezone.now()
-        input_date = form.cleaned_data.get("date")
-        if input_date:
-            if (input_date.month == now.month) and (input_date.year == now.year):
-                pass
+    def insert_many(self) -> None:
+        expenses = []
+        for expense in self.data:
+            expenses.append(
+                Expense(
+                    category=expense["category"],
+                    category_name=expense["category"].name,
+                    name=expense["name"], 
+                    amount=expense["amount"],
+                    quantity=expense["quantity"],
+                    total=Decimal(expense["quantity"])*Decimal(expense["amount"]), 
+                    created_by_user=self.user, 
+                    created_by=self.full_name,
+                    created_at=expense["date"]
+            ))
+        Expense.objects.bulk_create(expenses)
+
+class ExpenseUpdateData:
+    def __init__(self):
+        pass
+
+    def can_update(self, expense:Expense, data:dict) -> bool:
+        for key,value in data.items():
+            if key == "date":
+                if expense.created_at != value:
+                    return True
             else:
-                form.add_error("date", "Month mismatch.")
-                return form        
-        expense_list.append(
-            Expense(
-                category_id=category,
-                name=name.title(), amount=amount,
-                quantity=quantity,
-                total=Decimal(quantity)*Decimal(amount), 
-                created_by_user=user, created_by=full_name,
-                created_at=input_date if input_date else timezone.now())
-        )
-    return expense_list
+                if getattr(expense, key) != value:
+                    return True
+        return False
 
-def expenseCreate(expense_list:list) -> None:
-    Expense.objects.bulk_create(expense_list)
-
-def expenseUpdate(
-        expense_id, category, name, quantity, 
-        amount, date, user_id, full_name
-    ) -> None:
-    Expense.objects.filter(
-        id=expense_id).update(
-            category_id=category,
-            name=name.title(),
-            quantity=quantity,
-            amount=amount,
-            total=Decimal(quantity)*Decimal(amount),
-            created_at=date,
-            updated_by_user_id=user_id,
-            updated_by=full_name
-        )
-    return None
-
-def create(expense_list:list) -> dict | None:
-    try:
-        with transaction.atomic():
-            expenseCreate(expense_list)
-    except IntegrityError:
-        return queue_error
-    except Exception:
-        return server_error
-    return None
-
-def update(
-        expense:Expense, category, name, 
-        quantity, amount, date, user, full_name
-    ) -> dict | None:
-    try:
-        with transaction.atomic():
-            expenseUpdate(
-                expense.id, category, name, quantity, 
-                amount, date, user.id, full_name
+    def update_one(self, expense_id, data:dict, user) -> None:
+        qty = data["quantity"]
+        amt = data["amount"]
+        Expense.objects.filter(
+            id=expense_id).update(
+                category=data["category"],
+                category_name=data["category"].name,
+                name=data["name"], quantity=qty,
+                amount=amt, total=qty*amt,
+                created_at=data["date"],
+                updated_by_user=user,
+                updated_by=getFullName(user)
             )
+
+class ExpenseDeleteData:
+    def __init__(self):
+        pass
+
+    def delete_one(self, id) -> None:
+        Expense.objects.select_for_update(
+            nowait=True).get(
+            id=id
+        ).delete()
+
+    def delete_many(self, expenses:Expense) -> None:
+        expenses.delete()
+
+
+
+"""################# HELPER FUNCTIONS##############"""
+
+def create_single(data:dict, user) -> tuple[str, int] | None:
+    try:
+        ExpenseDataInserter(data, user).insert_one()
+    except Exception:
+        return (server_error, 500)
+    return None
+
+def create_bulk(data:list[dict], user) -> tuple[str, int] | None:
+    try:
+        ExpenseDataInserter(data, user).insert_many()
+    except Exception:
+        return (server_error, 500)
+    return None
+
+def update_single(id, data:dict, user) -> tuple[str, int] | None:
+    try:
+        expense = ExpenseRetrieval().retrieve_one(id)
+        if expense is None:
+            return (expense_404, 404)
+        updater = ExpenseUpdateData()
+        if not updater.can_update(expense, data):
+            return (no_changes, 400)
+        with transaction.atomic():
+            updater.update_one(expense.id, data, user)
     except IntegrityError:
-        return queue_error
-    except Exception as e:
-        return server_error
+        return (queue_error, 400)
+    except Exception:
+        return (server_error, 500)
     return None
 
-def delete_one(expense:Expense) -> dict | None:
+
+def delete_single(expense_id) -> tuple[str, int] | None:
     try:
         with transaction.atomic():
-            Expense.objects.select_for_update(
-                nowait=True).get(
-                id=expense.id
-            ).delete()
+            ExpenseDeleteData().delete_one(expense_id)
+    except Expense.DoesNotExist:
+        return (expense_404, 404)
     except DatabaseError:
-        return queue_error
+        return (queue_error, 400)
     except Exception:
-        return server_error
+        return (server_error, 500)
     return None
 
-def delete_many(expense_ids) -> dict | None:
+def delete_bulk(expense_ids) -> tuple[str, int] | None:
     try:
         with transaction.atomic():
-            Expense.objects.select_for_update(
-                nowait=True).filter(
-                id__in=expense_ids
-            ).delete()
+            expenses = ExpenseRetrieval(
+                ).retrieve_locked_bulk_expenses(expense_ids)
+            if not expenses.exists():
+                return (expense_404, 404)
+            ExpenseDeleteData().delete_many(expenses)
     except DatabaseError:
-        return queue_error
+        return (queue_error, 400)
     except Exception:
-        return server_error
+        return (server_error, 500)
     return None

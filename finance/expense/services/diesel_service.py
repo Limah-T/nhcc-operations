@@ -13,6 +13,12 @@ def dieselQueryset() -> Diesel:
 def dieselRetrieval(pk:int) -> Diesel | None:
     return Diesel.objects.filter(id=pk).first()
 
+def totaldieselRecords(start_date, end_date)-> int:
+    return Diesel.objects.filter(
+        created_at__gte=start_date,
+        created_at__lt=end_date
+    ).count()
+
 def totalMonthlyDiesel(queryset:Diesel) -> int:
     now = timezone.now()
     return sum(

@@ -179,13 +179,13 @@
                                             <input class="form-check-input category-checkbox" type="checkbox" value="{{ category.id }}" aria-label="Select category {{ category.name }}">
                                         </td>
                                         <td class="px-4 py-3">{{ category.name }}</td>
-
+                                        
                                         <td class="px-4 py-3">
+                                            <!-- DESKTOP ACTIONS -->
                                             <div class="d-flex flex-wrap gap-2 justify-content-end">
-                                                <div class="d-none d-lg-flex gap-2">
+                                                <div class="btn-group">
                                                     <button
-                                                        type="button"
-                                                        class="btn btn-sm btn-outline-secondary rounded-4 view-category-btn"
+                                                        class="btn btn-sm btn-outline-info  view-category-btn"
                                                         data-category-id="{{ category.id }}"
                                                         data-category-name="{{ category.name }}"
                                                         data-created-at="{{ category.created_at|date:'d M Y, g:ia' }}"
@@ -194,26 +194,24 @@
                                                         data-updated-by="{{ category.updated_by }}"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#viewCategoryModal">
-                                                        View
+                                                        <i class="bi bi-eye"></i>
                                                     </button>
                                                     <button
-                                                        type="button"
-                                                        class="btn btn-sm btn-outline-primary rounded-4 edit-category-btn"
+                                                        class="btn btn-sm btn-outline-primary  edit-category-btn"
                                                         data-category-id="{{ category.id }}"
                                                         data-category-name="{{ category.name }}"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#editCategoryModal">
-                                                        Edit
+                                                        <i class="bi bi-pencil-square"></i>
                                                     </button>
 
                                                     <button
-                                                        type="button"
-                                                        class="btn btn-sm btn-outline-danger rounded-4 delete-category-btn"
+                                                        class="btn btn-sm btn-outline-danger  delete-category-btn"
                                                         data-category-id="{{ category.id }}"
                                                         data-category-name="{{ category.name }}"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#deleteCategoryModal">
-                                                        Delete
+                                                        <i class="bi bi-trash"></i>
                                                     </button>
                                                 </div>
 

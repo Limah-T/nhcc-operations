@@ -66,6 +66,7 @@ class Expense(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL, null=True
     )
+    category_name = models.CharField(max_length=255, default="category")
     name = models.CharField(max_length=255)
     amount = models.DecimalField(max_digits=15, decimal_places=2)
     quantity = models.DecimalField(
@@ -74,5 +75,5 @@ class Expense(models.Model):
     total = models.DecimalField(max_digits=15, decimal_places=2)
     created_by = models.CharField(max_length=200)
     updated_by = models.CharField(max_length=200)
-    created_at = models.DateTimeField(null=True, blank=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateField(null=True, blank=True)
+    updated_at = models.DateField(auto_now=True)

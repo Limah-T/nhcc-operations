@@ -83,3 +83,10 @@ USE_I18N = True
 USE_TZ = True
 STATIC_URL = 'static/'
 LOGIN_URL="login"
+MEDIA_ROOT = BASE_DIR / "media"
+
+from django.contrib.messages import constants as messages
+
+MESSAGE_TAGS = {
+    messages.ERROR: "danger",
+}

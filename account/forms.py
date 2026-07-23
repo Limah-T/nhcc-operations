@@ -5,8 +5,8 @@ from nhcc_operations.config.settings.base import env
 staff_accounts = set(env("STAFF_EMAILS").split(","))
 
 class SignupForm(forms.ModelForm):
-    first_name = forms.CharField(max_length=100)
-    last_name = forms.CharField(max_length=100)
+    first_name = forms.CharField(max_length=255)
+    last_name = forms.CharField(max_length=255)
     email = forms.EmailField(max_length=255)
     password = forms.CharField(min_length=8, max_length=100)
 
@@ -25,6 +25,7 @@ class SignupForm(forms.ModelForm):
                 "An account with this email already exists."
             )
         return email
+
     
     
     def save(self, commit=True):

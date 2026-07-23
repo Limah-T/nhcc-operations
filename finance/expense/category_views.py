@@ -6,7 +6,17 @@ from django.utils.decorators import method_decorator
 from .forms import CategoryForm, Categoryformset
 from .models import Category
 from dashboard.views import category_temp_name
+from account.services.profile_service import getFullName
 
+@login_required
+def categoryOverview(request):
+    return render(
+        request=request, 
+        template_name=category_temp_name,
+        context={
+            "user_name":getFullName(request.user)
+        }
+    )   
 
 @method_decorator(login_required, name="dispatch")
 class CategoryView(View):

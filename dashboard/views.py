@@ -10,7 +10,7 @@ from finance.expense.services.electricity_service import (
     totalMonthlyPrepaid, totalAnnualPrepaid, ekedcQuerySet
 )
 from finance.expense.services.expense_service import (
-    totalMonthlyExpenses, totalAnnualExpenses, expenseQueryset
+    ExpenseRetrieval, ExpenseRecordCalculator
 )
 from account.services.profile_service import getFullName
 
@@ -20,6 +20,7 @@ expense_record_temp_name = "dashboard/office_expense_record.html"
 category_temp_name = "dashboard/office_expense_category.html"
 diesel_temp_name = "dashboard/office_expense_diesel.html"
 electricity_temp_name = "dashboard/office_expense_electricity.html"
+staff_account_temp_name = "dashboard/office_staff_account.html"
 report_temp_name = "dashboard/office_report.html"
 
 def get_greeting():
@@ -38,14 +39,16 @@ def get_greeting():
 class Dashboard(View):
 
     def get(self, request):
+        expense_calculator = ExpenseRecordCalculator()
+        expenses = ExpenseRetrieval().retrieve_all_with_category()
         name = request.user.first_name+" "+request.user.last_name
         now = timezone.localtime()
         total_ekedc = totalMonthlyPrepaid(ekedcQuerySet())
         total_diesel = totalMonthlyDiesel(dieselQueryset())
-        total_expenses = totalMonthlyExpenses(expenseQueryset())
+        total_expenses = expense_calculator.total_monthly_records(expenses)
         yearly_ekdc = totalAnnualPrepaid(ekedcQuerySet())
         yearly_diesel = totalAnnualDiesel(dieselQueryset())
-        yearly_expenses = totalAnnualExpenses(expenseQueryset())
+        yearly_expenses = expense_calculator.total_annual_records(expenses)
         monthly_expenses = total_ekedc+total_diesel+total_expenses
         yearly_expenses = yearly_ekdc+yearly_diesel+yearly_expenses
         return render(
@@ -58,30 +61,13 @@ class Dashboard(View):
                 "total_diesel":total_diesel,
                 "total_ekedc":total_ekedc,
                 "total_expenses": total_expenses,
-                "user_name":getFullName(request)
+                "user_name":getFullName(request.user)
             }
         )
     
     def post(self, request):
         return render(request, dashboard_temp_name)
 
-@method_decorator(login_required, name="dispatch") 
-class OfficeExpenseDashboard(View):
-    def get(self, request):
-        return render(
-            request, 
-            expense_temp_name,
-            {"user_name":request.user.first_name[0]+request.user.last_name[0]}
 
-        )
-
-@method_decorator(login_required, name="dispatch")
-class OfficeExpenseCategory(View):
-    def get(self, request):
-        return render(
-            request, 
-            category_temp_name,
-            {"user_name":request.user.first_name[0]+request.user.last_name[0]}
-        )   
 
 
