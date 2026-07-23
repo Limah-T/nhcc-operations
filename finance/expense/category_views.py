@@ -1,12 +1,22 @@
 from django.shortcuts import render
 from django.views import View
-from django.shortcuts import redirect
+from django.http.response import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from .forms import CategoryForm, Categoryformset
-from .models import Category
+from nhcc_operations.services.http_response_services import (
+    error_response, success_response
+) 
+from nhcc_operations.services.generic_service import category_404
+from .forms import CategoryForm
 from dashboard.views import category_temp_name
 from account.services.profile_service import getFullName
+from .services.category_service import (
+    CategoryPayloadParser, category_context_data,
+    create_single, create_bulk, update_single,
+    delete_single, delete_bulk
+)
+
+category_url_name = "category"
 
 @login_required
 def categoryOverview(request):
@@ -19,117 +29,135 @@ def categoryOverview(request):
     )   
 
 @method_decorator(login_required, name="dispatch")
-class CategoryView(View):
+class CategoryManagementView(View):
     def get(self, request):
-        queryset = Category.objects.all()
         return render(
-            request, category_temp_name, {"categories":queryset, "count":queryset.count()}
+            request=request, 
+            template_name=category_temp_name, 
+            context=category_context_data()
         )
 
-    def post(self, request):
-        user_name = f"{request.user.first_name} {request.user.last_name}" 
-
-        categories = request.POST.getlist("categories")
-        category_list, errors = set(), []
-        formset = Categoryformset()
-        for category_name in categories:
-            if not category_name.strip():
-                continue
-
-            form = CategoryForm(
-                data={"name": category_name}
-            )
-
-            if form.is_valid():
-                category_list.add(form.cleaned_data["name"])
-            else:
-                errors.append({
-                    "value": category_name.title(),
-                    "errors": form.errors,
-                })
-        if not errors:
-            categories = list(Category.objects.filter(name__in=category_list).values_list("name", flat=True))
-            if len(categories) != len(category_list):
-                new_categories = [
-                    Category(
-                        name=name, 
-                        created_by_user=request.user,
-                        created_by=user_name
-                    ) for name in category_list 
-                        if name not in categories
-                ] 
-                Category.objects.bulk_create(new_categories)
-                return redirect("category")
-            errors.append({
-                    "value": categories,
-                    "errors": {'name': ['Data already exists.']}
-                })
-        queryset = Category.objects.all()
-        return render(
-            request, category_temp_name, {
-                "categories":queryset, "form":formset,
-                "category_errors": errors
-            }
-        )
-        
-
-@login_required
-def edit_category(request, pk):
-    if request.method != "POST":
-        return redirect("category")
-    
-    category = Category.objects.filter(id=pk).first()
-    form = CategoryForm(data=request.POST)
-    if category is None:
-        form.add_error("name", "Category not found")
-    else:
+    def _handle_single_action(self, request):
+        """Orchestrates single workflow"""
+        field_data = CategoryPayloadParser(request).parse_single()
+        form = CategoryForm(data=field_data)
         if form.is_valid():
-            name = form.cleaned_data["name"]
-            if category.name != name:
-                category.name = name
-                category.updated_by_user = request.user
-                category.save()
-                category.refresh_from_db()
-                return redirect("category")    
-            form.add_error("name", "Nothing to update.")
-    queryset = Category.objects.all()
-    return render(
-        request, category_temp_name, {
-            "categories":queryset, "form":form
-        }
-    )
+            error = create_single(form.cleaned_data, request.user)
+            if error is None:
+                message = "Category created successfully."
+                return success_response(request, category_url_name, message)
+            
+            message, code = error[0], error[1]
+        else: message, code = form.errors, 400
+        return error_response(
+            request, category_temp_name, 
+            category_context_data(), message, code
+        )
     
-@login_required
-def delete_category(request, pk):
-    if request.method != "POST":
-        return redirect("category")
-    print(pk, "PK")
-    category = Category.objects.filter(id=pk).first()
-    if category:
-        category.delete()
-        return redirect("category")
-    errors = [{
-        "value": "",
-        "errors": {'name': ['Category not found']}
-    }]
-    queryset = Category.objects.all()
-    return render(
-        request, category_temp_name, {
-            "categories":queryset, "form":CategoryForm(),
-            "category_errors":errors
-        }, status=400
-    )
+    def _handle_bulk_action(self, request):
+        """Orchestrates bulk workflow"""
+        field_data = CategoryPayloadParser(request).parse_bulk()
+        category_list = []
+        can_proceed = True
+        for name in field_data["name"]:
+            form = CategoryForm(data={"name":name})
+            if not form.is_valid():
+                message, code = form.errors, 400
+                can_proceed = False
+                break
+            category_list.append(form.cleaned_data)
 
-@login_required
-def delete_categories(request):
-    if request.method != "POST":
-        return redirect("category")
-    category_ids = request.POST.getlist("category_ids")
-    if len(category_ids) > 0:
-        categories = Category.objects.filter(id__in=category_ids)
-        categories.delete()
-    return redirect("category")
+        if can_proceed:
+            error = create_bulk(category_list, request.user)
+            if error is None:
+                message = "Expenses created successfully."
+                return success_response(request, category_url_name, message)
+            else: 
+                message, code = error[0], error[1]
+        
+        return error_response(
+            request, category_temp_name, 
+            category_context_data(), message, code
+        )
 
+    def post(self, request) -> HttpResponse:
+        action = request.POST.get("action")
 
+        if action == "single":
+            return self._handle_single_action(request)
+        
+        return self._handle_bulk_action(request)
 
-    
+@method_decorator(login_required, "dispatch")
+class CategoryUpdateView(View):
+    def get(self, request, pk=None):
+        return success_response(request, category_url_name, None)
+
+    def _handle_single_action(self, request, id):
+        """Orchestrates a single workflow"""
+
+        field_data = CategoryPayloadParser(request).parse_single()
+        form = CategoryForm(data=field_data)
+        if form.is_valid():
+            error = update_single(id, form.cleaned_data, request.user)
+            if error is None:
+                message = "Category updated successfully."
+                return success_response(request, category_url_name, message)
+            
+            message, code = error[0], error[1]
+        else: message, code = form.errors, 400
+        return error_response(
+            request, category_temp_name, 
+            category_context_data(), message, code
+        )
+
+    def post(self, request, pk=None):
+        action = request.POST.get("action")
+        if action == "single":
+           
+           return self._handle_single_action(request, pk)
+
+        return success_response(request, category_url_name, None)
+
+@method_decorator(login_required, "dispatch")
+class CategoryDeleteView(View):
+    def get(self, request):
+       return success_response(request, category_url_name, None)
+
+    def _handle_single_action(self, request, pk:int):
+        """Orchestrates a single workflow"""
+        
+        error = delete_single(pk)
+        if error is None:
+            message = "Category deleted successfully."
+            return success_response(request, category_url_name, message)
+        
+        message, code = error[0], error[1]
+        return error_response(
+            request, category_temp_name, 
+            category_context_data(), message, code
+        )
+
+    def _handle_bulk_action(self, request, category_ids:list):
+        """Orchestrates bulk workflow"""
+
+        if category_ids:
+            error = delete_bulk(category_ids)
+            if error is None:
+                message = "Category deleted successfully"
+                return success_response(request, category_url_name, message)
+            
+            message, code = error[0], error[1]
+        else: message, code = category_404, 400
+        return error_response(
+            request, category_temp_name, 
+            category_context_data(), message, code
+        )
+
+    def post(self, request, pk=None) -> HttpResponse:
+        action = request.POST.get("action")
+        if action == "single":
+            return self._handle_single_action(request, pk)
+        
+        category_ids = request.POST.getlist("category_ids")
+        return self._handle_bulk_action(request, category_ids)

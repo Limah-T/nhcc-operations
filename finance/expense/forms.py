@@ -12,11 +12,6 @@ class CategoryForm(forms.Form):
         if not re.match(r"^[a-zA-Z0-9\s&,'.-]+$", name):
             raise forms.ValidationError("Invalid name")
         return name.title()          
-     
-
-Categoryformset = forms.formset_factory(
-            CategoryForm, extra=5
-        )   
 
 
 class DieselForm(forms.Form):

@@ -6,7 +6,7 @@ from nhcc_operations.services.generic_service import (
 )
 from decimal import Decimal
 from account.services.profile_service import getFullName
-from ..services.category_service import categoryQueryset
+from ..services.category_service import CategoryDataRetrieval
 from ..models import Expense
 
 class ExpensePayloadParser:
@@ -52,30 +52,35 @@ class ExpenseRecordCalculator:
 
     def total_annual_records(self, queryset:Expense) -> int:
         return sum(
-                item.amount for item in queryset
+                item.total for item in queryset
                 if item.created_at.year == self.current_year
         )
 
-class ExpenseRetrieval:
-    
-    def retrieve_one(self, pk) -> Expense | None:
+class ExpenseDataRetrieval:
+
+    @staticmethod
+    def retrieve_one(pk) -> Expense | None:
         return Expense.objects.select_related(
             "category").filter(id=pk).first()
 
-    def retrieve_all_with_category(self) -> Expense:
+    @staticmethod
+    def retrieve_all_with_category() -> Expense:
         return Expense.objects.select_related(
             "category").all().order_by("category__name")
 
-    def retrieve_locked_bulk_expenses(self, expense_ids) -> Expense:
+    @staticmethod
+    def retrieve_locked_bulk_expenses(expense_ids) -> Expense:
         return Expense.objects.select_for_update(
             nowait=True).filter(
             id__in=expense_ids
         )
 
 def expense_context_data(user):
-    categories = categoryQueryset()
-    expenses = ExpenseRetrieval().retrieve_all_with_category()
-    total_expenses = ExpenseRecordCalculator().total_monthly_records(expenses)
+    categories = CategoryDataRetrieval().retrieve_all()
+    expenses = ExpenseDataRetrieval().retrieve_all_with_category()
+    calculator = ExpenseRecordCalculator()
+    total_expenses = calculator.total_monthly_records(expenses)
+    
     return {
         "categories":categories,
         "expenses":expenses,
@@ -155,11 +160,10 @@ class ExpenseDataInserter:
             ))
         Expense.objects.bulk_create(expenses)
 
-class ExpenseUpdateData:
-    def __init__(self):
-        pass
+class ExpenseDataUpdater:
 
-    def can_update(self, expense:Expense, data:dict) -> bool:
+    @staticmethod
+    def can_update(expense:Expense, data:dict) -> bool:
         for key,value in data.items():
             if key == "date":
                 if expense.created_at != value:
@@ -169,7 +173,8 @@ class ExpenseUpdateData:
                     return True
         return False
 
-    def update_one(self, expense_id, data:dict, user) -> None:
+    @staticmethod
+    def update_one(expense_id, data:dict, user) -> None:
         qty = data["quantity"]
         amt = data["amount"]
         Expense.objects.filter(
@@ -184,16 +189,16 @@ class ExpenseUpdateData:
             )
 
 class ExpenseDeleteData:
-    def __init__(self):
-        pass
 
-    def delete_one(self, id) -> None:
+    @staticmethod
+    def delete_one(id) -> None:
         Expense.objects.select_for_update(
             nowait=True).get(
             id=id
         ).delete()
 
-    def delete_many(self, expenses:Expense) -> None:
+    @staticmethod
+    def delete_many(expenses:Expense) -> None:
         expenses.delete()
 
 
@@ -216,10 +221,10 @@ def create_bulk(data:list[dict], user) -> tuple[str, int] | None:
 
 def update_single(id, data:dict, user) -> tuple[str, int] | None:
     try:
-        expense = ExpenseRetrieval().retrieve_one(id)
+        expense = ExpenseDataRetrieval().retrieve_one(id)
         if expense is None:
             return (expense_404, 404)
-        updater = ExpenseUpdateData()
+        updater = ExpenseDataUpdater()
         if not updater.can_update(expense, data):
             return (no_changes, 400)
         with transaction.atomic():
@@ -246,7 +251,7 @@ def delete_single(expense_id) -> tuple[str, int] | None:
 def delete_bulk(expense_ids) -> tuple[str, int] | None:
     try:
         with transaction.atomic():
-            expenses = ExpenseRetrieval(
+            expenses = ExpenseDataRetrieval(
                 ).retrieve_locked_bulk_expenses(expense_ids)
             if not expenses.exists():
                 return (expense_404, 404)

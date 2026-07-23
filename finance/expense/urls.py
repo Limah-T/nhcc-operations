@@ -1,7 +1,7 @@
 from django.urls import path
 from .category_views import (
-    CategoryView, edit_category, 
-    delete_category, delete_categories
+    categoryOverview, CategoryManagementView,
+    CategoryUpdateView, CategoryDeleteView
 )
 from .diesel_views import (
     DieselView, edit_diesel, delete_diesel, delete_diesels
@@ -15,23 +15,14 @@ from .expenses_views import (
     ExpenseUpdateView, ExpenseDeleteView
 )
 
+
 urlpatterns = [
-    path(
-        "category", CategoryView.as_view(), name="category"
-        ),
-    path("add/category/", CategoryView.as_view(), name="add-category"),
-    path(
-        "edit/category/<int:pk>/edit/", edit_category, 
-        name="edit_category"
-    ),
-    path(
-        "delete/category/<int:pk>/delete/", delete_category, 
-        name="delete_category"
-    ),
-    path(
-        "delete/categories/", delete_categories, 
-        name="delete_categories"
-    ),
+    path("category/overview/", categoryOverview, name="category_overview"),
+    path("add/category/", CategoryManagementView.as_view(), name="category"),
+    path("category/<int:pk>/edit/", CategoryUpdateView.as_view(), name="edit_category"),
+    path("category/<int:pk>/delete/", CategoryDeleteView.as_view(), name="delete_category"),
+    path("delete/categories/", CategoryDeleteView.as_view(), name="delete_categories"),
+
     path("diesel", DieselView.as_view(), name="diesel"),
     path("add/diesel/", DieselView.as_view(), name="add_diesel"),
     path("diesel/<int:pk>/edit/", edit_diesel, name="edit_diesel"),

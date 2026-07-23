@@ -10,7 +10,7 @@ from finance.expense.services.electricity_service import (
     totalMonthlyPrepaid, totalAnnualPrepaid, ekedcQuerySet
 )
 from finance.expense.services.expense_service import (
-    ExpenseRetrieval, ExpenseRecordCalculator
+    ExpenseDataRetrieval, ExpenseRecordCalculator
 )
 from account.services.profile_service import getFullName
 
@@ -40,7 +40,7 @@ class Dashboard(View):
 
     def get(self, request):
         expense_calculator = ExpenseRecordCalculator()
-        expenses = ExpenseRetrieval().retrieve_all_with_category()
+        expenses = ExpenseDataRetrieval().retrieve_all_with_category()
         name = request.user.first_name+" "+request.user.last_name
         now = timezone.localtime()
         total_ekedc = totalMonthlyPrepaid(ekedcQuerySet())
