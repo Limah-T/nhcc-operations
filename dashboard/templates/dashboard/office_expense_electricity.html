@@ -5,24 +5,24 @@
 {% block content %}
 <div class="row g-4">
     <div class="col-12">
-        {% if errors %}
-            <div class="alert alert-danger rounded-4 mb-4">
-                <div class="fw-semibold mb-2">
-                    Please correct the following:
+        <!-- ===========================
+            MESSAGES
+        =========================== -->
+    
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} rounded-4 mb-4 alert-dismissible fade show">
+
+                    {{ message }}
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert">
+                    </button>
+
                 </div>
-
-                <ul class="mb-0 ps-3">
-                    {% for field, messages in errors.items %}
-                        <li class="mb-2">
-                            <strong>{{ field|capfirst }}</strong><br>
-                            {% for message in messages %}
-                                <small>{{ message }}</small>
-                            {% endfor %}
-                        </li>
-                    {% endfor %}
-
-                </ul>
-            </div>
+            {% endfor %}
         {% endif %}
         <div class="card border-0 shadow-sm rounded-4">
             <div class="card-body p-4 p-lg-5">
@@ -81,7 +81,7 @@ Dashboard</a>
                 <div class="card border-0 shadow-sm rounded-4 mb-4">
                     <div class="card-body p-4">
                         <div class="d-flex justify-content-between align-items-center">
-                            <div>
+                            <div id="monthlySummary" class="card border-0 shadow-sm rounded-4 mb-4">
                                 <div class="text-muted small text-uppercase fw-semibold">This Month</div>
                                 <div class="fw-bold fs-4 mb-0">{{ monthly_total_display }}</div>
                             </div>
@@ -93,8 +93,9 @@ Dashboard</a>
                 <div class="modal fade" id="addElectricityModal" tabindex="-1" aria-labelledby="addElectricityModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
                         <div class="modal-content rounded-4 shadow border-0">
-                            <form method="post" action="{% url 'add_electricity' %}">
+                            <form method="post" action="{% url 'ekedc' %}">
                                 {% csrf_token %}
+                                <input type="hidden" name="action" value="single">
                                 <div class="modal-header border-0 pb-0">
                                     <h5 class="modal-title fw-bold" id="addElectricityModalLabel">Add Electricity Record</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -109,6 +110,26 @@ Dashboard</a>
                                             <label class="form-label fw-semibold">Amount</label>
                                             <input type="text" step="0.01" name="amount" class="form-control rounded-4" placeholder="0.00" required>
                                         </div>
+                                        <div class="col-12">
+
+                                            <label class="form-label fw-semibold">
+                                                Date
+                                            </label>
+
+                                            <div class="form-floating position-relative">
+                                                <i class="bi bi-calendar-event position-absolute top-50 start-0 translate-middle-y ms-3 text-muted" style="z-index:5;"></i>
+
+                                                <input
+                                                    type="date"
+                                                    class="form-control ps-5"
+                                                    id="expenseDate"
+                                                    name="date">
+
+                                                <label for="expenseDate" class="ps-5">Tap to enter date</label>
+                                            </div>
+                                            
+                                        </div>
+
                                     </div>
                                 </div>
                                 <div class="modal-footer border-0 pt-0">
@@ -123,10 +144,11 @@ Dashboard</a>
                 <div class="modal fade" id="addMultipleElectricityModal" tabindex="-1" aria-labelledby="addMultipleElectricityModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                         <div class="modal-content rounded-4 shadow border-0">
-                            <form method="post" action="{% url 'add_electricity' %}"
+                            <form method="post" action="{% url 'ekedc' %}"
                                 class="d-flex flex-column"
                                 style="max-height:90vh;">
                                 {% csrf_token %}
+                                <input type="hidden" name="action" value="bulk">
                                 <div class="modal-header border-0 pb-0">
                                     <h5 class="modal-title fw-bold" id="addMultipleElectricityModalLabel">Add Multiple Electricity Records</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -149,8 +171,9 @@ Dashboard</a>
                 <div class="modal fade" id="bulkDeleteModal" tabindex="-1" aria-labelledby="bulkDeleteModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
                         <div class="modal-content rounded-4 shadow border-0">
-                            <form method="post" action="{% url 'delete_electricities' %}" id="bulkDeleteForm">
+                            <form method="post" action="{% url 'delete_ekedcs' %}" id="bulkDeleteForm">
                                 {% csrf_token %}
+                                <input type="hidden" name="action" value="bulk">
                                 <div class="modal-header border-0 pb-0">
                                     <h5 class="modal-title fw-bold text-danger" id="bulkDeleteModalLabel">Delete Selected Electricity Records</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -172,34 +195,64 @@ Dashboard</a>
 
                 <div class="card border-0 shadow-sm rounded-4">
                     <div class="card-body p-0">
+                        <div id="swipeHint" class="swipe-hint d-lg-none">
+                            <i class="bi bi-arrow-left-right"></i>
+                            Swipe left to view more columns
+                        </div>
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0" style="min-width: 980px;">
+                            <table class="table table-hover align-middle mb-0" style="min-width: 900px; table-layout: fixed;">
                                 <thead class="table-light">
                                     <tr>
-                                        <th class="px-3 py-3" style="width:48px;">
-                                            <input class="form-check-input" type="checkbox" id="selectAllElectricity" aria-label="Select all electricity records">
+                                        <th style="width:48px;" class="px-3 py-3">
+                                            <input class="form-check-input"
+                                                type="checkbox"
+                                                id="selectAllElectricity">
                                         </th>
-                                        <th class="px-4 py-4">kWh</th>
-                                        <th class="px-4 py-4">Amount</th>
-                                        <th class="px-4 py-4 text-nowrap">Date</th>
-                                        <th class="px-4 py-4 text-end" style="width:120px;">
-    Actions
-</th>
+
+                                        <th style="width:22%;" class="px-3 py-3">
+                                            kWh
+                                        </th>
+
+                                        <th style="width:28%;" class="px-3 py-3">
+                                            Amount
+                                        </th>
+
+                                        <th style="width:22%;" class="px-3 py-3">
+                                            Date
+                                        </th>
+
+                                        <th style="width:160px;" class="px-3 py-3 text-center">
+                                            Actions
+                                        </th>
                                     </tr>
                                 </thead>
+
                                 <tbody>
                                     {% for electricity in electricity_records %}
                                     <tr>
                                         <td class="px-3 py-3">
-                                            <input class="form-check-input electricity-checkbox" type="checkbox" value="{{ electricity.id }}" aria-label="Select electricity record">
+                                            <input class="form-check-input electricity-checkbox"
+                                                type="checkbox"
+                                                value="{{ electricity.id }}">
                                         </td>
-                                        <td class="px-4 py-3">{{ electricity.kwh|floatformat|intcomma }}</td>
-                                        <td class="px-4 py-3">₦{{ electricity.amount|floatformat|intcomma }}</td>
-                                        
-                                        <td class="px-4 py-3 text-nowrap"> {{ electricity.created_at|date:"d M Y" }}</td>
-                                        <td class="px-4 py-3 text-end">
-                                            <!-- Desktop -->
-                                            <div class="btn-group">
+
+                                        <td class="px-3 py-3">
+                                            {{ electricity.kwh|floatformat|intcomma }}
+                                        </td>
+
+                                        <td class="px-3 py-3">
+                                            ₦{{ electricity.amount|floatformat|intcomma }}
+                                        </td>
+
+                                        <td class="px-3 py-3 text-nowrap">
+                                            {{ electricity.created_at|date:"d M Y" }}
+                                        </td>
+
+                                        <td class="px-3 py-3 text-center">
+
+                                            <!-- Desktop  Actions-->
+
+                                            <div class="btn-group d-none d-lg-inline-flex">
 
                                                 <button
                                                     class="btn btn-sm btn-outline-info view-electricity-btn"
@@ -207,9 +260,10 @@ Dashboard</a>
                                                     data-bs-target="#viewElectricityModal"
                                                     data-kwh="{{ electricity.kwh }}"
                                                     data-amount="{{ electricity.amount }}"
-                                                    data-created="{{ electricity.created_at|date:'d M Y, g:ia' }}"
+                                                    data-created-at="{{ electricity.created_at|date:'Y-m-d' }}"
+
                                                     data-created-by="{{ electricity.created_by }}"
-                                                    data-updated="{{ electricity.updated_at|date:'d M Y, g:ia' }}"
+                                                    data-updated-at="{{ electricity.updated_at|date:'Y-m-d' }}"
                                                     data-updated-by="{{ electricity.updated_by }}">
                                                     <i class="bi bi-eye"></i>
                                                 </button>
@@ -218,7 +272,7 @@ Dashboard</a>
                                                     data-electricity-id="{{ electricity.id }}"
                                                     data-kwh="{{ electricity.kwh }}"
                                                     data-amount="{{ electricity.amount }}"
-                                                    data-month="{{ electricity.month }}"
+                                                    data-created-at="{{ electricity.created_at|date:'Y-m-d' }}"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#editElectricityModal">
                                                     <i class="bi bi-pencil-square"></i>
@@ -253,9 +307,10 @@ Dashboard</a>
                                                             data-bs-target="#viewElectricityModal"
                                                             data-kwh="{{ electricity.kwh }}"
                                                             data-amount="{{ electricity.amount }}"
-                                                            data-created="{{ electricity.created_at|date:'d M Y, g:ia' }}"
+                                                            data-created-at="{{ electricity.created_at|date:'Y-m-d' }}"
+
                                                             data-created-by="{{ electricity.created_by }}"
-                                                            data-updated="{{ electricity.updated_at|date:'d M Y, g:ia' }}"
+                                                            data-updated-at="{{ electricity.updated_at|date:'Y-m-d' }}"
                                                             data-updated-by="{{ electricity.updated_by }}">
                                                             <i class="bi bi-eye me-2"></i>View
                                                         </button>
@@ -267,7 +322,7 @@ Dashboard</a>
                                                             data-electricity-id="{{ electricity.id }}"
                                                             data-kwh="{{ electricity.kwh }}"
                                                             data-amount="{{ electricity.amount }}"
-                                                            data-month="{{ electricity.month }}"
+                                                            data-created-at="{{ electricity.created_at|date:'Y-m-d' }}"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#editElectricityModal">
                                                             <i class="bi bi-pencil me-2"></i>
@@ -293,7 +348,7 @@ Dashboard</a>
                                     </tr>
                                     {% empty %}
                                     <tr>
-                                        <td colspan="5" class="px-4 py-5 text-center text-muted">
+                                        <td colspan="3" class="px-4 py-5 text-center text-muted">
                                             No electricity records yet. Add your first record to get started.
                                         </td>
                                     </tr>
@@ -425,6 +480,7 @@ Dashboard</a>
                         <div class="modal-content rounded-4 shadow border-0">
                             <form method="post" id="editElectricityForm">
                                 {% csrf_token %}
+                                <input type="hidden" name="action" value="single">
                                 <div class="modal-header border-0 pb-0">
                                     <h5 class="modal-title fw-bold" id="editElectricityModalLabel">Edit Electricity Record</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -438,6 +494,25 @@ Dashboard</a>
                                         <div class="col-md-6">
                                             <label class="form-label fw-semibold">Amount</label>
                                             <input type="text" step="0.01" name="amount" id="editAmount" class="form-control rounded-4" required>
+                                        </div>
+                                        <div class="col-12">
+
+                                            <label class="form-label fw-semibold">
+                                                Date
+                                            </label>
+
+                                            <div class="form-floating position-relative">
+                                                <i class="bi bi-calendar-event position-absolute top-50 start-0 translate-middle-y ms-3 text-muted" style="z-index:5;"></i>
+
+                                                <input
+                                                    type="date"
+                                                    class="form-control ps-5"
+                                                    id="editCreatedAt"
+                                                    name="date">
+
+                                                <label for="expenseDate" class="ps-5">Tap to enter date</label>
+                                            </div>
+                                            
                                         </div>
                                     </div>
                                 </div>
@@ -455,6 +530,7 @@ Dashboard</a>
                         <div class="modal-content rounded-4 shadow border-0">
                             <form method="post" id="deleteElectricityForm">
                                 {% csrf_token %}
+                                <input type="hidden" name="action" value="single">
                                 <div class="modal-header border-0 pb-0">
                                     <h5 class="modal-title fw-bold text-danger" id="deleteElectricityModalLabel">Delete Electricity Record</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -496,6 +572,25 @@ document.addEventListener('DOMContentLoaded', function () {
                 <div class="col-md-6">
                     <label class="form-label fw-semibold small">Amount</label>
                     <input type="text" step="0.01" name="amount" class="form-control rounded-4" placeholder="0.00" required>
+                </div>
+                <div class="col-12">
+
+                    <label class="form-label fw-semibold">
+                        Date
+                    </label>
+
+                    <div class="form-floating position-relative">
+                        <i class="bi bi-calendar-event position-absolute top-50 start-0 translate-middle-y ms-3 text-muted" style="z-index:5;"></i>
+
+                        <input
+                            type="date"
+                            class="form-control ps-5"
+                            id="expenseDate"
+                            name="date">
+
+                        <label for="expenseDate" class="ps-5">Tap to enter date</label>
+                    </div>
+                    
                 </div>
             </div>
         `;
@@ -553,6 +648,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const deleteElectricityForm = document.getElementById('deleteElectricityForm');
     const editKwh = document.getElementById('editKwh');
     const editAmount = document.getElementById('editAmount');
+    const editCreatedAt = document.getElementById('editCreatedAt');
 
     function updateBulkDeleteState() {
         const checkedBoxes = electricityCheckboxes.filter(function (checkbox) { return checkbox.checked; });
@@ -572,7 +668,7 @@ document.addEventListener('DOMContentLoaded', function () {
             checkedBoxes.forEach(function (checkbox) {
                 const input = document.createElement('input');
                 input.type = 'hidden';
-                input.name = 'electricity_ids';
+                input.name = 'ekedc_ids';
                 input.value = checkbox.value;
                 bulkDeleteInputs.appendChild(input);
             });
@@ -613,13 +709,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
 
             document.getElementById("viewCreated").textContent =
-                button.dataset.created || "-";
+                button.dataset.createdAt || "-";
 
             document.getElementById("viewCreatedBy").textContent =
                 button.dataset.createdBy || "-";
 
             document.getElementById("viewUpdated").textContent =
-                button.dataset.updated || "-";
+                button.dataset.updatedAt || "-";
 
             document.getElementById("viewUpdatedBy").textContent =
                 button.dataset.updatedBy || "-";
@@ -642,6 +738,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2});
             }
+            
+            document.getElementById("editCreatedAt").value = button.dataset.createdAt || "";
             
         });
     });

@@ -5,24 +5,24 @@
 {% block content %}
 <div class="row g-4">
     <div class="col-12">
-        {% if errors %}
-            <div class="alert alert-danger rounded-4 mb-4">
-                <div class="fw-semibold mb-2">
-                    Please correct the following:
+        <!-- ===========================
+            MESSAGES
+        =========================== -->
+    
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} rounded-4 mb-4 alert-dismissible fade show">
+
+                    {{ message }}
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert">
+                    </button>
+
                 </div>
-
-                <ul class="mb-0 ps-3">
-                    {% for field, messages in errors.items %}
-                        <li class="mb-2">
-                            <strong>{{ field|capfirst }}</strong><br>
-                            {% for message in messages %}
-                                <small>{{ message }}</small>
-                            {% endfor %}
-                        </li>
-                    {% endfor %}
-
-                </ul>
-            </div>
+            {% endfor %}
         {% endif %}
         <div class="card border-0 shadow-sm rounded-4">
             <div class="card-body p-4 p-lg-5">

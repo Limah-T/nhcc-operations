@@ -10,9 +10,9 @@ from account.services.profile_service import getFullName
 from finance.expense.services.diesel_service import (
     dieselQueryset, totalMonthlyDiesel, totaldieselRecords
 )
-from finance.expense.services.electricity_service import (
-    ekedcQuerySet, totalMonthlyPrepaid, totalEkedcRecords
-)
+# from finance.expense.services.electricity_service import (
+#     ekedcQuerySet, totalMonthlyPrepaid, totalEkedcRecords
+# )
 import calendar
 
 url_name = "reports"

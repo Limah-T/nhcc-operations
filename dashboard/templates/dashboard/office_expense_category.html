@@ -46,39 +46,40 @@
 
                 <div class="card border-0 shadow-sm rounded-4 mb-4">
                     <div class="card-body p-4">
-                        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
-                            <h5 class="fw-bold mb-0 flex-shrink-0">
-    List of Categories ({{ count }})
-</h5>
+                        <div id="monthlySummary" class="card border-0 shadow-sm rounded-4 mb-4">
+                
+                            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+                            <h5 class="fw-bold mb-0 flex-shrink-0 pb-3">
+                                List of Categories ({{ count }})
+                            </h5>
+                        </div>
                         <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between justify-content-lg-start w-100 w-lg-auto">    
-                            <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between justify-content-lg-start w-100 w-lg-auto">
-                                <button
-                                    type="button"
-                                    id="bulkDeleteButton"
-                                    class="btn btn-outline-danger rounded-4"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#bulkDeleteModal"
-                                    disabled>
-                                    <i class="bi bi-trash"></i>Delete Selected
-                                </button>
+                            <button
+                                type="button"
+                                id="bulkDeleteButton"
+                                class="btn btn-outline-danger rounded-4"
+                                data-bs-toggle="modal"
+                                data-bs-target="#bulkDeleteModal"
+                                disabled>
+                                <i class="bi bi-trash"></i>Delete Selected
+                            </button>
 
-                                <div class="dropdown ms-auto ms-lg-0">
-                                    <button class="btn btn-primary rounded-4 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="bi bi-plus-lg"></i>New
-                                    </button>
-                                    <ul class="dropdown-menu rounded-4 border-0 shadow-sm">
-                                        <li>
-                                            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
-                                                Single Entry
-                                            </button>
-                                        </li>
-                                        <li>
-                                            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#addMultipleCategoriesModal">
-                                                Bulk Entries
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
+                            <div class="dropdown ms-auto ms-lg-0">
+                                <button class="btn btn-primary rounded-4 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-plus-lg"></i>New
+                                </button>
+                                <ul class="dropdown-menu rounded-4 border-0 shadow-sm">
+                                    <li>
+                                        <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                                            Single Entry
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#addMultipleCategoriesModal">
+                                            Bulk Entries
+                                        </button>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -215,18 +216,31 @@
 
                 <div class="card border-0 shadow-sm rounded-4">
                     <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th class="px-3 py-3" style="width:48px;">
-                                            <input class="form-check-input" type="checkbox" id="selectAllCategories" aria-label="Select all categories">
-                                        </th>
-                                        <th class="px-4 py-3">Category Name</th>
-                                        <th class="px-4 py-3 text-end" style="width:120px;">
-    Actions</th>
-                                    </tr>
-                                </thead>
+                        <div id="swipeHint" class="swipe-hint d-lg-none">
+                            <i class="bi bi-arrow-left-right"></i>
+                            Swipe left to view more columns
+                        </div>
+                        <div class="table-responsive expense-table-container">
+                        <table class="table table-hover align-middle mb-0" style="min-width: 520px;">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="px-3 py-3" style="width:48px;">
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            id="selectAllCategories"
+                                            aria-label="Select all categories">
+                                    </th>
+
+                                    <th class="px-3 py-3">
+                                        Category Name
+                                    </th>
+
+                                    <th class="px-3 py-3 text-end" style="width:110px;">
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
                                 <tbody>
                                     {% for category in categories %}
                                     <tr>
@@ -236,9 +250,10 @@
                                         <td class="px-4 py-3">{{ category.name }}</td>
                                         
                                         <td class="px-4 py-3">
-                                            <!-- DESKTOP ACTIONS -->
-                                            <div class="d-flex flex-wrap gap-2 justify-content-end">
-                                                <div class="btn-group">
+                                            <div class="d-flex justify-content-end align-items-center">
+                            
+                                                <!-- Desktop actions -->
+                                                <div class="btn-group d-none d-lg-inline-flex">
                                                     <button
                                                         class="btn btn-sm btn-outline-info  view-category-btn"
                                                         data-category-id="{{ category.id }}"

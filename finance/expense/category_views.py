@@ -70,7 +70,7 @@ class CategoryManagementView(View):
         if can_proceed:
             error = create_bulk(category_list, request.user)
             if error is None:
-                message = "Expenses created successfully."
+                message = "Category records created successfully."
                 return success_response(request, category_url_name, message)
             else: 
                 message, code = error[0], error[1]

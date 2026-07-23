@@ -34,8 +34,8 @@ class Diesel(models.Model):
     supplier_name = models.CharField(max_length=200)
     created_by = models.CharField(max_length=200)
     updated_by = models.CharField(max_length=200)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateField(null=True, blank=True)
+    updated_at = models.DateField(null=True, blank=True)
 
 class EKEDC(models.Model):
     created_by_user = models.ForeignKey(
@@ -51,8 +51,8 @@ class EKEDC(models.Model):
     month = models.CharField(max_length=30)
     created_by = models.CharField(max_length=200)
     updated_by = models.CharField(max_length=200)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)  
+    created_at = models.DateField(null=True, blank=True)
+    updated_at = models.DateField(null=True, blank=True)  
 
 class Expense(models.Model):
     created_by_user = models.ForeignKey(
@@ -76,4 +76,4 @@ class Expense(models.Model):
     created_by = models.CharField(max_length=200)
     updated_by = models.CharField(max_length=200)
     created_at = models.DateField(null=True, blank=True)
-    updated_at = models.DateField(auto_now=True)
+    updated_at = models.DateField(null=True, blank=True)

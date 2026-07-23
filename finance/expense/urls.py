@@ -7,8 +7,8 @@ from .diesel_views import (
     DieselView, edit_diesel, delete_diesel, delete_diesels
 )
 from .electricity_views import (
-    ElectricityView, edit_electricity, 
-    delete_electricity, delete_electricities
+    ekedcOverview, EkedcManagementView, 
+    EkedcUpdateView, EkedcDeleteView,
 )
 from .expenses_views import (
     ExpenseManagementView, expenseOverview, 
@@ -29,11 +29,11 @@ urlpatterns = [
     path("diesel/<int:pk>/delete/", delete_diesel, name="delete_diesel"),
     path("delete/diesels/", delete_diesels, name="delete_diesels"),
     
-    path("ekedc", ElectricityView.as_view(), name="electricity"),
-    path("add/ekedc/", ElectricityView.as_view(), name="add_electricity"),
-    path("ekedc/<int:pk>/edit/", edit_electricity, name="edit_electricity"),
-    path("ekedc/<int:pk>/delete/", delete_electricity, name="delete_electricity"),
-    path("delete/ekedc/", delete_electricities, name="delete_electricities"),
+    path("ekedc", ekedcOverview, name="ekedc_overview"),
+    path("add/ekedc/", EkedcManagementView.as_view(), name="ekedc"),
+    path("ekedc/<int:pk>/edit/", EkedcUpdateView.as_view(), name="edit_ekedc"),
+    path("ekedc/<int:pk>/delete/", EkedcDeleteView.as_view(), name="delete_ekedc"),
+    path("delete/ekedc/", EkedcDeleteView.as_view(), name="delete_ekedcs"),
 
     path("overview/", expenseOverview, name="expense_overview"),
     path("records/",  ExpenseManagementView.as_view(), name="expenses"),

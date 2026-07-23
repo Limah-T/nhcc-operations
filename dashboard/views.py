@@ -7,7 +7,7 @@ from finance.expense.services.diesel_service import (
     totalMonthlyDiesel, totalAnnualDiesel, dieselQueryset, 
 )
 from finance.expense.services.electricity_service import (
-    totalMonthlyPrepaid, totalAnnualPrepaid, ekedcQuerySet
+    EKedcDataRetrieval, EkedcRecordCalculator
 )
 from finance.expense.services.expense_service import (
     ExpenseDataRetrieval, ExpenseRecordCalculator
@@ -41,12 +41,15 @@ class Dashboard(View):
     def get(self, request):
         expense_calculator = ExpenseRecordCalculator()
         expenses = ExpenseDataRetrieval().retrieve_all_with_category()
+        ekedc = EKedcDataRetrieval().retrieve_by_month()
+        ekedc_calculator = EkedcRecordCalculator()
         name = request.user.first_name+" "+request.user.last_name
         now = timezone.localtime()
-        total_ekedc = totalMonthlyPrepaid(ekedcQuerySet())
+        
+        total_ekedc = ekedc_calculator.total_monthly_records(ekedc)
         total_diesel = totalMonthlyDiesel(dieselQueryset())
         total_expenses = expense_calculator.total_monthly_records(expenses)
-        yearly_ekdc = totalAnnualPrepaid(ekedcQuerySet())
+        yearly_ekdc = ekedc_calculator.total_annual_records(ekedc)
         yearly_diesel = totalAnnualDiesel(dieselQueryset())
         yearly_expenses = expense_calculator.total_annual_records(expenses)
         monthly_expenses = total_ekedc+total_diesel+total_expenses

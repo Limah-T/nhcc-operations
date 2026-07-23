@@ -2,7 +2,7 @@ from django.db import transaction, IntegrityError, DatabaseError
 from django.utils import timezone
 from django.http.request import HttpRequest
 from nhcc_operations.services.generic_service import (
-    server_error, queue_error, expense_404, no_changes
+    server_error, queue_error, expense_404, no_changes, date_constructor
 )
 from decimal import Decimal
 from account.services.profile_service import getFullName
@@ -36,25 +36,55 @@ class ExpenseRecordCalculator:
         self.current_month = timezone.now().month
         self.current_year = timezone.now().year
 
-    def total_monthly_records(self, queryset:Expense) -> int:
+    def total_monthly_records(
+            self, queryset:Expense, year:int=None, month:int=None
+        ) -> Decimal:
+        if year and month:
+            return sum(
+                item.total for item in queryset 
+                if item.created_at and (
+                    item.created_at.month == month and 
+                    item.created_at.year == year
+                ) 
+            )
+
         return sum(
-            item.total for item in queryset if (
+            item.total for item in queryset 
+            if item.created_at and (
                 item.created_at.month == self.current_month and 
                 item.created_at.year == self.current_year
             ) 
         )
 
-    def count_monthly_records(self, start_date, end_date) -> int:
+    def count_monthly_records(
+            self, start_date=None, end_date=None) -> int:
+        if start_date and end_date:
+            return Expense.objects.filter(
+                    created_at__gte=start_date, 
+                    created_at__lte=end_date
+            ).count()
+        
+        now = timezone.now()
+        start_date, end_date = date_constructor(now.year, now.month)
         return Expense.objects.filter(
-            created_at__gte=start_date, 
-            created_at__lt=end_date
+                created_at__gte=start_date, 
+                created_at__lte=end_date
         ).count()
 
-    def total_annual_records(self, queryset:Expense) -> int:
+    def total_annual_records(
+            self, queryset:Expense, year:int=None) -> Decimal:
+        if year:
+            return sum(
+                item.total for item in queryset
+                if item.created_at and (item.created_at.year == year)
+            )
         return sum(
                 item.total for item in queryset
-                if item.created_at.year == self.current_year
+                if item.created_at and (
+                    item.created_at.year == self.current_year
+                )
         )
+    
 
 class ExpenseDataRetrieval:
 
@@ -64,9 +94,21 @@ class ExpenseDataRetrieval:
             "category").filter(id=pk).first()
 
     @staticmethod
-    def retrieve_all_with_category() -> Expense:
+    def retrieve_all_with_category(start_date=None, end_date=None) -> Expense:
+        if start_date and end_date:
+            return Expense.objects.select_related(
+                "category").filter(
+                    created_at__gte=start_date, 
+                    created_at__lt=end_date
+                ).order_by("category__name")
+        
+        now = timezone.now()
+        start_date, end_date = date_constructor(now.year, now.month)
         return Expense.objects.select_related(
-            "category").all().order_by("category__name")
+            "category").filter(
+                created_at__gte=start_date, 
+                created_at__lt=end_date
+            ).order_by("category__name")
 
     @staticmethod
     def retrieve_locked_bulk_expenses(expense_ids) -> Expense:
