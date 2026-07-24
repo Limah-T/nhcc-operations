@@ -7,9 +7,9 @@ from account.services.profile_service import getFullName
 #     expenseQueryset, totalMonthlyExpenses, 
 #     totalExpenseRecords, expenseOrganizer
 # )
-from finance.expense.services.diesel_service import (
-    dieselQueryset, totalMonthlyDiesel, totaldieselRecords
-)
+# from finance.expense.services.diesel_service import (
+#     dieselQueryset, totalMonthlyDiesel, totaldieselRecords
+# )
 # from finance.expense.services.electricity_service import (
 #     ekedcQuerySet, totalMonthlyPrepaid, totalEkedcRecords
 # )

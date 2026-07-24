@@ -4,7 +4,8 @@ from .category_views import (
     CategoryUpdateView, CategoryDeleteView
 )
 from .diesel_views import (
-    DieselView, edit_diesel, delete_diesel, delete_diesels
+    dieselOverView, DieselManagementView,
+    DieselUpdateView, DieselDeleteView
 )
 from .electricity_views import (
     ekedcOverview, EkedcManagementView, 
@@ -23,11 +24,11 @@ urlpatterns = [
     path("category/<int:pk>/delete/", CategoryDeleteView.as_view(), name="delete_category"),
     path("delete/categories/", CategoryDeleteView.as_view(), name="delete_categories"),
 
-    path("diesel", DieselView.as_view(), name="diesel"),
-    path("add/diesel/", DieselView.as_view(), name="add_diesel"),
-    path("diesel/<int:pk>/edit/", edit_diesel, name="edit_diesel"),
-    path("diesel/<int:pk>/delete/", delete_diesel, name="delete_diesel"),
-    path("delete/diesels/", delete_diesels, name="delete_diesels"),
+    path("diesel/overview/", dieselOverView, name="diesel_overview"),
+    path("add/diesel/", DieselManagementView.as_view(), name="diesel"),
+    path("diesel/<int:pk>/edit/", DieselUpdateView.as_view(), name="edit_diesel"),
+    path("diesel/<int:pk>/delete/", DieselDeleteView.as_view(), name="delete_diesel"),
+    path("delete/diesels/", DieselDeleteView.as_view(), name="delete_diesels"),
     
     path("ekedc", ekedcOverview, name="ekedc_overview"),
     path("add/ekedc/", EkedcManagementView.as_view(), name="ekedc"),

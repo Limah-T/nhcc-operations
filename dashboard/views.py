@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.utils import timezone
 from finance.expense.services.diesel_service import (
-    totalMonthlyDiesel, totalAnnualDiesel, dieselQueryset, 
+    DieselDataRetrieval, DieselRecordCalculator, 
 )
 from finance.expense.services.electricity_service import (
     EKedcDataRetrieval, EkedcRecordCalculator
@@ -39,28 +39,34 @@ def get_greeting():
 class Dashboard(View):
 
     def get(self, request):
-        expense_calculator = ExpenseRecordCalculator()
         expenses = ExpenseDataRetrieval().retrieve_all_with_category()
         ekedc = EKedcDataRetrieval().retrieve_by_month()
+        diesel = DieselDataRetrieval().retrieve_by_month()
+
+        expense_calculator = ExpenseRecordCalculator()
         ekedc_calculator = EkedcRecordCalculator()
-        name = request.user.first_name+" "+request.user.last_name
-        now = timezone.localtime()
-        
+        diesel_calculator = DieselRecordCalculator()
+
         total_ekedc = ekedc_calculator.total_monthly_records(ekedc)
-        total_diesel = totalMonthlyDiesel(dieselQueryset())
+        total_diesel = diesel_calculator.total_monthly_records(diesel)
         total_expenses = expense_calculator.total_monthly_records(expenses)
+
         yearly_ekdc = ekedc_calculator.total_annual_records(ekedc)
-        yearly_diesel = totalAnnualDiesel(dieselQueryset())
+        yearly_diesel = diesel_calculator.total_annual_records(diesel)
         yearly_expenses = expense_calculator.total_annual_records(expenses)
-        monthly_expenses = total_ekedc+total_diesel+total_expenses
-        yearly_expenses = yearly_ekdc+yearly_diesel+yearly_expenses
+
+        monthly_expenditure = total_ekedc+total_diesel+total_expenses
+        yearly_expenditure = yearly_ekdc+yearly_diesel+yearly_expenses
+        
         return render(
             request, dashboard_temp_name,
             context={
                 "greet":get_greeting(), 
-                "user_name":name, "now":now,
-                "monthly_expenditure": monthly_expenses,
-                "yearly_expenditure": yearly_expenses,
+                "now":timezone.localtime(),
+                "monthly_expenses":total_expenses,
+                "yearly_expenses": yearly_expenses,
+                "monthly_expenditure": monthly_expenditure,
+                "yearly_expenditure": yearly_expenditure,
                 "total_diesel":total_diesel,
                 "total_ekedc":total_ekedc,
                 "total_expenses": total_expenses,
