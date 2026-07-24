@@ -3,28 +3,27 @@ from django.utils import timezone
 from datetime import datetime
 from weasyprint import HTML
 from account.services.profile_service import getFullName
-# from finance.expense.services.expense_service import (
-#     expenseQueryset, totalMonthlyExpenses, 
-#     totalExpenseRecords, expenseOrganizer
-# )
-# from finance.expense.services.diesel_service import (
-#     dieselQueryset, totalMonthlyDiesel, totaldieselRecords
-# )
-# from finance.expense.services.electricity_service import (
-#     ekedcQuerySet, totalMonthlyPrepaid, totalEkedcRecords
-# )
-import calendar
+from finance.expense.services.expense_service import (
+    ExpenseDataRetrieval, ExpenseRecordCalculator, expenseOrganizer
+)
+from finance.expense.services.diesel_service import (
+    DieselDataRetrieval, DieselRecordCalculator
+)
+from finance.expense.services.electricity_service import (
+    EKedcDataRetrieval, EkedcRecordCalculator
+)
 
 url_name = "reports"
 expense_report_temp = "report/expenses.html"
 monthly_expenditure_report_temp = "report/monthly_expenditure.html"
 
 
-def monthly_expenses_cxt_data(request, start_date, end_date, month, year)-> dict:
-    queryset = expenseQueryset()
-    total_expenses = totalMonthlyExpenses(queryset)
-    total_records = totalExpenseRecords(start_date, end_date)
-    prepared_by = getFullName(request)
+def monthly_expenses_cxt_data(user, start_date, end_date, month, year)-> dict:
+    queryset = ExpenseDataRetrieval().retrieve_all_with_category(start_date, end_date)
+    expenses = ExpenseRecordCalculator()
+    total_expenses = expenses.total_monthly_records(queryset, start_date, end_date)
+    total_records = expenses.count_monthly_records(start_date, end_date)
+    prepared_by = getFullName(user)
     generated_at = timezone.now()
     return {
         "expenses":expenseOrganizer(queryset),
@@ -32,28 +31,31 @@ def monthly_expenses_cxt_data(request, start_date, end_date, month, year)-> dict
         "total_records":total_records,
         "prepared_by":prepared_by,
         "generated_at":generated_at,
-        "month": month,
-        "year": year,
-        "report_period": f"{start_date:%d %b %Y} - {end_date:%d %b %Y}",   
+        "month": month, "year": year,
+        "report_period": f"{start_date:%d %b %Y} - {end_date:%d %b %Y}", 
     }
 
-def monthly_expenditure_cxt_data(request, start_date, end_date, month, year):
-    expense_queryset = expenseQueryset()
-    diesel_queryset = dieselQueryset()
-    ekedc_queryset = ekedcQuerySet()
+def monthly_expenditure_cxt_data(user, start_date, end_date, month, year):
+    expense_queryset = ExpenseDataRetrieval().retrieve_all_with_category(
+        start_date, end_date)
+    diesel_queryset = DieselDataRetrieval().retrieve_by_month(start_date, end_date)
+    ekedc_queryset = EKedcDataRetrieval().retrieve_by_month(start_date, end_date)
 
-    total_expenses = totalMonthlyExpenses(expenseQueryset())
-    total_diesel = totalMonthlyDiesel(dieselQueryset())
-    total_ekedc = totalMonthlyPrepaid(ekedcQuerySet())
+    total_expenses = ExpenseRecordCalculator().total_monthly_records(
+        expense_queryset, start_date, end_date)
+    total_diesel = DieselRecordCalculator().total_monthly_records(
+        diesel_queryset, start_date, end_date)
+    total_ekedc = EkedcRecordCalculator().total_monthly_records(
+        ekedc_queryset, start_date, end_date)
 
-    expense_records = totalExpenseRecords(start_date, end_date)
-    diesel_records = totaldieselRecords(start_date, end_date)
-    ekedc_records = totalEkedcRecords(start_date, end_date)
+    expense_records = expense_queryset.count()
+    diesel_records = diesel_queryset.count()
+    ekedc_records = ekedc_queryset.count()
 
     expenses =  expenseOrganizer(expense_queryset)
     grand_total = total_expenses+total_diesel+total_ekedc
 
-    prepared_by = getFullName(request)
+    prepared_by = getFullName(user)
     generated_at = timezone.now()
     return {
         "month": month, "year": year,
@@ -74,7 +76,7 @@ def monthly_expenditure_cxt_data(request, start_date, end_date, month, year):
         "ekedc": ekedc_queryset, "ekedc_total": total_ekedc,
 
         # Staff Salaries
-        "salaries": {}, "salary_total": {},
+        "salaries": {}, "salary_total": 0,
 
         # Overall
         "grand_total": grand_total,
@@ -83,14 +85,14 @@ def monthly_expenditure_cxt_data(request, start_date, end_date, month, year):
         "generated_by": prepared_by, "generated_at": generated_at,
     }
 
-def getTemplateContext(
-        report_type, request, start, end, month, year
+def get_template_context(
+        report_type, user, start, end, month, year
     )-> dict:
     if report_type == "expense":
         return {
             "template":expense_report_temp, 
             "context":monthly_expenses_cxt_data(
-                request, start, end, month, year
+                user, start, end, month, year
             )
         }
     if report_type == "diesel":
@@ -101,40 +103,16 @@ def getTemplateContext(
         return {
             "template":monthly_expenditure_report_temp,
             "context":monthly_expenditure_cxt_data(
-                request, start, end, month, year
+                user, start, end, month, year
             )
         }
     return ...
 
-def fileNamingConstructor(type, month, year, start, end) -> str:
+def file_naming_constructor(type, month, year, start, end) -> str:
     return f"{month}_{year}_{start.day}_to_{end.day}_{type.lower()}.pdf"
 
-def setDate() -> tuple:
-    now = timezone.now()
-    month, year = now.month, now.year
-    start_date = datetime(year, month, 1).date()
-    end_date = datetime(year, month, getMonthDays()).date()
-    return (start_date, end_date)
 
-def futureDate(start_date, end_date) -> bool:
-    now = timezone.now()
-    if (
-            start_date.month > now.month or start_date.year > now.year
-            ) or( end_date.month > now.month or end_date.year > now.year):
-            
-        return True
-    return False
-
-def setMonthYear() -> tuple:
-    now = timezone.now()
-    return (now.strftime("%B"), now.strftime("%Y"))
-
-def getMonthDays() -> int:
-    now = timezone.now()
-    _, num_of_days = calendar.monthrange(now.year, now.month)
-    return num_of_days
-
-def pdfGenerator(
+def pdf_generator(
         html_string, request, file_name
     ) -> HttpResponse:
     pdf =  HTML(

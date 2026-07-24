@@ -153,21 +153,22 @@ Monthly Expenditure Report
         <thead>
 
             <tr>
-
-                <th style="width:25%;">
-                    Date
-                </th>
-
                 <th class="text-center">
                     Litres
                 </th>
 
                 <th class="text-end">
-                    Price/Litre
+                    Price
+                </th>
+                <th class="text-end">
+                    Transport
                 </th>
 
                 <th class="text-end">
                     Total
+                </th>
+                <th style="width:25%;">
+                    Date
                 </th>
 
             </tr>
@@ -180,22 +181,22 @@ Monthly Expenditure Report
 
             <tr>
 
-                <td class="nowrap">
-                    {{ diesel.date|date:"d M, Y" }}
-                </td>
-
                 <td class="text-center">
-                    {{ diesel.quantity }}
+                    {{ diesel.litres }}
                 </td>
 
                 <td class="text-end">
-                    ₦{{ diesel.amount|floatformat:2|intcomma }}
+                    ₦{{ diesel.price|floatformat:2|intcomma }}
                 </td>
-
+                <td class="text-end">
+                    ₦{{ diesel.transport|floatformat:2|intcomma }}
+                </td>
                 <td class="text-end">
                     ₦{{ diesel.total|floatformat:2|intcomma }}
                 </td>
-
+                <td class="nowrap">
+                    {{ diesel.created_at|date:"d M, Y" }}
+                </td>
             </tr>
 
             {% empty %}
@@ -245,13 +246,13 @@ Monthly Expenditure Report
 
             <tr>
 
-                <th>Description</th>
-
-                <th>Date</th>
+                <th>kWH</th>
 
                 <th class="text-end">
                     Amount
                 </th>
+
+                <th>Date</th>
 
             </tr>
 
@@ -264,17 +265,15 @@ Monthly Expenditure Report
             <tr>
 
                 <td>
-                    {{ payment.description }}
-                </td>
-
-                <td class="nowrap">
-                    {{ payment.date|date:"d M, Y" }}
+                    {{ payment.kwh }}
                 </td>
 
                 <td class="text-end">
                     ₦{{ payment.amount|floatformat:2|intcomma }}
                 </td>
-
+                <td class="nowrap">
+                    {{ payment.created_at|date:"d M, Y" }}
+                </td>
             </tr>
 
             {% empty %}
@@ -351,9 +350,11 @@ Monthly Expenditure Report
             <tr>
 
                 <td>
-                    {{ salary.full_name }}
+                    {{ salary.first_name }}
                 </td>
-
+                <td>
+                    {{ salary.last_name }}
+                </td>
                 <td class="text-end">
                     ₦{{ salary.salary|floatformat:2|intcomma }}
                 </td>

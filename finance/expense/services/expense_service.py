@@ -37,14 +37,14 @@ class ExpenseRecordCalculator:
         self.current_year = timezone.now().year
 
     def total_monthly_records(
-            self, queryset:Expense, year:int=None, month:int=None
+            self, queryset:Expense, start_date=None, end_date=None
         ) -> Decimal:
-        if year and month:
+        if start_date and end_date:
             return sum(
                 item.total for item in queryset 
                 if item.created_at and (
-                    item.created_at.month == month and 
-                    item.created_at.year == year
+                    item.created_at.month == start_date.month and 
+                    item.created_at.year == end_date.year
                 ) 
             )
 
