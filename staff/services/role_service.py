@@ -1,114 +1,172 @@
 from ..models import Role
-from django.db import transaction, IntegrityError, DatabaseError
-from django.db.models import ProtectedError
-from nhcc_operations.services.generic_service import server_error, queue_error, role_404
-from ..forms import RoleForm
+from django.db import transaction, DatabaseError, IntegrityError
+from django.utils import timezone
+from django.http.request import HttpRequest
+from django.db import transaction, DatabaseError
+from nhcc_operations.services.generic_service import (
+    server_error, queue_error, role_404, no_changes
+)
+from account.services.profile_service import getFullName
+from ..models import Role
 
-def roleRetrieval(pk) -> Role | None:
-    return Role.objects.filter(id=pk).first()
+class RolePayloadParser:
+    def __init__(self, request:HttpRequest):
+        self.request = request
 
-def roleQueryset() -> Role:
-    return Role.objects.all().order_by("name")
-
-def roleFormValidator(roles:list) -> RoleForm | list:
-    role_list = []
-    for role in roles:
-        form = RoleForm(data={"name":role})
-        if not form.is_valid():
-            return form
-        role_list.append(form.cleaned_data["name"])
-    return role_list
-
-def newRoles(roles:list) -> set | None:
-    existing_roles = set(Role.objects.filter(
-        name__in=roles).values_list("name", flat=True))
-    if len(existing_roles) == len(roles):
-        return None
-    new_roles = set(roles) - existing_roles
-    return new_roles
-    
-def prepareCreate(roles:list, data) -> list:
-    new_data = []
-    for role in roles:
-        new_data.append(
-            Role(
-                name=role, 
-                created_by_user=data["user"],
-                created_by=data["user_name"]
-            )
-        )
-    return new_data
-
-def roleCreator(roles:list) -> None:
-    Role.objects.bulk_create(roles)
-
-def roleUpdate(role:Role, data) -> None:
-    role.name = data["name"]
-    role.save(update_fields=["name"])
-
-def create(data:dict, roles:list) -> dict | None:
-    try:
-        new_roles = newRoles(roles)
-        if not new_roles:
-            return {"error": "Role(s) already exists", "status":400}
-        role_list = prepareCreate(list(new_roles), data)
-        with transaction.atomic():
-            roleCreator(role_list)
-    except IntegrityError:
-        return queue_error
-    except Exception:
-        return server_error
-    return None
-
-def update(role:Role, data:dict) -> dict | None:
-    try:
-        if role.name == data["name"].title():
-            return {"error": "Nothing to update.", "status": 400}
-        with transaction.atomic():
-            roleUpdate(role, data)
-    except IntegrityError:
-        return {"error": "Role record already exists.", "status": 400}
-    except DatabaseError:
-        return queue_error
-    except Exception:
-        return server_error
-    return None
-
-def delete_one(role:Role) -> dict | None:
-    try:
-        with transaction.atomic():
-            role.delete()
-    except ProtectedError:
-            return {
-                "error": "Role(s) cannot be deleted because of existing staff attached.", 
-                "status": 400
-            }
-    except Role.DoesNotExist:
-        return role_404
-    except DatabaseError:
-        return queue_error
-    except Exception:
-        return server_error
-    return None
-
-def delete_many(role_ids:list) -> dict | None:
-    try:
-        with transaction.atomic():
-            roles = Role.objects.select_for_update(
-                nowait=True
-            ).filter(id__in=role_ids)
-            if not roles.exists():
-                raise Role.DoesNotExist
-            roles.delete()
-    except ProtectedError:
+    def parse_single(self) -> dict:
         return {
-            "error": "Role(s) cannot be deleted because of existing staff attached.", 
-            "status": 400
+            "name": self.request.POST.get("name")
         }
-    except Role.DoesNotExist:
-        return role_404
-    except DatabaseError:
-        return queue_error
+
+    def parse_bulk(self) -> dict:
+        return {
+            "name": self.request.POST.getlist("name")
+        }
+
+class RoleDataRetrieval:
+
+    @staticmethod
+    def retrieve_one(id) -> Role | None:
+        return Role.objects.filter(id=id).first()
+
+    @staticmethod
+    def retrieve_all() -> Role:
+        return Role.objects.all().order_by('-created_at')
+
+    @staticmethod
+    def retrieve_bulk(ids) -> Role:
+        return Role.objects.filter(id__in=ids)
+
+
+def roleCalculator()-> int:
+    return Role.objects.all().count()
+
+
+class RoleDataInserter:
+    def __init__(self, data:list[dict] | dict, user):
+        
+        self.data = data
+        self.user = user
+        self.full_name = getFullName(user)
+        self.date = timezone.now().date()
+
+    def insert_one(self):
+        Role.objects.create(
+            name=self.data["name"],
+            created_at=self.date,
+            created_by_user=self.user,
+            created_by=self.full_name
+        )
+        
+    def insert_many(self) -> None:
+        role_list = []
+        print(self.data)
+        for role in self.data:
+            print("ROLE", role)
+            role_list.append(
+                Role(
+                    name=role["name"],
+                    created_at=self.date,
+                    created_by_user=self.user,
+                    created_by=self.full_name,
+            ))
+        Role.objects.bulk_create(role_list)
+
+class RoleDataUpdater:
+
+    @staticmethod
+    def can_update(role:Role, data:dict) -> bool:
+        for key,value in data.items():
+            if key == "date":
+                if role.created_at != value:
+                    return True
+            else:
+                if getattr(role, key) != value:
+                    return True
+        return False
+
+    @staticmethod
+    def update_one(role_id, data:dict, user) -> None:
+        Role.objects.filter(
+            id=role_id
+            ).update(
+                name=data["name"],
+                updated_at=timezone.now().date(),
+                updated_by_user=user,
+                updated_by=getFullName(user)
+            )
+
+class RoleDataDeleter:
+
+    @staticmethod
+    def delete_one(id) -> None:
+        Role.objects.select_for_update(
+            nowait=True).get(
+            id=id
+        ).delete()
+
+    @staticmethod
+    def delete_many(role:Role) -> None:
+        role.delete()
+
+"""################# HELPER FUNCTIONS ##############"""
+
+def create_single(data:dict, user) -> tuple[str, int] | None:
+    try:
+        RoleDataInserter(data, user).insert_one()
+    except IntegrityError:
+        return ("Role already exists.", 400)
     except Exception:
-        return server_error
+        return (server_error, 500)
+    return None
+
+def create_bulk(data:list[dict], user) -> tuple[str, int] | None:
+    try:
+        RoleDataInserter(data, user).insert_many()
+    except IntegrityError:
+        return ("Role already exists.", 400)
+    except Exception:
+        return (server_error, 500)
+    return None
+
+def update_single(id, data:dict, user) -> tuple[str, int] | None:
+    try:
+        role = RoleDataRetrieval().retrieve_one(id)
+        if role is None:
+            return (role_404, 404)
+        updater = RoleDataUpdater()
+        if not updater.can_update(role, data):
+            return (no_changes, 400)
+        with transaction.atomic():
+            updater.update_one(role.id, data, user)
+    except IntegrityError:
+        return ("Role already exists.", 400)
+    except IndentationError:
+        return (server_error, 500)
+    return None
+
+def delete_single(role_id) -> tuple[str, int] | None:
+    try:
+        with transaction.atomic():
+            RoleDataDeleter().delete_one(role_id)
+    except Role.DoesNotExist:
+        return (role_404, 404)
+    except DatabaseError:
+        return (queue_error, 400)
+    except Exception:
+        return (server_error, 500)
+    return None
+
+def delete_bulk(role_ids) -> tuple[str, int] | None:
+    try:
+        with transaction.atomic():
+            roles = RoleDataRetrieval(
+                ).retrieve_bulk(role_ids)
+            if not roles.exists():
+                return (role_404, 404)
+            RoleDataDeleter().delete_many(roles)
+    except DatabaseError:
+        return (queue_error, 400)
+    except Exception:
+        return (server_error, 500)
     return None

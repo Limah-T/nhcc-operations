@@ -12,7 +12,7 @@ from finance.expense.services.electricity_service import (
 from finance.expense.services.expense_service import (
     ExpenseDataRetrieval, ExpenseRecordCalculator
 )
-from account.services.profile_service import getFullName
+from account.services.profile_service import getNameAvatar
 
 dashboard_temp_name = "dashboard/dashboard.html"
 expense_temp_name = "dashboard/office_expense_dashboard.html"
@@ -57,7 +57,7 @@ class Dashboard(View):
 
         monthly_expenditure = total_ekedc+total_diesel+total_expenses
         yearly_expenditure = yearly_ekdc+yearly_diesel+yearly_expenses
-        
+
         return render(
             request, dashboard_temp_name,
             context={
@@ -70,7 +70,7 @@ class Dashboard(View):
                 "total_diesel":total_diesel,
                 "total_ekedc":total_ekedc,
                 "total_expenses": total_expenses,
-                "user_name":getFullName(request.user)
+                "user_name":getNameAvatar(request.user)
             }
         )
     

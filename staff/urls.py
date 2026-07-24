@@ -1,22 +1,24 @@
 from django.urls import path
 from .role_views import (
-    staffRecords, roleView, editRoleView,
-    deleteRole, deleteRoles
+    RoleManagementView, RoleUpdateView, 
+    RoleDeleteView
 )
 
 from .staff_views import (
-    staffView, editStaffView
+    StaffManagementView,
+    StaffUpdateView, StaffDeleteView
 )
 
 urlpatterns = [
-    path("records/", staffRecords, name="staff_records"),
-    path("roles/", roleView, name="roles"),
-    path("role/<int:pk>/edit/", editRoleView, name="edit_role"),
-    path("role/<int:pk>/delete/", deleteRole, name="delete_role"),
-    path("roles/delete/", deleteRoles, name="delete_roles"),
+    path("records/", StaffManagementView.as_view(), name="staff_records"),
 
-    path("/", staffView, name="staff"),
-    path("<int:pk>/edit/", editStaffView, name="edit_staff"),
-    
+    path("roles/", RoleManagementView.as_view(), name="roles"),
+    path("role/<int:pk>/edit/", RoleUpdateView.as_view(), name="edit_role"),
+    path("role/<int:pk>/delete/", RoleDeleteView.as_view(), name="delete_role"),
+    path("roles/delete/", RoleDeleteView.as_view(), name="delete_roles"),
 
+    path("add/", StaffManagementView.as_view(), name="add_staff"),
+    path("<int:pk>/edit/", StaffUpdateView.as_view(), name="edit_staff"),
+    path("<int:pk>/delete/", StaffDeleteView.as_view(), name="delete_staff"),
+    path("staff/delete/", StaffDeleteView.as_view(), name="delete_staffs"),
 ]

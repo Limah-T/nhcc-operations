@@ -5,7 +5,7 @@ from nhcc_operations.services.generic_service import (
     server_error, queue_error, diesel_404, 
     no_changes, date_constructor
 )
-from account.services.profile_service import getFullName
+from account.services.profile_service import getFullName, getNameAvatar
 from decimal import Decimal
 from ..models import Diesel
 
@@ -120,7 +120,7 @@ def diesel_context_data(user) -> dict:
         "diesel_records": queryset,
         "count": queryset.count(),
         "monthly_total_display": f"₦{total:,.2f}",
-        "user_name":getFullName(user)
+        "user_name":getNameAvatar(user)
     }
 
 class DieselDataInserter:

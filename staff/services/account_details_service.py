@@ -1,112 +1,59 @@
-from ..models import AccountDetail
-from django.db import transaction, IntegrityError, DatabaseError
-from nhcc_operations.services.generic_service import server_error, queue_error, role_404
+from django.utils import timezone
+from account.services.profile_service import getFullName
+from ..models import AccountDetail, Staff
 
-def bankAcctRetrieval(pk) -> AccountDetail | None:
-    return AccountDetail.objects.filter(id=pk).first()
+class AccountDataRetrieval:
 
-def bankAccountQueryset() -> AccountDetail:
-    return AccountDetail.objects.select_related(
-        "staff").all().order_by("bank_full_name")
+    @staticmethod
+    def retrieve_all() -> AccountDetail:
+        return AccountDetail.objects.all().order_by("-account_name")
 
-# def bankAccountFormValidator(data:dict) -> AccountDetailForm | list:
-#     full_names = data["bank_full_names"]
-#     bank_names = data["bank_names"]
-#     account_numbers = data["account_numbers"]
-#     account_list = []
-#     for number, name, bank in zip(account_numbers, full_names, bank_names):
-#         form = AccountDetailForm(data={
-#             "account_number":number,
-#             "bank_full_name":name,
-#             "bank_name":bank
-#         })
-#         if not form.is_valid():
-#             return form
-#         account_list.append(form.cleaned_data)
-#     return account_list
+    @staticmethod
+    def retrieve_one(id) -> AccountDetail | None:
+        return AccountDetail.objects.filter(id=id).first()
 
-def newAccounts(accounts:list) -> set | None:
-    numbers = {data["account_number"] for data in accounts}
-    existing_roles = set(AccountDetail.objects.filter(
-        account_number__in=numbers
-        ).values_list("account_number", flat=True))
-    if len(existing_roles) == len(numbers):
-        return None
-    new_accts = numbers - existing_roles
-    return new_accts
     
-def accountDetailCreator(accounts:list, data) -> None:
-    new_data = []
-    for account in accounts:
-        new_data.append(
-            AccountDetail(
-                staff=account["staff"],
-                bank_name=account["bank_name"],
-                bank_full_name=account["bank_full_name"],
-                account_number=account["account_number"],
-                created_by_user=data["user"],
-                created_by=data["user_name"]
-            )
+class AccountDataInserter:
+    def __init__(self, data:list[dict] | dict, user):    
+        self.data = data
+        self.user = user
+        self.full_name = getFullName(user)
+    
+    def insert_one(self):
+        AccountDetail.objects.create(
+            staff=self.data["staff"],
+            bank_name=self.data["bank_name"],
+            account_name=self.data["account_name"],
+            account_number=self.data["account_number"],
+            created_by_user=self.user,
+            created_by=self.full_name
         )
-    AccountDetail.objects.bulk_create(new_data)
+        
+    def insert_many(self) -> None:
+        account_list = []
+        for account in self.data:
+            account_list.append(
+                AccountDetail(
+                    staff=account["staff"],
+                    bank_name=account["bank_name"],
+                    account_name=account["account_name"],
+                    account_number=account["account_number"],
+                    created_by_user=self.user,
+                    created_by=self.full_name
+            ))
+        AccountDetail.objects.bulk_create(account_list)    
 
+class AccountDataUpdater:
 
-# def create(data:dict, accounts:list) -> dict | None:
-#     try:
-#         new_accts = newAccounts(accounts)
-#         if not new_accts:
-#             return {"error": "Account number(s) already exists", "status":400}
-#         role_list = prepareCreate(list(accounts), data)
-#         with transaction.atomic():
-#             accountDetailCreator(role_list)
-#     except IntegrityError:
-#         return queue_error
-#     except Exception:
-#         return server_error
-#     return None
-
-# def update(role:Role, data:dict) -> dict | None:
-#     try:
-#         if role.name == data["name"].title():
-#             return {"error": "Nothing to update.", "status": 400}
-#         with transaction.atomic():
-#             roleUpdate(role, data)
-#     except IntegrityError:
-#         return {"error": "Role record already exists.", "status": 400}
-#     except DatabaseError:
-#         return queue_error
-#     except Exception as e:
-#         print(str(e))
-#         return server_error
-#     return None
-
-# def delete_one(role:Role) -> dict | None:
-#     try:
-#         with transaction.atomic():
-#             role.delete()
-#     except Role.DoesNotExist:
-#         return role_404
-#     except DatabaseError:
-#         return queue_error
-#     except Exception as e:
-#         print(str(e))
-#         return server_error
-#     return None
-
-# def delete_many(role_ids:list) -> dict | None:
-#     try:
-#         with transaction.atomic():
-#             print("IN DELETE", role_ids)
-#             roles = Role.objects.select_for_update(
-#                 nowait=True
-#             ).filter(id__in=role_ids)
-#             if not roles.exists():
-#                 raise Role.DoesNotExist
-#             roles.delete()
-#     except Role.DoesNotExist:
-#         return role_404
-#     except DatabaseError:
-#         return queue_error
-#     except Exception:
-#         return server_error
-#     return None
+    @staticmethod
+    def update_one(staff:Staff, data:dict, user) -> None:
+        return AccountDetail.objects.filter(
+                staff=staff
+            ).update(
+                bank_name=data["bank_name"],
+                account_name=data["account_name"],
+                account_number=data["account_number"],
+                updated_at=timezone.now().date(),
+                updated_by_user=user,
+                updated_by=getFullName(user)
+            )

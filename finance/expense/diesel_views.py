@@ -179,3 +179,4 @@ class DieselDeleteView(View):
         
         diesel_ids = request.POST.getlist("diesel_ids")
         return self._handle_bulk_action(request, diesel_ids)
+

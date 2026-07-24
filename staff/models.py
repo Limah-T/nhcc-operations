@@ -1,4 +1,5 @@
 from django.db import models
+from phonenumber_field.modelfields import PhoneNumberField
 from account.models import CustomUser
 
 class Role(models.Model):
@@ -6,9 +7,15 @@ class Role(models.Model):
         CustomUser, on_delete=models.SET_NULL, 
         null=True, related_name="staff_role_created_by_user_id"
     )
+    updated_by_user = models.ForeignKey(
+        CustomUser, on_delete=models.SET_NULL, 
+        null=True, related_name="staff_role_updated_by_user_id"
+    )
     name = models.CharField(max_length=255, unique=True)
     created_by = models.CharField(max_length=200)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateField(auto_now_add=True)
+    updated_by = models.CharField(max_length=200)
+    updated_at = models.DateField(auto_now=True)
 
 class Staff(models.Model):
     created_by_user = models.ForeignKey(
@@ -24,9 +31,11 @@ class Staff(models.Model):
         null=True, related_name="staff_role"
     )
 
-    full_name = models.CharField(max_length=255)
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
     email = models.EmailField(blank=True, unique=True, null=True)
-    phone_number = models.CharField(max_length=20, unique=True, blank=True)
+    # phone_number = models.CharField(max_length=20, unique=True, blank=True)
+    phone_number = PhoneNumberField(unique=True)
     
     salary = models.DecimalField(max_digits=15, decimal_places=2)
     bonus = models.DecimalField(max_digits=15, decimal_places=2, default=0)
@@ -35,8 +44,8 @@ class Staff(models.Model):
 
     created_by = models.CharField(max_length=200)
     updated_by = models.CharField(max_length=200)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateField(auto_now=True)
 
 class AccountDetail(models.Model):
     created_by_user = models.ForeignKey(
@@ -53,9 +62,9 @@ class AccountDetail(models.Model):
         related_name="account_detail"
     )
     bank_name = models.CharField(max_length=255)
-    bank_full_name = models.CharField(max_length=255)
+    account_name = models.CharField(max_length=255)
     account_number = models.CharField(max_length=50, unique=True)
     created_by = models.CharField(max_length=200)
     updated_by = models.CharField(max_length=200)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateField(auto_now=True)

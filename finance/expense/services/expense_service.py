@@ -5,7 +5,7 @@ from nhcc_operations.services.generic_service import (
     server_error, queue_error, expense_404, no_changes, date_constructor
 )
 from decimal import Decimal
-from account.services.profile_service import getFullName
+from account.services.profile_service import getFullName, getNameAvatar
 from ..services.category_service import CategoryDataRetrieval
 from ..models import Expense
 
@@ -128,7 +128,7 @@ def expense_context_data(user):
         "expenses":expenses,
         "count":expenses.count(),
         "monthly_total_display": f"₦{total_expenses:,.2f}",
-        "user_name":getFullName(user),
+        "user_name":getNameAvatar(user),
     }
 
 def expenseOrganizer(queryset:Expense) -> dict:
