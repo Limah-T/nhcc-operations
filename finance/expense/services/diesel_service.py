@@ -39,7 +39,7 @@ class DieselDataRetrieval:
 
     @staticmethod
     def retrieve_all() -> Diesel:
-        Diesel.objects.all().order_by('-created_at')
+        Diesel.objects.all().order_by('-date_recorded')
 
     @staticmethod
     def retrieve_bulk(ids) -> Diesel:
@@ -49,16 +49,16 @@ class DieselDataRetrieval:
     def retrieve_by_month(start_date=None, end_date=None) -> Diesel:
         if start_date and end_date:
             return Diesel.objects.filter(
-                created_at__gte=start_date,
-                created_at__lt=end_date
-            ).order_by('-created_at')
+                date_recorded__gte=start_date,
+                date_recorded__lt=end_date
+            ).order_by('-date_recorded')
                 
         now = timezone.now()
         start_date, end_date = date_constructor(now.year, now.month)
         return Diesel.objects.filter(
-            created_at__gte=start_date,
-            created_at__lt=end_date
-        ).order_by('-created_at')
+            date_recorded__gte=start_date,
+            date_recorded__lt=end_date
+        ).order_by('-date_recorded')
 
 
 class DieselRecordCalculator:
@@ -70,15 +70,15 @@ class DieselRecordCalculator:
             self, start_date=None, end_date=None)-> int:
         if start_date and end_date:
             return Diesel.objects.filter(
-                created_at__gte=start_date,
-                created_at__lt=end_date
+                date_recorded__gte=start_date,
+                date_recorded__lt=end_date
             ).count()
         
         now = timezone.now()
         start_date, end_date = date_constructor(now.year, now.month)
         return Diesel.objects.filter(
-            created_at__gte=start_date,
-            created_at__lt=end_date
+            date_recorded__gte=start_date,
+            date_recorded__lt=end_date
         ).count()
 
     def total_monthly_records(
@@ -87,16 +87,16 @@ class DieselRecordCalculator:
         if start_date and end_date:
             return sum(
                 item.total for item in queryset 
-                if item.created_at and (
-                        item.created_at.month == start_date.month and
-                        item.created_at.year == start_date.year
+                if item.date_recorded and (
+                        item.date_recorded.month == start_date.month and
+                        item.date_recorded.year == start_date.year
                     )
             )
         return sum(
             item.total for item in queryset 
-            if item.created_at and (
-                    item.created_at.month == self.current_month and
-                    item.created_at.year == self.current_year
+            if item.date_recorded and (
+                    item.date_recorded.month == self.current_month and
+                    item.date_recorded.year == self.current_year
             ))
             
     def total_annual_records(
@@ -104,13 +104,13 @@ class DieselRecordCalculator:
         if year:
             return sum(
                 item.total for item in queryset
-                if item.created_at and (
-                    (item.created_at.year == year)
+                if item.date_recorded and (
+                    (item.date_recorded.year == year)
             ))
         return sum(
             item.total for item in queryset
-            if item.created_at and (
-                (item.created_at.year == self.current_year)
+            if item.date_recorded and (
+                (item.date_recorded.year == self.current_year)
         ))
 
 def diesel_context_data(user) -> dict:
@@ -135,7 +135,7 @@ class DieselDataInserter:
         transport_value = transport if transport else Decimal(0)
         amount = self.data["litres"]*self.data["price"]
         total = amount + transport_value
-        Diesel.objects.create(
+        diesel = Diesel.objects.create(
             litres=self.data["litres"],
             price=self.data["price"],
             amount=amount,
@@ -144,6 +144,7 @@ class DieselDataInserter:
             total=total,
             month=timezone.now().strftime("%B"),
             created_at=self.data["date"],
+            date_recorded=timezone.now().date(),
             created_by_user=self.user,
             created_by=self.full_name,
         )
@@ -153,6 +154,7 @@ class DieselDataInserter:
         for diesel in self.data:
             amount = diesel["litres"]*diesel["price"]
             total = amount + diesel["transport"]
+            
             diesel_list.append(
                 Diesel(
                     litres=diesel["litres"],
@@ -163,6 +165,7 @@ class DieselDataInserter:
                     total=total,
                     month=timezone.now().strftime("%B"),
                     created_at=diesel["date"],
+                    date_recorded=timezone.now().date,
                     created_by_user=self.user,
                     created_by=self.full_name,
             ))

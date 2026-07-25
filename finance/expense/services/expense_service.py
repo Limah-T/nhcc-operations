@@ -42,17 +42,17 @@ class ExpenseRecordCalculator:
         if start_date and end_date:
             return sum(
                 item.total for item in queryset 
-                if item.created_at and (
-                    item.created_at.month == start_date.month and 
-                    item.created_at.year == end_date.year
+                if item.date_recorded and (
+                    item.date_recorded.month == start_date.month and 
+                    item.date_recorded.year == end_date.year
                 ) 
             )
 
         return sum(
             item.total for item in queryset 
-            if item.created_at and (
-                item.created_at.month == self.current_month and 
-                item.created_at.year == self.current_year
+            if item.date_recorded and (
+                item.date_recorded.month == self.current_month and 
+                item.date_recorded.year == self.current_year
             ) 
         )
 
@@ -60,15 +60,15 @@ class ExpenseRecordCalculator:
             self, start_date=None, end_date=None) -> int:
         if start_date and end_date:
             return Expense.objects.filter(
-                    created_at__gte=start_date, 
-                    created_at__lte=end_date
+                    date_recorded__gte=start_date, 
+                    date_recorded__lte=end_date
             ).count()
         
         now = timezone.now()
         start_date, end_date = date_constructor(now.year, now.month)
         return Expense.objects.filter(
-                created_at__gte=start_date, 
-                created_at__lte=end_date
+                date_recorded__gte=start_date, 
+                date_recorded__lte=end_date
         ).count()
 
     def total_annual_records(
@@ -76,12 +76,12 @@ class ExpenseRecordCalculator:
         if year:
             return sum(
                 item.total for item in queryset
-                if item.created_at and (item.created_at.year == year)
+                if item.date_recorded and (item.date_recorded.year == year)
             )
         return sum(
                 item.total for item in queryset
-                if item.created_at and (
-                    item.created_at.year == self.current_year
+                if item.date_recorded and (
+                    item.date_recorded.year == self.current_year
                 )
         )
     
@@ -98,16 +98,16 @@ class ExpenseDataRetrieval:
         if start_date and end_date:
             return Expense.objects.select_related(
                 "category").filter(
-                    created_at__gte=start_date, 
-                    created_at__lt=end_date
+                    date_recorded__gte=start_date, 
+                    date_recorded__lt=end_date
                 ).order_by("category__name")
         
         now = timezone.now()
         start_date, end_date = date_constructor(now.year, now.month)
         return Expense.objects.select_related(
             "category").filter(
-                created_at__gte=start_date, 
-                created_at__lt=end_date
+                date_recorded__gte=start_date, 
+                date_recorded__lt=end_date
             ).order_by("category__name")
 
     @staticmethod
@@ -142,7 +142,8 @@ def expenseOrganizer(queryset:Expense) -> dict:
                     "amount": query.amount,
                     "quantity": query.quantity,
                     "total": query.total,
-                    "created_at": query.created_at
+                    "created_at": query.created_at,
+                    "date_recorded": query.date_recorded
                 })
             data["rowspan"] = len(data["expenses"])
         else:
@@ -152,7 +153,8 @@ def expenseOrganizer(queryset:Expense) -> dict:
                     "amount": query.amount,
                     "quantity": query.quantity,
                     "total": query.total,
-                    "created_at": query.created_at
+                    "created_at": query.created_at,
+                    "date_recorded":query.date_recorded
                 }
             ]
             expenses.update({
@@ -182,7 +184,8 @@ class ExpenseDataInserter:
             total=Decimal(self.data["quantity"])*Decimal(self.data["amount"]), 
             created_by_user=self.user, 
             created_by=self.full_name,
-            created_at=self.data["date"]
+            created_at=self.data["date"],
+            date_recorded=timezone.now().date()
     )
 
     def insert_many(self) -> None:
@@ -198,7 +201,8 @@ class ExpenseDataInserter:
                     total=Decimal(expense["quantity"])*Decimal(expense["amount"]), 
                     created_by_user=self.user, 
                     created_by=self.full_name,
-                    created_at=expense["date"]
+                    created_at=expense["date"],
+                    date_recorded=timezone.now().date()
             ))
         Expense.objects.bulk_create(expenses)
 

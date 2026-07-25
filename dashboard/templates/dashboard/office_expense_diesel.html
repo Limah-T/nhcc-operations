@@ -242,20 +242,25 @@
 
                 <div class="card border-0 shadow-sm rounded-4">
                     <div class="card-body p-0">
+                        <div id="swipeHint" class="swipe-hint d-lg-none">
+                            <i class="bi bi-arrow-left-right"></i>
+                            Swipe left to view more columns
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0" style="min-width: 750px;">
                                 <thead class="table-light">
                                     <tr>
-                                        <th class="px-3 py-4" style="width:48px;">
+                                        <th class="px-4 py-4" style="width:48px;">
                                             <input class="form-check-input" type="checkbox" id="selectAllDiesel" aria-label="Select all diesel records">
                                         </th>
-                                        <th style="width:22%;" class="px-3 py-4">Litres</th>
-                                        <th style="width:22%;" class="px-3 py-4">Price</th>
-                                        <th style="width:22%;" class="px-3 py-4">Amount</th>
-                                        <th style="width:22%;" class="px-3 py-4">T-Fare</th>
-                                        <th style="width:22%;" class="px-3 py-4">Total</th>
-                                        <th style="width:22%;"class="px-3 py-4 text-nowrap">Date</th>
-                                        <th style="width:160%;" class="px-3 py-4 text-end" style="width:120px;">
+                                        <th style="width:22%;" class="px-4 py-4">Litres</th>
+                                        <th style="width:22%;" class="px-4 py-4 text-center">Price</th>
+                                        <th style="width:22%;" class="px-4 py-4 text-center">Amount</th>
+                                        <th style="width:22%;" class="px-4 py-4 text-center">T-Fare</th>
+                                        <th style="width:22%;" class="px-4 py-4 text-center">Total</th>
+                                        <th style="width:22%;"class="px-4 py-4 text-nowrap ">Purchased Date</th>
+                                        <th style="width:22%;"class="px-4 py-4 text-nowrap">Date Recorded</th>
+                                        <th style="width:160%;" class="px-4 py-4 text-end" style="width:120px;">
     Actions
 </th>
                                     </tr>
@@ -263,18 +268,19 @@
                                 <tbody>
                                     {% for diesel in diesel_records %}
                                     <tr>
-                                        <td class="px-3 py-3">
+                                        <td class="px-4 py-4">
                                             <input class="form-check-input diesel-checkbox" type="checkbox" value="{{ diesel.id }}" aria-label="Select diesel {{ diesel.supplier_name }}">
                                         </td>
                                         
-                                        <td class="px-3 py-4">{{ diesel.litres }}</td>
-                                        <td class="px-3 py-4">₦{{ diesel.price|floatformat|intcomma }}</td>
-                                        <td class="px-3 py-4">₦{{ diesel.amount|floatformat|intcomma }}</td>
-                                        <td class="px-3 py-4">₦{{ diesel.transport|floatformat|intcomma }}</td>
-                                        <td class="px-3 py-4">₦{{ diesel.total|floatformat|intcomma }}</td>
-                                        <td class="px-3 py-4 text-nowrap">{{ diesel.created_at|date:"d M Y" }}</td>
+                                        <td class="px-4 py-4">{{ diesel.litres }}</td>
+                                        <td class="px-4 py-4 text-center">₦{{ diesel.price|floatformat|intcomma }}</td>
+                                        <td class="px-4 py-4 text-center">₦{{ diesel.amount|floatformat|intcomma }}</td>
+                                        <td class="px-4 py-4 text-center">₦{{ diesel.transport|floatformat|intcomma }}</td>
+                                        <td class="px-4 py-4 text-center">₦{{ diesel.total|floatformat|intcomma }}</td>
+                                        <td class="px-4 py-4 text-center">{{ diesel.created_at|date:"d M Y" }}</td>
+                                        <td class="px-4 py-4 text-center">{{ diesel.date_recorded|date:"d M Y" }}</td>
 
-                                        <td class="px-3 py-4 text-end">
+                                        <td class="px-4 py-4 text-end">
 
                                             <div class="d-flex justify-content-end align-items-center">
                                                 <!-- Desktop actions -->
@@ -292,6 +298,7 @@
                                                         data-transport="{{ diesel.transport }}"
                                                         data-total="{{ diesel.total }}"
                                                         data-created-at="{{ diesel.created_at|date:'Y-m-d' }}"
+                                                        data-date-recorded="{{ diesel.date_recorded|date:'Y-m-d' }}"
                                                         data-created-by="{{ diesel.created_by }}"
                                                         data-updated-at="{{ diesel.updated_at|date:'Y-m-d' }}"
                                                         data-updated-by="{{ diesel.updated_by }}">
@@ -347,12 +354,12 @@
                                                                 data-transport="{{ diesel.transport }}"
                                                                 data-total="{{ diesel.total }}"
                                                                 data-created-at="{{ diesel.created_at|date:'Y-m-d' }}"
+                                                                data-date-recorded="{{ diesel.date_recorded|date:'Y-m-d' }}"
                                                                 data-created-by="{{ diesel.created_by }}"
                                                                 data-updated-at="{{ diesel.updated_at|date:'d M Y' }}"
                                                                 data-updated-by="{{ diesel.updated_by }}">
 
-                                                                <i class="bi bi-eye me-2"></i>
-                                                                View
+                                                                <i class="bi bi-eye me-2"></i>View
                                                             </button>
                                                         </li>
                                                         <li>
@@ -492,10 +499,20 @@
 
                                     <div class="col-md-6">
                                         <label class="form-label text-muted small">
-                                            Created At
+                                            Purchased Date
                                         </label>
 
                                         <div id="viewCreatedAt"
+                                            class="form-control rounded-4 bg-light">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">
+                                            Date Recorded
+                                        </label>
+
+                                        <div id="viewDateRecorded"
                                             class="form-control rounded-4 bg-light">
                                         </div>
                                     </div>
@@ -601,7 +618,7 @@
                                     <div class="col-12">
 
                                         <label class="form-label fw-semibold">
-                                            Date
+                                            Purchased Date
                                         </label>
 
                                         <div class="form-floating position-relative">
@@ -787,6 +804,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const bulkDeleteForm = document.getElementById('bulkDeleteForm');
     const viewButtons = Array.from(document.querySelectorAll(".view-diesel-btn"));
     const viewCreatedAt = document.getElementById("viewCreatedAt");
+    const viewDateRecorded = document.getElementById("viewDateRecorded");
     const editButtons = Array.from(document.querySelectorAll('.edit-diesel-btn'));
     const deleteButtons = Array.from(document.querySelectorAll('.delete-diesel-btn'));
     const editDieselForm = document.getElementById('editDieselForm');
@@ -884,6 +902,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
             document.getElementById("viewCreatedAt").textContent =
                 button.dataset.createdAt || "-";
+
+            document.getElementById("viewDateRecorded").textContent =
+                button.dataset.dateRecorded || "-";
 
             document.getElementById("viewCreatedBy").textContent =
                 button.dataset.createdBy || "-";

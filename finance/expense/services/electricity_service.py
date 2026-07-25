@@ -35,7 +35,7 @@ class EKedcDataRetrieval:
 
     @staticmethod
     def retrieve_all() -> EKEDC:
-        EKEDC.objects.all().order_by('-created_at')
+        EKEDC.objects.all().order_by('-date_recorded')
 
     @staticmethod
     def retrieve_bulk(ids) -> EKEDC:
@@ -45,16 +45,16 @@ class EKedcDataRetrieval:
     def retrieve_by_month(start_date=None, end_date=None) -> EKEDC:
         if start_date and end_date:
             return EKEDC.objects.filter(
-                created_at__gte=start_date,
-                created_at__lt=end_date
-            ).order_by('-created_at')
+                date_recorded__gte=start_date,
+                date_recorded__lt=end_date
+            ).order_by('-date_recorded')
                 
         now = timezone.now()
         start_date, end_date = date_constructor(now.year, now.month)
         return EKEDC.objects.filter(
-            created_at__gte=start_date,
-            created_at__lt=end_date
-        ).order_by('-created_at')
+            date_recorded__gte=start_date,
+            date_recorded__lt=end_date
+        ).order_by('-date_recorded')
         
         
 
@@ -68,15 +68,15 @@ class EkedcRecordCalculator:
             self, start_date=None, end_date=None)-> int:
         if start_date and end_date:
             return EKEDC.objects.filter(
-                created_at__gte=start_date,
-                created_at__lt=end_date
+                date_recorded__gte=start_date,
+                date_recorded__lt=end_date
             ).count()
         
         now = timezone.now()
         start_date, end_date = date_constructor(now.year, now.month)
         return EKEDC.objects.filter(
-            created_at__gte=start_date,
-            created_at__lt=end_date
+            date_recorded__gte=start_date,
+            date_recorded__lt=end_date
         ).count()
 
     def total_monthly_records(
@@ -85,16 +85,16 @@ class EkedcRecordCalculator:
         if start_date and end_date:
             return sum(
                 item.amount for item in queryset 
-                if item.created_at and (
-                        item.created_at.month == start_date.month and
-                        item.created_at.year == start_date.year
+                if item.date_recorded and (
+                        item.date_recorded.month == start_date.month and
+                        item.date_recorded.year == start_date.year
                     )
             )
         return sum(
             item.amount for item in queryset 
-            if item.created_at and (
-                    item.created_at.month == self.current_month and
-                    item.created_at.year == self.current_year
+            if item.date_recorded and (
+                    item.date_recorded.month == self.current_month and
+                    item.date_recorded.year == self.current_year
             ))
             
     def total_annual_records(
@@ -102,13 +102,13 @@ class EkedcRecordCalculator:
         if year:
             return sum(
                 item.amount for item in queryset
-                if item.created_at and (
-                    (item.created_at.year == year)
+                if item.date_recorded and (
+                    (item.date_recorded.year == year)
             ))
         return sum(
             item.amount for item in queryset
-            if item.created_at and (
-                (item.created_at.year == self.current_year)
+            if item.date_recorded and (
+                (item.date_recorded.year == self.current_year)
         ))
 
 def ekedc_context_data(user) -> dict:
@@ -134,6 +134,7 @@ class EkedcDataInserter:
             amount=self.data["amount"],
             month=timezone.now().strftime("%B"),
             created_at=self.data["date"],
+            date_recorded=timezone.now().date(),
             created_by_user=self.user,
             created_by=self.full_name,
         )
@@ -147,6 +148,7 @@ class EkedcDataInserter:
                     amount=ekedc["amount"],
                     month=timezone.now().strftime("%B"),
                     created_at=ekedc["date"],
+                    date_recorded=timezone.now().date(),
                     created_by_user=self.user,
                     created_by=self.full_name
             ))

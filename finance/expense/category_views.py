@@ -9,7 +9,7 @@ from nhcc_operations.services.http_response_services import (
 from nhcc_operations.services.generic_service import category_404
 from .forms import CategoryForm
 from dashboard.views import category_temp_name
-from account.services.profile_service import getFullName
+from account.services.profile_service import getNameAvatar
 from .services.category_service import (
     CategoryPayloadParser, category_context_data,
     create_single, create_bulk, update_single,
@@ -24,7 +24,7 @@ def categoryOverview(request):
         request=request, 
         template_name=category_temp_name,
         context={
-            "user_name":getFullName(request.user)
+            "user_name":getNameAvatar(request.user)
         }
     )   
 

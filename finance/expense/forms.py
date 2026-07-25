@@ -22,25 +22,26 @@ class DieselForm(forms.Form):
         max_digits=15, decimal_places=2, required=False 
     )
     date = forms.DateField(input_formats=["%Y-%m-%d"], required=False)
-    
-    def clean_date(self):
-        now = timezone.now()
-        input_date = self.cleaned_data.get("date")
-        if input_date:
-            if (input_date.month > now.month or \
-                input_date.day > now.day or
-                input_date.year > now.year 
-            ):
-                raise forms.ValidationError("Month or year is in the future.")
-        else:
-            self.cleaned_data["date"] = now.date()
-        return self.cleaned_data["date"]
+           
 
-    def clean_supplier_name(self):
+    def clean(self):
+        input_date = self.cleaned_data.get("date")
         supplier_name = self.cleaned_data.get("supplier_name")
+        transport = self.cleaned_data.get("transport")
+        
         if not re.match(r"^[a-zA-Z0-9\s&,'.-]+$", supplier_name):
             raise forms.ValidationError("Invalid name")
-        return supplier_name.title()          
+        self.cleaned_data["supplier_name"] = supplier_name.title()
+        if input_date:
+            if input_date > timezone.now().date():
+                raise forms.ValidationError("Date is in the future")
+        else:
+            self.cleaned_data["date"] = timezone.now().date()
+
+        if transport is None:
+            self.cleaned_data["transport"] = Decimal(0)
+        
+        return self.cleaned_data
 
 class ElectricityForm(forms.Form):
     kwh = forms.DecimalField(max_digits=15, decimal_places=2, min_value=0.01)
@@ -48,16 +49,12 @@ class ElectricityForm(forms.Form):
     date = forms.DateField(input_formats=["%Y-%m-%d"], required=False)
 
     def clean_date(self):
-        now = timezone.now()
         input_date = self.cleaned_data.get("date")
         if input_date:
-            if (input_date.month > now.month or \
-                input_date.day > now.day or
-                input_date.year > now.year 
-            ):
-                raise forms.ValidationError("Month or year is in the future.")
+            if input_date > timezone.now().date():
+                raise forms.ValidationError("Date is in the future")
         else:
-            self.cleaned_data["date"] = now.date()
+            self.cleaned_data["date"] = timezone.now().date()
         return self.cleaned_data["date"]
 
 class ExpenseForm(forms.Form):
@@ -69,21 +66,17 @@ class ExpenseForm(forms.Form):
     quantity = forms.DecimalField(max_digits=15, decimal_places=2)
     date = forms.DateField(input_formats=["%Y-%m-%d"], required=False)
 
-    def clean_name(self):
+
+    def clean(self):
+        input_date = self.cleaned_data.get("date")
         name = self.cleaned_data.get("name")
         if not re.match(r"^[a-zA-Z0-9\s&,'.-]+$", name):
             raise forms.ValidationError("Invalid name")
-        return name.title() 
-
-    def clean_date(self):
-        now = timezone.now()
-        input_date = self.cleaned_data.get("date")
+        self.cleaned_data["name"] = name.title()
+        
         if input_date:
-            if (input_date.month > now.month or \
-                input_date.day > now.day or
-                input_date.year > now.year 
-            ):
-                raise forms.ValidationError("Month or year is in the future.")
+            if input_date > timezone.now().date():
+                raise forms.ValidationError("Date is in the future")
         else:
-            self.cleaned_data["date"] = now.date()
-        return self.cleaned_data["date"]
+            self.cleaned_data["date"] = timezone.now().date()
+        return self.cleaned_data

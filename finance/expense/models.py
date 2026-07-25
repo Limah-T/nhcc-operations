@@ -35,6 +35,7 @@ class Diesel(models.Model):
     created_by = models.CharField(max_length=200)
     updated_by = models.CharField(max_length=200)
     created_at = models.DateField(null=True, blank=True)
+    date_recorded = models.DateField(auto_now_add=True)
     updated_at = models.DateField(null=True, blank=True)
 
 class EKEDC(models.Model):
@@ -53,6 +54,8 @@ class EKEDC(models.Model):
     updated_by = models.CharField(max_length=200)
     created_at = models.DateField(null=True, blank=True)
     updated_at = models.DateField(null=True, blank=True)  
+    date_recorded = models.DateField(auto_now_add=True)
+
 
 class Expense(models.Model):
     created_by_user = models.ForeignKey(
@@ -77,3 +80,5 @@ class Expense(models.Model):
     updated_by = models.CharField(max_length=200)
     created_at = models.DateField(null=True, blank=True)
     updated_at = models.DateField(null=True, blank=True)
+    date_recorded = models.DateField(auto_now_add=True)
+

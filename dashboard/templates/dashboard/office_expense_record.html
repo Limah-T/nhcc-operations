@@ -144,7 +144,7 @@
 
                     <thead class="table-light">
                         <tr>
-                            <th class="px-3 py-3" style="width:48px;">
+                            <th class="px-4 py-4" style="width:48px;">
                                 <input
                                     class="form-check-input"
                                     type="checkbox"
@@ -155,7 +155,8 @@
                             <th class="px-4 py-4">Amount</th>
                             <th class="px-4 py-4">Qty</th>
                             <th class="px-4 py-4">Total</th>
-                            <th class="px-4 py-4 text-nowrap">Date</th>
+                            <th class="px-4 py-4 text-nowrap">Purchased Date</th>
+                            <th class="px-4 py-4 text-nowrap">Date Recorded</th>
 
                             <th class="px-4 py-4 text-end" style="width:120px;">
                                 Actions
@@ -202,7 +203,9 @@
                             <td class="px-4 py-3">
                                 {{ expense.created_at|date:"d M, Y" }}
                             </td>
-
+                             <td class="px-4 py-3">
+                                {{ expense.date_recorded|date:"d M, Y" }}
+                            </td>
                             <td class="px-4 py-3">
                                 <div class="d-flex justify-content-end align-items-center">
                             
@@ -219,6 +222,7 @@
                                             data-quantity="{{ expense.quantity }}"
                                             data-total="{{ expense.total }}"
                                             data-created-at="{{ expense.created_at|date:'d M, Y' }}"
+                                            data-date-recorded="{{ expense.date_recorded|date:'d M, Y' }}"
                                             data-created-by="{{ expense.created_by }}"
                                             data-updated-at="{{ expense.updated_at|date:'d M, Y' }}"
                                             data-updated-by="{{ expense.updated_by }}">
@@ -280,6 +284,7 @@
                                                     data-quantity="{{ expense.quantity }}"
                                                     data-total="{{ expense.total }}"
                                                     data-created-at="{{ expense.created_at|date:'d M, Y' }}"
+                                                    data-date-recorded="{{ expense.date_recorded|date:'d M, Y' }}"
                                                     data-created-by="{{ expense.created_by }}"
                                                     data-updated-at="{{ expense.updated_at|date:'d M, Y' }}"
                                                     data-updated-by="{{ expense.updated_by }}">
@@ -774,7 +779,7 @@
 
                         <div class="col-md-6">
                             <label class="form-label text-muted small">
-                                Created At
+                                Purchased Date
                             </label>
 
                             <div id="viewCreatedAt"
@@ -782,6 +787,15 @@
                             </div>
                         </div>
 
+                         <div class="col-md-6">
+                            <label class="form-label text-muted small">
+                                Date Recorded
+                            </label>
+
+                            <div id="viewDateRecorded"
+                                class="form-control rounded-4 bg-light">
+                            </div>
+                        </div>
                         <div class="col-md-6">
                             <label class="form-label text-muted small">
                                 Created By
@@ -955,7 +969,7 @@
                             <div class="col-12">
 
                                 <label class="form-label fw-semibold">
-                                    Expense Date
+                                    Purchased Date
                                 </label>
 
                                 <input
@@ -1287,6 +1301,8 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("viewTotal").textContent = "₦" + button.dataset.total;
             document.getElementById("viewCreatedAt").textContent = 
                 button.dataset.createdAt || "-";
+            document.getElementById("viewDateRecorded").textContent =
+                button.dataset.dateRecorded
 
             document.getElementById("viewCreatedBy").textContent =
                 button.dataset.createdBy || "-";

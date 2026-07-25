@@ -201,25 +201,28 @@
                             <table class="table table-hover align-middle mb-0" style="min-width: 600px; table-layout: fixed;">
                                 <thead class="table-light">
                                     <tr>
-                                        <th style="width:48px;" class="px-3 py-3">
+                                        <th style="width:48px;" class="px-4 py-4">
                                             <input class="form-check-input"
                                                 type="checkbox"
                                                 id="selectAllElectricity">
                                         </th>
 
-                                        <th style="width:22%;" class="px-3 py-3">
+                                        <th style="width:22%;" class="px-4 py-4">
                                             kWh
                                         </th>
 
-                                        <th style="width:28%;" class="px-3 py-3">
+                                        <th style="width:28%;" class="px-4 py-4">
                                             Amount
                                         </th>
 
-                                        <th style="width:22%;" class="px-3 py-3">
-                                            Date
+                                        <th style="width:22%;" class="px-4 py-4">
+                                            Purchased Date
+                                        </th>
+                                        <th style="width:22%;" class="px-4 py-4">
+                                            Date Recorded
                                         </th>
 
-                                        <th style="width:160px;" class="px-3 py-3 text-center">
+                                        <th style="width:160px;" class="px-4 py-4 text-center">
                                             Actions
                                         </th>
                                     </tr>
@@ -228,25 +231,29 @@
                                 <tbody>
                                     {% for electricity in electricity_records %}
                                     <tr>
-                                        <td class="px-3 py-3">
+                                        <td class="px-4 py-4">
                                             <input class="form-check-input electricity-checkbox"
                                                 type="checkbox"
                                                 value="{{ electricity.id }}">
                                         </td>
 
-                                        <td class="px-3 py-3">
+                                        <td class="px-4 py-4">
                                             {{ electricity.kwh|floatformat|intcomma }}
                                         </td>
 
-                                        <td class="px-3 py-3">
+                                        <td class="px-4 py-4">
                                             ₦{{ electricity.amount|floatformat|intcomma }}
                                         </td>
 
-                                        <td class="px-3 py-3 text-nowrap">
+                                        <td class="px-4 py-4 text-nowrap">
                                             {{ electricity.created_at|date:"d M Y" }}
                                         </td>
 
-                                        <td class="px-3 py-3 text-center">
+                                        <td class="px-4 py-4 text-nowrap">
+                                            {{ electricity.date_recorded|date:"d M Y" }}
+                                        </td>
+
+                                        <td class="px-4 py-4 text-center">
 
                                             <!-- Desktop  Actions-->
 
@@ -259,7 +266,7 @@
                                                     data-kwh="{{ electricity.kwh }}"
                                                     data-amount="{{ electricity.amount }}"
                                                     data-created-at="{{ electricity.created_at|date:'Y-m-d' }}"
-
+                                                    data-date-recorded="{{ electricity.date_recorded|date:'Y-m-d' }}"
                                                     data-created-by="{{ electricity.created_by }}"
                                                     data-updated-at="{{ electricity.updated_at|date:'Y-m-d' }}"
                                                     data-updated-by="{{ electricity.updated_by }}">
@@ -306,7 +313,7 @@
                                                             data-kwh="{{ electricity.kwh }}"
                                                             data-amount="{{ electricity.amount }}"
                                                             data-created-at="{{ electricity.created_at|date:'Y-m-d' }}"
-
+                                                            data-date-recorded="{{ electricity.date_recorded|date:'Y-m-d' }}"
                                                             data-created-by="{{ electricity.created_by }}"
                                                             data-updated-at="{{ electricity.updated_at|date:'Y-m-d' }}"
                                                             data-updated-by="{{ electricity.updated_by }}">
@@ -323,8 +330,7 @@
                                                             data-created-at="{{ electricity.created_at|date:'Y-m-d' }}"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#editElectricityModal">
-                                                            <i class="bi bi-pencil me-2"></i>
-                                                            Edit
+                                                            <i class="bi bi-pencil me-2"></i>Edit
                                                         </button>
                                                     </li>
 
@@ -408,11 +414,21 @@
 
                                     <div class="col-md-6">
                                         <label class="form-label text-muted small">
-                                            Created At
+                                            Purchased Date
                                         </label>
 
                                         <div
                                             id="viewCreatedAt"
+                                            class="form-control rounded-4 bg-light">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small">
+                                            Date Recorded
+                                        </label>
+
+                                        <div
+                                            id="viewDateRecorded"
                                             class="form-control rounded-4 bg-light">
                                         </div>
                                     </div>
@@ -496,7 +512,7 @@
                                         <div class="col-12">
 
                                             <label class="form-label fw-semibold">
-                                                Date
+                                                Purchased Date
                                             </label>
 
                                             <div class="form-floating position-relative">
@@ -637,6 +653,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const bulkDeleteForm = document.getElementById('bulkDeleteForm');
     const viewButtons = Array.from(document.querySelectorAll(".view-electricity-btn"));
     const viewCreatedAt = document.getElementById("viewCreatedAt");
+    const viewDateRecorded = document.getElementById("viewDateRecorded")
     const viewCreatedBy = document.getElementById("viewCreatedBy");
     const viewUpdatedAt = document.getElementById("viewUpdatedAt");
     const viewUpdatedBy = document.getElementById("viewUpdatedBy");
@@ -708,6 +725,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
             document.getElementById("viewCreatedAt").textContent =
                 button.dataset.createdAt || "-";
+
+            document.getElementById("viewDateRecorded").textContent =
+                button.dataset.dateRecorded || "-";
 
             document.getElementById("viewCreatedBy").textContent =
                 button.dataset.createdBy || "-";

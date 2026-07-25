@@ -159,7 +159,7 @@ class StaffDeleteView(View):
         if staff_ids:
             error = delete_bulk(staff_ids)
             if error is None:
-                message = "Role records deleted successfully"
+                message = "Staff records deleted successfully"
                 return success_response(request, staff_url_name, message)
             
             message, code = error[0], error[1]

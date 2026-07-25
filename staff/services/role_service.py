@@ -60,9 +60,7 @@ class RoleDataInserter:
         
     def insert_many(self) -> None:
         role_list = []
-        print(self.data)
         for role in self.data:
-            print("ROLE", role)
             role_list.append(
                 Role(
                     name=role["name"],
@@ -141,7 +139,7 @@ def update_single(id, data:dict, user) -> tuple[str, int] | None:
             updater.update_one(role.id, data, user)
     except IntegrityError:
         return ("Role already exists.", 400)
-    except IndentationError:
+    except Exception:
         return (server_error, 500)
     return None
 

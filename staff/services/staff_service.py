@@ -108,7 +108,6 @@ class StaffDataInserter:
                     created_by_user=self.user,
                     created_by=self.full_name
             ))
-        print(staff_list)
         return Staff.objects.bulk_create(staff_list)
 
 def staff_organizer(
@@ -175,9 +174,10 @@ class StaffDataDeleter:
 
 def create_single(data:dict, user) -> tuple[str, int] | None:
     try:
-        staff = StaffDataInserter(data, user).insert_one()
-        data["staff"] = staff
-        AccountDataInserter(data, user).insert_one()
+        with transaction.atomic():
+            staff = StaffDataInserter(data, user).insert_one()
+            data["staff"] = staff
+            AccountDataInserter(data, user).insert_one()
     except IntegrityError:
         return (staff_cred_error, 400)
     except Exception:
@@ -185,11 +185,11 @@ def create_single(data:dict, user) -> tuple[str, int] | None:
     return None
 
 def create_bulk(data:list[dict], user) -> tuple[str, int] | None:
-    print("IN CREATE ", data)
     try:
-        staff_records = StaffDataInserter(data, user).insert_many()
-        organized_data = staff_organizer(data, staff_records)
-        AccountDataInserter(organized_data, user).insert_many()
+        with transaction.atomic():
+            staff_records = StaffDataInserter(data, user).insert_many()
+            organized_data = staff_organizer(data, staff_records)
+            AccountDataInserter(organized_data, user).insert_many()
     except IntegrityError:
         return (staff_cred_error, 400)
     except Exception:
