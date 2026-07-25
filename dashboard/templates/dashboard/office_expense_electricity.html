@@ -198,7 +198,7 @@
                             Swipe left to view more columns
                         </div>
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0" style="min-width: 750px; table-layout: fixed;">
+                            <table class="table table-hover align-middle mb-0" style="min-width: 900px; table-layout: fixed;">
                                 <thead class="table-light">
                                     <tr>
                                         <th style="width:48px;" class="px-4 py-4">
@@ -207,22 +207,22 @@
                                                 id="selectAllElectricity">
                                         </th>
 
-                                        <th style="width:22%;" class="px-4 py-4">
+                                        <th class="px-4 py-4">
                                             kWh
                                         </th>
 
-                                        <th style="width:25%;" class="px-4 py-4">
+                                        <th class="px-4 py-4 text-center">
                                             Amount
                                         </th>
 
-                                        <th style="width:25%;" class="px-4 py-4 text-nowrap">
+                                        <th class="px-4 py-4 text-nowrap text-center">
                                             Purchased Date
                                         </th>
-                                        <th style="width:25%;" class="px-4 py-4 text-nowrap">
+                                        <th class="px-4 py-4 text-nowrap text-center">
                                             Date Recorded
                                         </th>
 
-                                        <th style="width:150px;" class="px-4 py-4 text-end">
+                                        <th class="px-4 py-4 text-end">
                                             Actions
                                         </th>
                                     </tr>
@@ -237,23 +237,23 @@
                                                 value="{{ electricity.id }}">
                                         </td>
 
-                                        <td class="px-4 py-4">
+                                        <td class="px-4 py-3">
                                             {{ electricity.kwh|floatformat|intcomma }}
                                         </td>
 
-                                        <td class="px-4 py-4">
+                                        <td class="px-4 py-3 text-center">
                                             ₦{{ electricity.amount|floatformat|intcomma }}
                                         </td>
 
-                                        <td class="px-4 py-4 text-nowrap text-center">
+                                        <td class="px-4 py-3 text-nowrap text-center">
                                             {{ electricity.created_at|date:"d M Y" }}
                                         </td>
 
-                                        <td class="px-4 py-4 text-nowrap text-center">
+                                        <td class="px-4 py-3 text-nowrap text-center">
                                             {{ electricity.date_recorded|date:"d M Y" }}
                                         </td>
 
-                                        <td class="px-4 py-4 text-end">
+                                        <td class="px-4 py-3 text-end">
 
                                             <!-- Desktop  Actions-->
 

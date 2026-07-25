@@ -247,20 +247,20 @@
                             Swipe left to view more columns
                         </div>
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0" style="min-width: 750px;">
+                            <table class="table table-hover align-middle mb-0" style="min-width: 900px;">
                                 <thead class="table-light">
                                     <tr>
                                         <th class="px-4 py-4" style="width:48px;">
                                             <input class="form-check-input" type="checkbox" id="selectAllDiesel" aria-label="Select all diesel records">
                                         </th>
-                                        <th style="width:22%;" class="px-4 py-4">Litres</th>
-                                        <th style="width:22%;" class="px-4 py-4 text-center">Price</th>
-                                        <th style="width:22%;" class="px-4 py-4 text-center">Amount</th>
-                                        <th style="width:25%;" class="px-4 py-4 text-center">T-Fare</th>
-                                        <th style="width:22%;" class="px-4 py-4 text-center">Total</th>
-                                        <th style="width:25%;"class="px-4 py-4 text-nowrap ">Purchased Date</th>
-                                        <th style="width:25%;"class="px-4 py-4 text-nowrap">Date Recorded</th>
-                                        <th style="width:160%;" class="px-4 py-4 text-end" style="width:120px;">
+                                        <th class="px-4 py-4">Litres</th>
+                                        <th class="px-4 py-4 text-center">Price</th>
+                                        <th class="px-4 py-4 text-center">Amount</th>
+                                        <th class="px-4 py-4 text-center">T-Fare</th>
+                                        <th class="px-4 py-4 text-center">Total</th>
+                                        <th class="px-4 py-4 text-nowrap ">Purchased Date</th>
+                                        <th class="px-4 py-4 text-nowrap">Date Recorded</th>
+                                        <th class="px-4 py-4 text-end" style="width:120px;">
     Actions
 </th>
                                     </tr>
@@ -272,15 +272,15 @@
                                             <input class="form-check-input diesel-checkbox" type="checkbox" value="{{ diesel.id }}" aria-label="Select diesel {{ diesel.supplier_name }}">
                                         </td>
                                         
-                                        <td class="px-4 py-4">{{ diesel.litres }}</td>
-                                        <td class="px-4 py-4 text-center">₦{{ diesel.price|floatformat|intcomma }}</td>
-                                        <td class="px-4 py-4 text-center">₦{{ diesel.amount|floatformat|intcomma }}</td>
-                                        <td class="px-4 py-4 text-center">₦{{ diesel.transport|floatformat|intcomma }}</td>
-                                        <td class="px-4 py-4 text-center">₦{{ diesel.total|floatformat|intcomma }}</td>
-                                        <td class="px-4 py-4 text-center">{{ diesel.created_at|date:"d M Y" }}</td>
-                                        <td class="px-4 py-4 text-center">{{ diesel.date_recorded|date:"d M Y" }}</td>
+                                        <td class="px-4 py-3">{{ diesel.litres }}</td>
+                                        <td class="px-4 py-3 text-center">₦{{ diesel.price|floatformat|intcomma }}</td>
+                                        <td class="px-4 py-3 text-center">₦{{ diesel.amount|floatformat|intcomma }}</td>
+                                        <td class="px-4 py-3 text-center">₦{{ diesel.transport|floatformat|intcomma }}</td>
+                                        <td class="px-4 py-3 text-center">₦{{ diesel.total|floatformat|intcomma }}</td>
+                                        <td class="px-4 py-3 text-center">{{ diesel.created_at|date:"d M Y" }}</td>
+                                        <td class="px-4 py-3 text-center">{{ diesel.date_recorded|date:"d M Y" }}</td>
 
-                                        <td class="px-4 py-4 text-end">
+                                        <td class="px-4 py-3 text-end">
 
                                             <div class="d-flex justify-content-end align-items-center">
                                                 <!-- Desktop actions -->
