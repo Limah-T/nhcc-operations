@@ -1,5 +1,6 @@
 from pathlib import Path
 from dotenv import load_dotenv
+from django.contrib.messages import constants as messages
 import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -83,9 +84,6 @@ USE_I18N = True
 USE_TZ = True
 STATIC_URL = 'static/'
 LOGIN_URL="login"
-MEDIA_ROOT = BASE_DIR / "media"
-
-from django.contrib.messages import constants as messages
 
 MESSAGE_TAGS = {
     messages.ERROR: "danger",

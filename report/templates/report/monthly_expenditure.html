@@ -84,10 +84,10 @@ Monthly Expenditure Report
                 <tr class="sub-header">
 
                     <th style="width:36%;">Expense</th>
-                    <th style="width:16%;" class="text-end">Unit Price</th>
+                    <th style="width:16%;" class="text-center">Unit Price</th>
                     <th style="width:10%;" class="text-center">Qty</th>
                     <th style="width:18%;" class="text-end">Total</th>
-                    <th style="width:20%;">Date</th>
+                    <th style="width:20%;" class="text-end">Date</th>
 
                 </tr>
 
@@ -97,7 +97,7 @@ Monthly Expenditure Report
 
                     <td>{{ expense.name }}</td>
 
-                    <td class="text-end">
+                    <td class="text-center">
                         ₦{{ expense.amount|floatformat:2|intcomma }}
                     </td>
 
@@ -109,7 +109,7 @@ Monthly Expenditure Report
                         ₦{{ expense.total|floatformat:2|intcomma }}
                     </td>
 
-                    <td class="nowrap">
+                    <td class="text-end nowrap">
                         {{ expense.created_at|date:"d M, Y" }}
                     </td>
 
@@ -157,17 +157,17 @@ Monthly Expenditure Report
                     Litres
                 </th>
 
-                <th class="text-end">
+                <th class="text-center">
                     Price
                 </th>
-                <th class="text-end">
+                <th class="text-center">
                     Transport
                 </th>
 
                 <th class="text-end">
                     Total
                 </th>
-                <th style="width:25%;">
+                <th style="width:25%;" class="text-end">
                     Date
                 </th>
 
@@ -185,10 +185,10 @@ Monthly Expenditure Report
                     {{ diesel.litres }}
                 </td>
 
-                <td class="text-end">
+                <td class="text-center">
                     ₦{{ diesel.price|floatformat:2|intcomma }}
                 </td>
-                <td class="text-end">
+                <td class="text-center">
                     ₦{{ diesel.transport|floatformat:2|intcomma }}
                 </td>
                 <td class="text-end">
@@ -248,11 +248,11 @@ Monthly Expenditure Report
 
                 <th>kWH</th>
 
-                <th class="text-end">
+                <th class="text-center">
                     Amount
                 </th>
 
-                <th>Date</th>
+                <th class="text-end">Date</th>
 
             </tr>
 
@@ -268,10 +268,10 @@ Monthly Expenditure Report
                     {{ payment.kwh }}
                 </td>
 
-                <td class="text-end">
+                <td class="text-center">
                     ₦{{ payment.amount|floatformat:2|intcomma }}
                 </td>
-                <td class="nowrap">
+                <td class="nowrap text-end">
                     {{ payment.created_at|date:"d M, Y" }}
                 </td>
             </tr>
@@ -327,11 +327,11 @@ Monthly Expenditure Report
                     Staff Name
                 </th>
 
-                <th class="text-end">
+                <th class="text-center">
                     Salary
                 </th>
 
-                <th class="text-end">
+                <th class="text-center">
                     Bonus
                 </th>
 
@@ -355,11 +355,11 @@ Monthly Expenditure Report
                 <td>
                     {{ salary.last_name }}
                 </td>
-                <td class="text-end">
+                <td class="text-center">
                     ₦{{ salary.salary|floatformat:2|intcomma }}
                 </td>
 
-                <td class="text-end">
+                <td class="text-center">
                     ₦{{ salary.bonus|floatformat:2|intcomma }}
                 </td>
 
