@@ -198,7 +198,7 @@
                             Swipe left to view more columns
                         </div>
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0" style="min-width: 600px; table-layout: fixed;">
+                            <table class="table table-hover align-middle mb-0" style="min-width: 750px; table-layout: fixed;">
                                 <thead class="table-light">
                                     <tr>
                                         <th style="width:48px;" class="px-4 py-4">
@@ -211,18 +211,18 @@
                                             kWh
                                         </th>
 
-                                        <th style="width:28%;" class="px-4 py-4">
+                                        <th style="width:20%;" class="px-4 py-4">
                                             Amount
                                         </th>
 
-                                        <th style="width:22%;" class="px-4 py-4">
+                                        <th style="width:25%;" class="px-4 py-4 text-nowrap">
                                             Purchased Date
                                         </th>
-                                        <th style="width:22%;" class="px-4 py-4">
+                                        <th style="width:25%;" class="px-4 py-4 text-nowrap">
                                             Date Recorded
                                         </th>
 
-                                        <th style="width:160px;" class="px-4 py-4 text-center">
+                                        <th style="width:150px;" class="px-4 py-4 text-end">
                                             Actions
                                         </th>
                                     </tr>
@@ -245,15 +245,15 @@
                                             ₦{{ electricity.amount|floatformat|intcomma }}
                                         </td>
 
-                                        <td class="px-4 py-4 text-nowrap">
+                                        <td class="px-4 py-4 text-nowrap text-center">
                                             {{ electricity.created_at|date:"d M Y" }}
                                         </td>
 
-                                        <td class="px-4 py-4 text-nowrap">
+                                        <td class="px-4 py-4 text-nowrap text-center">
                                             {{ electricity.date_recorded|date:"d M Y" }}
                                         </td>
 
-                                        <td class="px-4 py-4 text-center">
+                                        <td class="px-4 py-4 text-end">
 
                                             <!-- Desktop  Actions-->
 
