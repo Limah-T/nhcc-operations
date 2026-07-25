@@ -2,7 +2,7 @@
 __pycache__/
 *.py[codz]
 *$py.class
-DESKTOP*
+DESKTOP-LA2RE91
 .env*
 # C extensions
 *.so
