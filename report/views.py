@@ -12,7 +12,8 @@ from nhcc_operations.services.http_response_services import error_response
 from .forms import ReportForm
 from .services.report_service import (
     pdf_generator, get_template_context,
-    file_naming_constructor, url_name
+    file_naming_constructor, build_image_url, 
+    url_name
 )
 
 @login_required
@@ -48,9 +49,11 @@ class ReportManagementView(View):
                 report_type, month, year, start, end)
             details = get_template_context(
                 report_type, request.user, start, end, month, year)
+            context = details["context"]
+            context.update({"logo_url": build_image_url(request)})
             html_string = render_to_string(
                 template_name=details["template"],
-                context=details["context"], request=request
+                context=context, request=request
             )
             response = pdf_generator(html_string, request, file_name)
             return response
