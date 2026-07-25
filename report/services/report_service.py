@@ -2,6 +2,7 @@ from django.http import HttpResponse
 from django.utils import timezone
 from django.templatetags.static import static
 from django.conf import settings
+from pathlib import Path
 from weasyprint import HTML, CSS
 from account.services.profile_service import getFullName
 from finance.expense.services.expense_service import (
@@ -18,8 +19,8 @@ url_name = "reports"
 expense_report_temp = "report/expenses.html"
 monthly_expenditure_report_temp = "report/monthly_expenditure.html"
 
-def build_image_url(request):
-    return request.build_absolute_uri(static("images/logo.png"))
+def build_image_url():
+    return (Path(settings.STATIC_ROOT) / "images" / "logo.png").as_uri()
 
 def monthly_expenses_cxt_data(user, start_date, end_date, month, year)-> dict:
     queryset = ExpenseDataRetrieval().retrieve_all_with_category(start_date, end_date)

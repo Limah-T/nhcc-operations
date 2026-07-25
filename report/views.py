@@ -50,7 +50,7 @@ class ReportManagementView(View):
             details = get_template_context(
                 report_type, request.user, start, end, month, year)
             context = details["context"]
-            context.update({"logo_url": build_image_url(request)})
+            context.update({"logo_url": build_image_url()})
             html_string = render_to_string(
                 template_name=details["template"],
                 context=context, request=request
