@@ -1,61 +1,24 @@
 Django==6.0.1
+
+# Environment Variables
+python-dotenv==1.2.1
 django-environ==0.12.0
 
 # email validator
 email-validator==2.3.0
 
-# Database
-psycopg2-binary==2.9.11
-dj-database-url==3.1.2
-
-
-# Authentication & Security
-djangorestframework_simplejwt==5.5.1
-django-allauth==65.17.0
-django-otp==1.7.0
-django-two-factor-auth==1.18.1
-dj-rest-auth==7.2.0
+# phone number validator
 django-phonenumber-field==8.4.0
 phonenumbers==9.0.22
-
-# Task Queue & Caching
-celery==5.6.2
-django_celery_results==2.6.0
-django-celery-beat==2.9.0
-django-redis==6.0.0
-redis==7.1.0
-
-# Social Auth
-dj-rest-auth==7.2.0
 
 # Utils
 requests==2.32.5
 
 # TestCase
 pytest==9.0.2
-
 pytest-django==4.12.0
 
-# Environment Variables
-python-dotenv==1.2.1
-
-# Jwt clear
-PyJWT==2.11.0
-
-# Crytography for private and public keys
-cryptography==46.0.4
-
-# OIDC client
-google-auth==2.48.0
-
-# Deployment
-whitenoise==6.12.0
-gunicorn==25.1.0
-
-# CORS and CSP
-django-cors-headers==4.9.0
-django-csp==4.0
-
+# Query 
 django-silk==5.5.0
 
 # PDF Generator
