@@ -80,7 +80,7 @@ def monthly_expenditure_cxt_data(user, start_date, end_date, month, year):
         "ekedc": ekedc_queryset, "ekedc_total": total_ekedc,
 
         # Staff Salaries
-        "salaries": {}, "salary_total": 0,
+        "salaries": 0, "salary_total": 0,
 
         # Overall
         "grand_total": grand_total,
