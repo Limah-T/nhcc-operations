@@ -5,6 +5,7 @@ from django.http.response import HttpResponse
 from django.utils import timezone
 from django.shortcuts import render
 from django.shortcuts import redirect
+from dotenv import load_dotenv
 from django.views import View
 from account.services.profile_service import getNameAvatar
 from dashboard.views import report_temp_name
@@ -15,6 +16,8 @@ from .services.report_service import (
     file_naming_constructor, build_image_url, 
     url_name
 )
+import os
+load_dotenv()
 
 @login_required
 def reportOverview(request):  
@@ -48,9 +51,12 @@ class ReportManagementView(View):
             file_name = file_naming_constructor(
                 report_type, month, year, start, end)
             details = get_template_context(
-                report_type, request.user, start, end, month, year)
+                report_type, request.user, start, end, month, year)   
             context = details["context"]
-            context.update({"logo_url": build_image_url()})
+            context.update({
+                "logo_url": build_image_url(),
+                "company_email": os.environ.get("company_email")
+            })
             html_string = render_to_string(
                 template_name=details["template"],
                 context=context, request=request
