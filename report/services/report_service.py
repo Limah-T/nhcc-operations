@@ -58,7 +58,9 @@ def monthly_expenditure_cxt_data(user, start_date, end_date, month, year):
 
     expenses =  expenseOrganizer(expense_queryset)
     grand_total = total_expenses+total_diesel+total_ekedc
-
+    salaries = {}
+    salary_records = 0
+    total_salaries = 0
     prepared_by = getFullName(user)
     generated_at = timezone.now()
     return {
@@ -68,7 +70,7 @@ def monthly_expenditure_cxt_data(user, start_date, end_date, month, year):
         "expense_records": expense_records,
         "diesel_records": diesel_records,
         "ekedc_records": ekedc_records,
-        "salary_records": 0,
+        "salary_records": salary_records,
 
         # Office Expenses
         "expenses":expenses, "total_expenses": total_expenses,
@@ -80,7 +82,7 @@ def monthly_expenditure_cxt_data(user, start_date, end_date, month, year):
         "ekedc": ekedc_queryset, "ekedc_total": total_ekedc,
 
         # Staff Salaries
-        "salaries": 0, "salary_total": 0,
+        "salaries": salaries, "salary_total": total_salaries,
 
         # Overall
         "grand_total": grand_total,
