@@ -68,7 +68,7 @@ def monthly_expenditure_cxt_data(user, start_date, end_date, month, year):
         "expense_records": expense_records,
         "diesel_records": diesel_records,
         "ekedc_records": ekedc_records,
-        "salary_records": {},
+        "salary_records": 0,
 
         # Office Expenses
         "expenses":expenses, "total_expenses": total_expenses,
