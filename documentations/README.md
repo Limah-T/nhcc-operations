@@ -143,7 +143,7 @@ The user interface was initially scaffolded with AI assistance and then extensiv
 
 The system architecture, database design, backend implementation, business logic, integrations, security, and application workflows were designed and implemented by the project author.
 
-![Python](https://img.shields.io/badge/Python-3.12-blue)
-![Django](https://img.shields.io/badge/Django-5.x-green)
+![Python](https://img.shields.io/badge/Python-3.13-blue)
+![Django](https://img.shields.io/badge/Django-6.x-green)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
