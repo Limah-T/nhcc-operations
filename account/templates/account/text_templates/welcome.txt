@@ -1,0 +1,20 @@
+{{subject}}
+
+Nigerian-Hungarian Chamber of Commerce
+
+Hello, {{ user.first_name|default:user.username }}!
+
+Your NHCC Operations account has been created successfully.
+
+You can now sign in to access the internal operations platform and use the features available to your account.
+
+Sign in to NHCC Operations:
+{{ login_url }}
+
+Account email:
+{{ user.email }}
+
+If you did not expect this account to be created, please contact the system administrator.
+
+This is an automated message from NHCC Operations.
+Please do not reply directly to this email.

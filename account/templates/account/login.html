@@ -19,7 +19,7 @@
                 NHCC Operations
             </h1>
 
-            <p class="mb-4 text-white-50">
+            <p class="mb-4 auth-description">
                 A premium control center for finance, reporting, permissions, and daily business operations.
             </p>
 
@@ -41,13 +41,13 @@
                 </div>
 
                 <div>
-                    <div class="fw-bold text-black-50">
+                    <h3 class="collaboration-title">
                         Operational clarity
-                    </div>
+                    </h3>
 
-                    <div class="text-black-50">
+                    <h3 class="collaboration-description">
                         Track progress with confidence.
-                    </div>
+                    </h3>
                 </div>
 
             </div>
@@ -118,6 +118,19 @@
                         >
 
                     </div>
+                    {% for error in form.email.errors %}
+                        <div class="alert alert-danger">
+
+                                {{ error }}
+
+                                <button
+                                    type="button"
+                                    class="btn-close text-end"
+                                    data-bs-dismiss="alert">
+                                </button>
+
+                        </div>
+                    {% endfor %}
 
 
                 </div>

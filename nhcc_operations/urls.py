@@ -9,6 +9,8 @@ urlpatterns = [
     path("dashboard/expense/", include("finance.expense.urls")),
     path("dashboard/staff/", include("staff.urls")),
     path("dashboard/", include("report.urls")),
+     # Django Silk
+    # path("silk/", include("silk.urls", namespace="silk")),
     path("", Dashboard.as_view(), name="dashboard")
 
 ]

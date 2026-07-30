@@ -24,8 +24,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    # 'silk',
     'account',
-    'permission',
     'dashboard',
     'finance',
     'finance.expense',
@@ -41,6 +41,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'silk.middleware.SilkyMiddleware',
 ]
 
 ROOT_URLCONF = 'nhcc_operations.urls'
@@ -88,3 +89,22 @@ LOGIN_URL="login"
 MESSAGE_TAGS = {
     messages.ERROR: "danger",
 }
+
+EMAIL_BACKEND = env("EMAIL_BACKEND")
+
+EMAIL_HOST = env("SMTP_SERVER")
+
+EMAIL_PORT = env("SMTP_PORT", default=587)
+
+EMAIL_USE_TLS = True
+
+EMAIL_USE_SSL = False
+
+EMAIL_HOST_USER = env("SMTP_USERNAME")
+
+EMAIL_HOST_PASSWORD = env("SMTP_PASSWORD")
+
+DEFAULT_FROM_EMAIL = env("SENDER_EMAIL")
+
+HTTP_ONLY_SECURE=bool(env("HTTP_ONLY_SECURE"))
+

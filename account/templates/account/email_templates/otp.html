@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+<title>Password Reset Code</title>
+
+
+</head>
+
+<body
+    style="
+        margin:0;
+        padding:0;
+        background-color:#f5f7fb;
+        font-family:Arial, Helvetica, sans-serif;
+        color:#0f172a;
+    ">
+
+
+<table
+    role="presentation"
+    width="100%"
+    cellspacing="0"
+    cellpadding="0"
+    border="0"
+    style="
+        background-color:#f5f7fb;
+        padding:40px 16px;
+    ">
+
+    <tr>
+
+        <td align="center">
+
+            <table
+                role="presentation"
+                width="100%"
+                cellspacing="0"
+                cellpadding="0"
+                border="0"
+                style="
+                    max-width:620px;
+                    background-color:#ffffff;
+                    border-radius:18px;
+                    overflow:hidden;
+                    box-shadow:0 8px 24px rgba(15,23,42,0.08);
+                ">
+
+                <!-- Header -->
+
+                <tr>
+
+                    <td
+                        style="
+                            background-color:#0f172a;
+                            padding:32px;
+                            text-align:center;
+                        ">
+
+                        <div
+                            style="
+                                width:50px;
+                                height:50px;
+                                margin:0 auto 16px;
+                                background-color:#2563eb;
+                                border-radius:14px;
+                                line-height:50px;
+                                color:#ffffff;
+                                font-size:22px;
+                                font-weight:bold;
+                            ">
+
+                            NH
+
+                        </div>
+
+                        <h1
+                            style="
+                                margin:0;
+                                color:#ffffff;
+                                font-size:25px;
+                                font-weight:700;
+                            ">
+
+                            Password Reset
+
+                        </h1>
+
+                        <p
+                            style="
+                                margin:10px 0 0;
+                                color:#cbd5e1;
+                                font-size:14px;
+                            ">
+
+                            NHCC Operations
+
+                        </p>
+
+                    </td>
+
+                </tr>
+
+                <!-- Main Content -->
+
+                <tr>
+
+                    <td
+                        style="
+                            padding:38px 32px;
+                        ">
+
+                        <h2
+                            style="
+                                margin:0 0 16px;
+                                font-size:22px;
+                                color:#0f172a;
+                            ">
+
+                            Hello, {{ user.first_name|default:user.username }}!
+
+                        </h2>
+
+                        <p
+                            style="
+                                margin:0 0 16px;
+                                color:#475569;
+                                font-size:15px;
+                                line-height:1.7;
+                            ">
+
+                            We received a request to reset your
+                            NHCC Operations password.
+
+                        </p>
+
+                        <p
+                            style="
+                                margin:0 0 22px;
+                                color:#475569;
+                                font-size:15px;
+                                line-height:1.7;
+                            ">
+
+                            Enter the verification code below on the
+                            password reset page.
+
+                        </p>
+
+                        <!-- OTP Code -->
+
+                        <div
+                            style="
+                                margin:0 0 24px;
+                                padding:22px;
+                                background-color:#eff6ff;
+                                border:1px solid #bfdbfe;
+                                border-radius:14px;
+                                text-align:center;
+                            ">
+
+                            <p
+                                style="
+                                    margin:0 0 10px;
+                                    color:#64748b;
+                                    font-size:13px;
+                                    font-weight:600;
+                                    text-transform:uppercase;
+                                    letter-spacing:1px;
+                                ">
+
+                                Your Verification Code
+
+                            </p>
+
+                            <div
+                                style="
+                                    color:#2563eb;
+                                    font-size:32px;
+                                    font-weight:700;
+                                    letter-spacing:8px;
+                                ">
+
+                                {{ otp_code }}
+
+                            </div>
+
+                        </div>
+
+                        <p
+                            style="
+                                margin:0 0 16px;
+                                color:#475569;
+                                font-size:14px;
+                                line-height:1.7;
+                            ">
+
+                            This code will expire in
+                            <strong>{{ expired_at }} minutes</strong>.
+
+                        </p>
+
+                        <div
+                            style="
+                                background-color:#fff7ed;
+                                border:1px solid #fed7aa;
+                                border-radius:12px;
+                                padding:16px;
+                            ">
+
+                            <p
+                                style="
+                                    margin:0;
+                                    color:#9a3412;
+                                    font-size:13px;
+                                    line-height:1.6;
+                                ">
+
+                                If you did not request a password reset,
+                                you can safely ignore this email.
+                                Do not share this verification code
+                                with anyone.
+
+                            </p>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                <!-- Footer -->
+
+                <tr>
+
+                    <td
+                        style="
+                            padding:22px 32px;
+                            background-color:#f8fafc;
+                            border-top:1px solid #e5e7eb;
+                            text-align:center;
+                        ">
+
+                        <p
+                            style="
+                                margin:0;
+                                color:#94a3b8;
+                                font-size:12px;
+                                line-height:1.6;
+                            ">
+
+                            This is an automated message from
+                            NHCC Operations. Please do not reply
+                            directly to this email.
+
+                        </p>
+
+                    </td>
+
+                </tr>
+
+            </table>
+
+        </td>
+
+    </tr>
+
+</table>
+
+
+</body>
+
+</html>

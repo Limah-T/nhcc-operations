@@ -12,3 +12,13 @@ class CustomUser(AbstractUser):
         self.last_name = self.last_name.title()
         self.email = self.email.lower()
         return super().save(*args, **kwargs)
+
+class OtpCode(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    otp_code = models.CharField(max_length=6)
+    reset_token = models.CharField(max_length=6, null=True, blank=True)
+    verified = models.BooleanField(default=False)
+    code_expired_at = models.DateTimeField(null=True, blank=True)
+    reset_expired_at = models.DateTimeField(null=True, blank=True)
+    
+

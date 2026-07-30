@@ -1,0 +1,16 @@
+NHCC OPERATIONS
+{{subject}}
+
+Hello, {{ user.first_name|default:user.username }}!
+
+We received a request to reset your NHCC Operations password.
+
+Enter the verification code below on the password reset page:
+
+{{ otp_code }}
+
+This verification code will expire in {{ expired_at }} minutes.
+
+If you did not request a password reset, you can safely ignore this email. Do not share this verification code with anyone.
+
+This is an automated message from NHCC Operations. Please do not reply directly to this email.

@@ -1,0 +1,164 @@
+{% extends "account/auth_base.html" %}
+
+{% block title %}
+Verify Password Reset Code
+{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+
+<div class="row justify-content-center">
+
+    <div class="col-md-8 col-lg-5">
+
+        <div class="card border-0 shadow-sm rounded-4">
+
+            <div class="card-body p-4 p-md-5">
+
+                <div class="text-center mb-4">
+
+                    <div
+                        class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary mb-3"
+                        style="width:70px; height:70px;">
+
+                        <i class="bi bi-shield-lock fs-2"></i>
+
+                    </div>
+
+                    <h1 class="h3 fw-bold">
+
+                        Verify Reset Code
+
+                    </h1>
+
+                    <p class="text-muted mb-0">
+
+                        We sent a verification code to your email address.
+
+                    </p>
+
+                </div>
+
+                <form method="POST">
+                    <!-- ===========================
+                        MESSAGES
+                    =========================== -->
+                
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} rounded-4 mb-4 alert-dismissible fade show">
+
+                                {{ message }}
+
+                                <button
+                                    type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="alert">
+                                </button>
+
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% csrf_token %}
+
+                    <div class="mb-4">
+
+                        <label
+                            for="otp_code"
+                            class="form-label fw-semibold">
+
+                            Verification Code
+
+                        </label>
+
+                        <input
+                            type="text"
+                            name="otp_code"
+                            id="otp_code"
+                            class="form-control form-control-lg text-center fw-bold"
+                            placeholder="Enter verification code"
+                            inputmode="numeric"
+                            autocomplete="one-time-code"
+                            maxlength="6"
+                            required
+                            autofocus
+                            style="
+                                letter-spacing:0.5rem;
+                                font-size:1.4rem;
+                            ">
+
+                        <div class="form-text text-center mt-2">
+
+                            Enter the 6-digit code sent to your email.
+
+                        </div>
+
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary w-100 py-2 rounded-3">
+
+                        <i class="bi bi-check-circle me-2"></i>
+
+                        Verify Code
+
+                    </button>
+
+                </form>
+
+                <div class="text-center mt-4">
+
+                    <p class="text-muted small mb-2">
+
+                        Didn't receive the code?
+
+                    </p>
+
+                    <a
+                        href="{% url 'forgot-password' %}"
+                        class="fw-semibold">
+
+                        Request a new code
+
+                    </a>
+
+                </div>
+
+                <div
+                    class="alert alert-light border rounded-3 mt-4 mb-0">
+
+                    <div class="d-flex">
+
+                        <i
+                            class="bi bi-info-circle text-primary me-2">
+
+                        </i>
+
+                        <small class="text-muted">
+
+                            The verification code expires after
+                            {{ expired_at|default:10 }} minutes.
+                            Do not share the code with anyone.
+
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+</div>
+
+{% endblock %}
