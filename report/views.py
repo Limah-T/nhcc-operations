@@ -61,7 +61,8 @@ class ReportManagementView(View):
                 template_name=details["template"],
                 context=context, request=request
             )
-            response = pdf_generator(html_string, request, file_name)
+            css_path = "css/report/report.css"
+            response = pdf_generator(html_string, request, file_name, css_path)
             return response
         else: message = form.errors
         return error_response(request, report_temp_name, None, message, 400)

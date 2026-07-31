@@ -20,5 +20,3 @@ class OtpCode(models.Model):
     verified = models.BooleanField(default=False)
     code_expired_at = models.DateTimeField(null=True, blank=True)
     reset_expired_at = models.DateTimeField(null=True, blank=True)
-    
-

@@ -21,5 +21,8 @@ pytest-django==4.12.0
 # Query 
 django-silk==5.5.0
 
+# Countries list
+django-countries==9.0.0
+
 # PDF Generator
 weasyprint==69.0

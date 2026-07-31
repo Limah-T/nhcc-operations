@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from dashboard.views import staff_account_temp_name
 from decimal import Decimal
-from .services.staff_service import (
+from ..services.staff_service import (
     StaffPayloadParser, 
     staff_context_data, create_single,
     create_bulk, update_single, 
@@ -15,7 +15,7 @@ from nhcc_operations.services.generic_service import staff_404
 from nhcc_operations.services.http_response_services import (
     success_response, error_response
 )
-from .forms import StaffForm
+from ..forms import StaffForm
 
 staff_url_name = "staff_records"
 

@@ -118,27 +118,16 @@ def file_naming_constructor(type, month, year, start, end) -> str:
     return f"{month}_{year}_{start.day}_to_{end.day}_{type.lower()}.pdf"
 
 
-# def pdf_generator(
-#         html_string, request, file_name
-#     ) -> HttpResponse:
-#     pdf =  HTML(
-#         string=html_string,
-#         base_url=request.build_absolute_uri("/")
-#     ).write_pdf()
-#     response = HttpResponse(pdf, content_type="application/pdf")
-#     response["Content-Disposition"] = f'attachment; filename="{file_name}"'
-#     return response
-
 def pdf_generator(html_string, request, file_name):
     pdf = HTML(
         string=html_string,
         base_url=request.build_absolute_uri("/")
     ).write_pdf(
-        stylesheets=[
-            CSS(settings.STATIC_ROOT / "css/report/report.css")
-        ]
+        # stylesheets=[
+        #     CSS(settings.STATIC_ROOT / css_path)
+        # ]
     )
 
     response = HttpResponse(pdf, content_type="application/pdf")
-    response["Content-Disposition"] = f'attachment; filename="{file_name}"'
+    response["Content-Disposition"] = f'inline; filename="{file_name}"'
     return response

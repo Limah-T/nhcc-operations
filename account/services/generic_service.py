@@ -9,7 +9,7 @@ from ..models import OtpCode, CustomUser
 from ..utils.custom_errors import (
     InvalidCredentialsError, TokenError, OtpError
 )
-import secrets
+import secrets, re
 
 STAFF_ACCOUNTS = set(env("STAFF_EMAILS").split(","))
 
@@ -27,7 +27,18 @@ WRONG_CREDENTIALS = "No active account with the provided credentials"
 INVALID_EMAIL = "Invalid email."
 ACCOUNT_DENIED = "You are not allowed to create an account with this email."
 NAME_ERROR = "Enter a valid name using letters, spaces, apostrophes, or hyphens only."
-    
+
+NAME_REGEX = r"^[A-Za-z]+(?:[ '-][A-Za-z]+)*$"
+
+
+def valid_name(value):
+    if not re.fullmatch(
+        NAME_REGEX,
+        value.strip(),
+    ):
+        return False
+    return True
+
 class OtpService:
     def __init__(self):
         self.now = timezone.now()

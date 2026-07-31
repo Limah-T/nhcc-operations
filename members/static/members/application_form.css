@@ -1,0 +1,1404 @@
+/* ==========================================================
+   A4 PAGE
+========================================================== */
+
+@page {
+
+    size: A4 portrait;
+
+    margin:
+        15mm
+        16mm
+        19mm
+        16mm;
+
+
+    @bottom-left {
+
+        content:
+            "Nigerian-Hungarian Chamber of Commerce";
+
+        font-family:
+            Arial,
+            Helvetica,
+            sans-serif;
+
+        font-size:
+            8px;
+
+        color:
+            #526171;
+
+    }
+
+
+    @bottom-right {
+
+        content:
+            "Page "
+            counter(page)
+            " of "
+            counter(pages);
+
+        font-family:
+            Arial,
+            Helvetica,
+            sans-serif;
+
+        font-size:
+            8px;
+
+        color:
+            #526171;
+
+    }
+
+}
+
+
+
+/* ==========================================================
+   RESET
+========================================================== */
+
+* {
+
+    box-sizing:
+        border-box;
+
+}
+
+
+html {
+
+    margin:
+        0;
+
+    padding:
+        0;
+
+}
+
+
+body {
+
+    margin:
+        0;
+
+    padding:
+        0;
+
+    background:
+        #ffffff;
+
+    color:
+        #182230;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    font-size:
+        10px;
+
+    line-height:
+        1.45;
+
+}
+
+
+.membership-application {
+
+    width:
+        100%;
+
+}
+
+
+
+/* ==========================================================
+   HEADER
+========================================================== */
+
+.document-header {
+
+    margin:
+        0
+        0
+        8mm;
+
+    text-align:
+        center;
+
+}
+
+
+.logo-wrap {
+
+    margin:
+        0
+        0
+        2.5mm;
+
+}
+
+
+.chamber-logo {
+
+    display:
+        block;
+
+    width:
+        23mm;
+
+    height:
+        auto;
+
+    margin:
+        0
+        auto;
+
+}
+
+
+.chamber-name {
+
+    margin:
+        0;
+
+    color:
+        #10233d;
+
+    font-size:
+        18px;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        .04em;
+
+    line-height:
+        1.2;
+
+    text-transform:
+        uppercase;
+
+}
+
+
+.chamber-address {
+
+    margin:
+        2mm
+        0
+        0;
+
+    color:
+        #566474;
+
+    font-size:
+        9px;
+
+}
+
+
+.title-divider {
+
+    width:
+        48mm;
+
+    height:
+        1px;
+
+    margin:
+        4mm
+        auto;
+
+    background:
+        #b6c0ca;
+
+}
+
+
+.document-title {
+
+    margin:
+        0;
+
+    color:
+        #10233d;
+
+    font-size:
+        14px;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        .08em;
+
+    text-transform:
+        uppercase;
+
+}
+
+
+.document-introduction {
+
+    max-width:
+        150mm;
+
+    margin:
+        3mm
+        auto
+        0;
+
+    color:
+        #526171;
+
+    font-size:
+        9px;
+
+    line-height:
+        1.55;
+
+}
+
+
+
+/* ==========================================================
+   FORM SECTIONS
+========================================================== */
+
+.form-section {
+
+    width:
+        100%;
+
+    margin:
+        0
+        0
+        7mm;
+
+    break-inside:
+        avoid;
+
+    page-break-inside:
+        avoid;
+
+}
+
+
+.section-heading {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    width:
+        100%;
+
+    min-height:
+        11mm;
+
+    margin:
+        0
+        0
+        4mm;
+
+    padding:
+        2.5mm
+        4mm;
+
+    color:
+        #ffffff;
+
+    background:
+        #10233d;
+
+    border:
+        1px
+        solid
+        #10233d;
+
+    border-radius:
+        3mm;
+
+    font-size:
+        10px;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        .025em;
+
+    text-transform:
+        uppercase;
+
+    break-after:
+        avoid;
+
+    page-break-after:
+        avoid;
+
+}
+
+
+.section-number {
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    flex:
+        0
+        0
+        7mm;
+
+    width:
+        7mm;
+
+    height:
+        7mm;
+
+    margin-right:
+        3mm;
+
+    color:
+        #10233d;
+
+    background:
+        #ffffff;
+
+    border-radius:
+        2mm;
+
+    font-size:
+        9px;
+
+    font-weight:
+        800;
+
+}
+
+
+.section-title {
+
+    padding-top:
+        .3mm;
+
+}
+
+
+.section-description {
+
+    margin:
+        -1mm
+        0
+        4mm;
+
+    color:
+        #596777;
+
+    font-size:
+        9px;
+
+}
+
+
+
+/* ==========================================================
+   FIELD LAYOUT
+========================================================== */
+
+.field-grid {
+
+    display:
+        grid;
+
+    width:
+        100%;
+
+    margin:
+        0
+        0
+        4mm;
+
+    gap:
+        4mm;
+
+}
+
+
+.two-columns {
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+}
+
+
+.three-columns {
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+}
+
+
+.form-field {
+
+    min-width:
+        0;
+
+    margin:
+        0
+        0
+        4mm;
+
+}
+
+
+.field-grid
+.form-field {
+
+    margin:
+        0;
+
+}
+
+
+.full-width {
+
+    width:
+        100%;
+
+}
+
+
+.form-field label {
+
+    display:
+        block;
+
+    margin:
+        0
+        0
+        1.5mm;
+
+    color:
+        #263544;
+
+    font-size:
+        8.8px;
+
+    font-weight:
+        700;
+
+}
+
+
+.label-note {
+
+    color:
+        #667585;
+
+    font-size:
+        8px;
+
+    font-style:
+        italic;
+
+    font-weight:
+        400;
+
+}
+
+
+.writing-line {
+
+    width:
+        100%;
+
+    min-height:
+        6.5mm;
+
+    border-bottom:
+        .35mm
+        solid
+        #64717d;
+
+}
+
+
+.form-field
+.writing-line
++
+.writing-line {
+
+    margin-top:
+        2mm;
+
+}
+
+
+
+/* ==========================================================
+   SUBSECTION
+========================================================== */
+
+.subsection-title {
+
+    margin:
+        1mm
+        0
+        3mm;
+
+    color:
+        #243547;
+
+    font-size:
+        9px;
+
+    font-weight:
+        800;
+
+    text-transform:
+        uppercase;
+
+}
+
+
+
+/* ==========================================================
+   CHECKBOXES
+========================================================== */
+
+.checkbox-grid {
+
+    display:
+        grid;
+
+    width:
+        100%;
+
+    margin:
+        0
+        0
+        4mm;
+
+    gap:
+        2.5mm
+        5mm;
+
+}
+
+
+.checkbox-grid.three-columns {
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+}
+
+
+.checkbox-item {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    min-width:
+        0;
+
+    color:
+        #344353;
+
+    font-size:
+        8.7px;
+
+    font-weight:
+        600;
+
+}
+
+
+.checkbox {
+
+    display:
+        inline-block;
+
+    flex:
+        0
+        0
+        4.5mm;
+
+    width:
+        4.5mm;
+
+    height:
+        4.5mm;
+
+    margin-right:
+        2.2mm;
+
+    background:
+        #ffffff;
+
+    border:
+        .35mm
+        solid
+        #485766;
+
+    border-radius:
+        .6mm;
+
+}
+
+
+
+/* ==========================================================
+   DIRECTORS TABLE
+========================================================== */
+
+.directors-table {
+
+    width:
+        100%;
+
+    border-collapse:
+        collapse;
+
+    table-layout:
+        fixed;
+
+    font-size:
+        8.8px;
+
+}
+
+
+.directors-table th {
+
+    padding:
+        2.5mm;
+
+    color:
+        #ffffff;
+
+    background:
+        #294762;
+
+    border:
+        .35mm
+        solid
+        #294762;
+
+    font-weight:
+        800;
+
+    text-align:
+        left;
+
+}
+
+
+.directors-table th:first-child {
+
+    width:
+        13mm;
+
+    text-align:
+        center;
+
+}
+
+
+.directors-table th:last-child {
+
+    width:
+        45mm;
+
+}
+
+
+.directors-table td {
+
+    height:
+        12mm;
+
+    padding:
+        2mm;
+
+    border:
+        .3mm
+        solid
+        #7a8794;
+
+    vertical-align:
+        middle;
+
+}
+
+
+.directors-table td:first-child {
+
+    color:
+        #344353;
+
+    font-weight:
+        800;
+
+    text-align:
+        center;
+
+}
+
+
+.table-writing-line {
+
+    width:
+        100%;
+
+    height:
+        6mm;
+
+    border-bottom:
+        .3mm
+        solid
+        #687684;
+
+}
+
+
+
+/* ==========================================================
+   MEMBERSHIP PLANS
+========================================================== */
+
+.membership-plan {
+
+    width:
+        100%;
+
+    margin:
+        0
+        0
+        5mm;
+
+    overflow:
+        hidden;
+
+    background:
+        #ffffff;
+
+    border:
+        .35mm
+        solid
+        #aeb9c3;
+
+    border-radius:
+        3mm;
+
+    break-inside:
+        avoid;
+
+    page-break-inside:
+        avoid;
+
+}
+
+
+.membership-plan-header {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    padding:
+        3mm
+        4mm;
+
+    color:
+        #ffffff;
+
+    background:
+        #294762;
+
+}
+
+
+.plan-letter {
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    width:
+        6mm;
+
+    height:
+        6mm;
+
+    margin-right:
+        2mm;
+
+    color:
+        #294762;
+
+    background:
+        #ffffff;
+
+    border-radius:
+        50%;
+
+    font-size:
+        8px;
+
+    font-weight:
+        800;
+
+}
+
+
+.plan-name {
+
+    font-size:
+        10px;
+
+    font-weight:
+        800;
+
+    text-transform:
+        uppercase;
+    text-align: left;
+
+}
+
+
+.plan-fee {
+
+    color:
+        #ffffff;
+
+    font-size:
+        10px;
+
+}
+
+
+.membership-benefits {
+
+    padding:
+        3.5mm
+        4mm
+        2mm;
+
+}
+
+
+.benefit-item {
+
+    display:
+        flex;
+
+    align-items:
+        flex-start;
+
+    margin:
+        0
+        0
+        2.2mm;
+
+    color:
+        #354454;
+
+    font-size:
+        8.8px;
+
+    line-height:
+        1.45;
+
+}
+
+
+.benefit-bullet {
+
+    margin-right:
+        2mm;
+
+    color:
+        #1f6a87;
+
+    font-size:
+        12px;
+
+    font-weight:
+        800;
+
+    line-height:
+        .8;
+
+}
+
+
+.membership-selection {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        flex-end;
+
+    padding:
+        2.5mm
+        4mm;
+
+    background:
+        #f1f5f8;
+
+    border-top:
+        .3mm
+        solid
+        #d2dbe2;
+
+}
+
+
+.selection-label {
+
+    margin-right:
+        3mm;
+
+    color:
+        #40505f;
+
+    font-size:
+        8.5px;
+
+    font-weight:
+        700;
+
+}
+
+
+.large-checkbox {
+
+    display:
+        inline-block;
+
+    width:
+        6mm;
+
+    height:
+        6mm;
+
+    background:
+        #ffffff;
+
+    border:
+        .4mm
+        solid
+        #364756;
+
+    border-radius:
+        .7mm;
+
+}
+
+
+
+/* ==========================================================
+   QUESTIONS
+========================================================== */
+
+.question-block {
+
+    margin:
+        0
+        0
+        6mm;
+
+}
+
+
+.question {
+
+    margin:
+        0
+        0
+        2mm;
+
+    color:
+        #273747;
+
+    font-size:
+        9px;
+
+    font-weight:
+        700;
+
+}
+
+
+.question-lines
+div {
+
+    width:
+        100%;
+
+    height:
+        7mm;
+
+    border-bottom:
+        .3mm
+        solid
+        #667482;
+
+}
+
+
+.question-lines
+div
++
+div {
+
+    margin-top:
+        1.5mm;
+
+}
+
+
+
+/* ==========================================================
+   REQUIRED DOCUMENTS
+========================================================== */
+
+.required-documents-note {
+
+    margin:
+        0
+        0
+        4mm;
+
+    padding:
+        3mm
+        4mm;
+
+    color:
+        #354454;
+
+    background:
+        #eef4f7;
+
+    border-left:
+        1.2mm
+        solid
+        #1f6a87;
+
+    font-size:
+        8.8px;
+
+    font-weight:
+        600;
+
+}
+
+
+.document-checklist {
+
+    display:
+        grid;
+
+    width:
+        100%;
+
+    gap:
+        3mm;
+
+}
+
+
+.document-item {
+
+    display:
+        flex;
+
+    align-items:
+        flex-start;
+
+    padding:
+        3mm
+        4mm;
+
+    color:
+        #354454;
+
+    background:
+        #ffffff;
+
+    border:
+        .3mm
+        solid
+        #b7c1ca;
+
+    border-radius:
+        2mm;
+
+    font-size:
+        8.8px;
+
+    font-weight:
+        600;
+
+    line-height:
+        1.45;
+
+}
+
+
+.document-item
+.checkbox {
+
+    margin-top:
+        .3mm;
+
+}
+
+
+
+/* ==========================================================
+   DECLARATION
+========================================================== */
+
+.declaration-text {
+
+    margin:
+        0
+        0
+        6mm;
+
+    color:
+        #354454;
+
+    font-size:
+        9px;
+
+    line-height:
+        1.65;
+
+    text-align:
+        justify;
+
+}
+
+
+.signature-grid {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        minmax(
+            0,
+            1fr
+        )
+        40mm;
+
+    width:
+        100%;
+
+    margin:
+        8mm
+        0
+        6mm;
+
+    gap:
+        10mm;
+
+}
+
+
+.signature-field {
+
+    min-width:
+        0;
+
+}
+
+
+.signature-line {
+
+    width:
+        100%;
+
+    height:
+        10mm;
+
+    border-bottom:
+        .35mm
+        solid
+        #4b5966;
+
+}
+
+
+.signature-field
+span {
+
+    display:
+        block;
+
+    margin-top:
+        1.5mm;
+
+    color:
+        #586776;
+
+    font-size:
+        8px;
+
+    font-weight:
+        700;
+
+}
+
+
+.important-note {
+
+    padding:
+        3.5mm
+        4mm;
+
+    color:
+        #5a4630;
+
+    background:
+        #fff8e8;
+
+    border:
+        .3mm
+        solid
+        #e4c77c;
+
+    border-radius:
+        2mm;
+
+    font-size:
+        8.5px;
+
+    line-height:
+        1.5;
+
+}
+
+
+.sponsor-section {
+
+    margin-bottom:
+        0;
+
+}
+
+
+
+/* ==========================================================
+   PRINT SAFETY
+========================================================== */
+
+.document-header {
+
+    break-after:
+        avoid;
+
+    page-break-after:
+        avoid;
+
+}
+
+
+.section-heading {
+
+    break-after:
+        avoid;
+
+    page-break-after:
+        avoid;
+
+}
+
+
+.membership-plan {
+
+    break-inside:
+        avoid;
+
+    page-break-inside:
+        avoid;
+
+}
+
+
+.directors-table {
+
+    break-inside:
+        avoid;
+
+    page-break-inside:
+        avoid;
+
+}
+
+
+.declaration-section {
+
+    break-inside:
+        avoid;
+
+    page-break-inside:
+        avoid;
+
+}

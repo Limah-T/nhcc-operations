@@ -1,10 +1,10 @@
 from django.urls import path
-from .role_views import (
+from .views.role_views import (
     RoleManagementView, RoleUpdateView, 
     RoleDeleteView
 )
 
-from .staff_views import (
+from .views.staff_views import (
     StaffManagementView,
     StaffUpdateView, StaffDeleteView
 )

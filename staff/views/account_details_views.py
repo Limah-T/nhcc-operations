@@ -2,17 +2,17 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from dashboard.views import staff_account_temp_name
-from .services.account_details_service import (
+from ..services.account_details_service import (
     bankAccountQueryset, bankAcctRetrieval, 
     bankAccountFormValidator, create
 )
-from .services.staff_service import staffContextData
+from ..services.staff_service import staffContextData
 from account.services.profile_service import getFullName
 from nhcc_operations.services.generic_service import (
     emptyFields, intId, role_404, empty_fields_error
 )
-from .services.staff_service import url_name
-from .forms import AccountDetailForm, AccountDetailFormset
+from ..services.staff_service import url_name
+from ..forms import AccountDetailForm, AccountDetailFormset
 
 @login_required
 def bankAccountView(request):

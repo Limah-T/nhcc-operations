@@ -1,0 +1,4129 @@
+{% extends "dashboard/dashboard_base.html" %}
+{% block title %}
+Director Management | NHCC Operations
+{% endblock %}
+
+{% block content %}
+
+<div class="row g-4">
+
+    <div class="col-12">
+
+        <!-- =========================================================
+             MESSAGES
+        ========================================================== -->
+
+        {% if messages %}
+            {% for message in messages %}
+                <div
+                    class="alert alert-{{ message.tags }} rounded-4 mb-4 alert-dismissible fade show"
+                    role="alert">
+
+                    {{ message }}
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert"
+                        aria-label="Close">
+                    </button>
+
+                </div>
+            {% endfor %}
+        {% endif %}
+
+
+        <!-- =========================================================
+             MAIN CARD
+        ========================================================== -->
+
+        <div class="card shadow-sm border-0 rounded-4">
+
+            <div class="card-body p-3 p-md-4 p-xl-5">
+
+
+                <!-- =================================================
+                     HEADER
+                ================================================== -->
+
+                <div
+                    class="d-flex justify-content-between align-items-start
+                           flex-wrap gap-3 mb-4">
+
+                    <div>
+
+                        <div class="d-flex align-items-center gap-3">
+
+                            <div class="director-page-icon">
+
+                                <i class="bi bi-people-fill"></i>
+
+                            </div>
+
+                            <div>
+
+                                <h3 class="fw-bold mb-1">
+
+                                    Director Management
+
+                                </h3>
+
+                                <p class="text-muted mb-0">
+
+                                    Manage director records and company positions.
+
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ACTION DROPDOWNS -->
+
+                    <div
+                        class="d-flex gap-2">
+
+
+                        <!-- POSITION ACTIONS -->
+
+                        <div class="dropdown">
+
+                            <button
+                                type="button"
+                                class="btn btn-outline-primary
+                                       dropdown-toggle rounded-3"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false">
+
+                                <i class="bi bi-briefcase me-2"></i>
+
+                                Positions
+
+                            </button>
+
+                            <ul
+                                class="dropdown-menu dropdown-menu-end
+                                       rounded-4 border-0 shadow-sm
+                                       overflow-hidden">
+
+                                <li>
+
+                                    <button
+                                        type="button"
+                                        class="dropdown-item py-2"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#addPositionModal">
+
+                                        <i
+                                            class="bi bi-plus-circle
+                                                   me-2 text-primary">
+                                        </i>
+
+                                        Add One Position
+
+                                    </button>
+
+                                </li>
+
+                                <li>
+
+                                    <button
+                                        type="button"
+                                        class="dropdown-item py-2"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#addMultiplePositionModal">
+
+                                        <i
+                                            class="bi bi-collection
+                                                   me-2 text-primary">
+                                        </i>
+
+                                        Add Multiple Positions
+
+                                    </button>
+
+                                </li>
+
+                                <li>
+
+                                    <hr class="dropdown-divider">
+
+                                </li>
+
+                                <li>
+
+                                    <button
+                                        type="button"
+                                        class="dropdown-item py-2"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#managePositionsModal">
+
+                                        <i
+                                            class="bi bi-pencil-square
+                                                   me-2 text-primary">
+                                        </i>
+
+                                        View / Edit / Delete
+
+                                    </button>
+
+                                </li>
+
+                            </ul>
+
+                        </div>
+
+
+                        <!-- DIRECTOR ACTIONS -->
+
+                        <div class="dropdown">
+
+                            <button
+                                type="button"
+                                class="btn btn-primary
+                                       dropdown-toggle rounded-3"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false">
+
+                                <i class="bi bi-person-plus me-2"></i>
+
+                                Add Director
+
+                            </button>
+
+                            <ul
+                                class="dropdown-menu dropdown-menu-end
+                                       rounded-4 border-0 shadow-sm
+                                       overflow-hidden">
+
+                                <li>
+
+                                    <button
+                                        type="button"
+                                        class="dropdown-item py-2"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#addDirectorModal">
+
+                                        <i
+                                            class="bi bi-person-plus
+                                                   me-2 text-primary">
+                                        </i>
+
+                                        Add One Director
+
+                                    </button>
+
+                                </li>
+
+                                <li>
+
+                                    <button
+                                        type="button"
+                                        class="dropdown-item py-2"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#addMultipleDirectorModal">
+
+                                        <i
+                                            class="bi bi-people
+                                                   me-2 text-primary">
+                                        </i>
+
+                                        Add Multiple Directors
+
+                                    </button>
+
+                                </li>
+
+                            </ul>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     SUMMARY
+                ================================================== -->
+
+                <div class="row g-3 mb-4">
+
+                    <div class="col-12 col-md-6">
+
+                        <div class="director-summary-card">
+
+                            <div class="director-summary-icon">
+
+                                <i class="bi bi-people"></i>
+
+                            </div>
+
+                            <div>
+
+                                <div
+                                    class="text-muted small
+                                           text-uppercase fw-semibold">
+
+                                    Total Directors
+
+                                </div>
+
+                                <div class="fs-4 fw-bold">
+
+                                    {{ total_directors|default:0 }}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-12 col-md-6">
+
+                        <div class="director-summary-card">
+
+                            <div
+                                class="director-summary-icon
+                                       director-summary-icon-secondary">
+
+                                <i class="bi bi-briefcase"></i>
+
+                            </div>
+
+                            <div>
+
+                                <div
+                                    class="text-muted small
+                                           text-uppercase fw-semibold">
+
+                                    Available Positions
+
+                                </div>
+
+                                <div class="fs-4 fw-bold">
+
+                                    {{ total_positions|default:0 }}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     SEARCH AND FILTER
+                ================================================== -->
+
+                <form
+                    method="get"
+                    class="row g-3 align-items-end mb-4">
+
+                    <div class="col-12 col-md-6 col-lg-3">
+
+                        <label
+                            for="positionFilter"
+                            class="form-label fw-semibold">
+
+                            Position
+
+                        </label>
+
+                        <select
+                            id="positionFilter"
+                            name="position"
+                            class="form-select">
+
+                            <option value="">
+
+                                All Positions
+
+                            </option>
+
+                            {% for position in positions %}
+
+                                <option
+                                    value="{{ position.id }}"
+                                    {% if request.GET.position == position.id|stringformat:"s" %}
+                                        selected
+                                    {% endif %}>
+
+                                    {{ position.name }}
+
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+
+                </form>
+
+
+                <!-- =================================================
+                     BULK DELETE BUTTON
+                ================================================== -->
+
+                <div
+                    class="d-flex justify-content-between
+                           align-items-center flex-wrap gap-3 mb-3">
+
+                    <div>
+
+                        <h5 class="fw-bold mb-1">
+
+                            Director Records
+
+                        </h5>
+
+                        <p class="text-muted small mb-0">
+
+                            Select records to perform a bulk deletion.
+
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        id="deleteSelectedDirectorsBtn"
+                        type="button"
+                        class="btn btn-danger rounded-3 d-none"
+                        data-bs-toggle="modal"
+                        data-bs-target="#deleteSelectedDirectorsModal"
+                        disabled>
+
+                        <i class="bi bi-trash me-2"></i>
+
+                        Delete Selected
+
+                    </button>
+
+                </div>
+
+                <div id="swipeHint" class="swipe-hint d-lg-none">
+                    <i class="bi bi-arrow-left-right"></i>
+                    Swipe left to view more columns
+                </div>
+                <!-- =================================================
+                     DIRECTOR TABLE
+                ================================================== -->
+
+                <div class="table-responsive">
+
+                    <table
+                        class="table align-middle mb-0 director-table"
+                        style="min-width: 980px;">
+
+                        <thead class="table-light">
+
+                            <tr>
+
+                                <th
+                                    class="py-3"
+                                    style="width: 48px;">
+
+                                    <input
+                                        id="selectAllDirectors"
+                                        type="checkbox"
+                                        class="form-check-input">
+
+                                </th>
+
+                                <th class="py-3">
+
+                                    Director
+
+                                </th>
+
+                                <th class="py-3">
+
+                                    Position
+
+                                </th>
+
+                                <th class="py-3">
+
+                                    Nationality
+
+                                </th>
+
+                                <th class="py-3">
+
+                                    Contact
+
+                                </th>
+
+                                <th
+                                    class="py-3 text-end"
+                                    style="width: 170px;">
+
+                                    Actions
+
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for director in directors %}
+
+                                <tr>
+
+                                    <td>
+
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input
+                                                   director-checkbox"
+                                            value="{{ director.id }}">
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <div
+                                            class="d-flex align-items-center
+                                                   gap-3">
+
+                                            <div class="director-avatar">
+
+                                                {{ director.title.name|default:director.title|slice:":1" }}{{ director.first_name|slice:":1" }}{{ director.last_name|slice:":1" }}
+
+                                            </div>
+
+                                            <div>
+
+                                                <div class="fw-semibold">
+
+                                                    {{ director.title.name|default:director.title }}
+                                                    {{ director.first_name }}
+                                                    {{ director.last_name }}
+
+                                                </div>
+
+                                                <small class="text-muted">
+
+                                                    {{ director.email|default:"No email provided" }}
+
+                                                </small>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span
+                                            class="badge text-bg-light
+                                                   border fw-semibold">
+
+                                            {{ director.position.name|default:director.position }}
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {{ director.nationality.name|default:director.nationality }}
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <div class="small">
+
+                                            <div>
+
+                                                <i
+                                                    class="bi bi-envelope
+                                                           text-muted me-1">
+                                                </i>
+
+                                                {{ director.email|default:"—" }}
+
+                                            </div>
+
+                                            <div>
+
+                                                <i
+                                                    class="bi bi-telephone
+                                                           text-muted me-1">
+                                                </i>
+
+                                                {{ director.phone_number|default:"—" }}
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <td class="text-end">
+
+
+                                        <!-- DESKTOP ACTIONS -->
+
+                                        <div
+                                            class="btn-group
+                                                   d-none d-lg-inline-flex">
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm
+                                                       btn-outline-info"
+                                                title="View director"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#viewDirectorModal"
+                                                data-id="{{ director.id }}"
+                                                data-title="{{ director.title.name|default:director.title }}"
+                                                data-first-name="{{ director.first_name }}"
+                                                data-last-name="{{ director.last_name }}"
+                                                data-position="{{ director.position.name|default:director.position }}"
+                                                data-nationality="{{ director.nationality.name|default:director.nationality }}"
+                                                data-email="{{ director.email }}"
+                                                data-phone="{{ director.phone_number }}">
+
+                                                <i class="bi bi-eye"></i>
+
+                                            </button>
+
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm
+                                                       btn-outline-primary"
+                                                title="Edit director"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editDirectorModal"
+                                                data-id="{{ director.id }}"
+                                                data-title="{{ director.title.id|default:director.title }}"
+                                                data-first-name="{{ director.first_name }}"
+                                                data-last-name="{{ director.last_name }}"
+                                                data-position="{{ director.position.id|default:director.position }}"
+                                                data-nationality="{{ director.nationality.code|default:director.nationality }}"
+                                                data-email="{{ director.email }}"
+                                                data-phone="{{ director.phone_number }}">
+
+                                                <i
+                                                    class="bi
+                                                           bi-pencil-square">
+                                                </i>
+
+                                            </button>
+
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm
+                                                       btn-outline-danger"
+                                                title="Delete director"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteDirectorModal"
+                                                data-id="{{ director.id }}"
+                                                data-name="{{ director.title.name|default:director.title }} {{ director.first_name }} {{ director.last_name }}">
+
+                                                <i class="bi bi-trash"></i>
+
+                                            </button>
+
+                                        </div>
+
+
+                                        <!-- MOBILE ACTIONS -->
+
+                                        <div
+                                            class="dropdown
+                                                   d-inline-block
+                                                   d-lg-none">
+
+                                            <button
+                                                type="button"
+                                                class="btn p-0 border-0
+                                                       bg-transparent
+                                                       shadow-none"
+                                                data-bs-toggle="dropdown"
+                                                aria-expanded="false">
+
+                                                <i
+                                                    class="bi
+                                                           bi-three-dots-vertical
+                                                           fs-5">
+                                                </i>
+
+                                            </button>
+
+
+                                            <ul
+                                                class="dropdown-menu
+                                                       dropdown-menu-end
+                                                       rounded-4
+                                                       border-0
+                                                       shadow-sm">
+
+                                                <li>
+
+                                                    <button
+                                                        type="button"
+                                                        class="dropdown-item"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#viewDirectorModal"
+                                                        data-id="{{ director.id }}"
+                                                        data-title="{{ director.title.name|default:director.title }}"
+                                                        data-first-name="{{ director.first_name }}"
+                                                        data-last-name="{{ director.last_name }}"
+                                                        data-position="{{ director.position.name|default:director.position }}"
+                                                        data-nationality="{{ director.nationality.name|default:director.nationality }}"
+                                                        data-email="{{ director.email }}"
+                                                        data-phone="{{ director.phone_number }}">
+
+                                                        <i
+                                                            class="bi bi-eye
+                                                                   me-2">
+                                                        </i>
+
+                                                        View
+
+                                                    </button>
+
+                                                </li>
+
+
+                                                <li>
+
+                                                    <button
+                                                        type="button"
+                                                        class="dropdown-item"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#editDirectorModal"
+                                                        data-id="{{ director.id }}"
+                                                        data-title="{{ director.title.id|default:director.title }}"
+                                                        data-first-name="{{ director.first_name }}"
+                                                        data-last-name="{{ director.last_name }}"
+                                                        data-position="{{ director.position.id|default:director.position }}"
+                                                        data-nationality="{{ director.nationality.code|default:director.nationality }}"
+                                                        data-email="{{ director.email }}"
+                                                        data-phone="{{ director.phone_number }}">
+
+                                                        <i
+                                                            class="bi
+                                                                   bi-pencil-square
+                                                                   me-2">
+                                                        </i>
+
+                                                        Edit
+
+                                                    </button>
+
+                                                </li>
+
+
+                                                <li>
+
+                                                    <button
+                                                        type="button"
+                                                        class="dropdown-item
+                                                               text-danger"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#deleteDirectorModal"
+                                                        data-id="{{ director.id }}"
+                                                        data-name="{{ director.title.name|default:director.title }} {{ director.first_name }} {{ director.last_name }}">
+
+                                                        <i
+                                                            class="bi bi-trash
+                                                                   me-2">
+                                                        </i>
+
+                                                        Delete
+
+                                                    </button>
+
+                                                </li>
+
+                                            </ul>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            {% empty %}
+
+                                <tr>
+
+                                    <td
+                                        colspan="6"
+                                        class="text-center py-5">
+
+                                        <div class="empty-state-icon">
+
+                                            <i class="bi bi-people"></i>
+
+                                        </div>
+
+                                        <h6 class="fw-bold mt-3">
+
+                                            No director records found
+
+                                        </h6>
+
+                                        <p class="text-muted mb-0">
+
+                                            Add a director to begin building
+                                            your director register.
+
+                                        </p>
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <!-- =================================================
+                     PAGINATION
+                ================================================== -->
+
+                {% if page_obj %}
+
+                    <nav
+                        class="mt-4"
+                        aria-label="Director pagination">
+
+                        <ul class="pagination justify-content-end mb-0">
+
+                            {% if page_obj.has_previous %}
+
+                                <li class="page-item">
+
+                                    <a
+                                        class="page-link"
+                                        href="?page={{ page_obj.previous_page_number }}&search={{ request.GET.search }}&position={{ request.GET.position }}">
+
+                                        Previous
+
+                                    </a>
+
+                                </li>
+
+                            {% endif %}
+
+
+                            <li class="page-item active">
+
+                                <span class="page-link">
+
+                                    {{ page_obj.number }}
+
+                                </span>
+
+                            </li>
+
+
+                            {% if page_obj.has_next %}
+
+                                <li class="page-item">
+
+                                    <a
+                                        class="page-link"
+                                        href="?page={{ page_obj.next_page_number }}&search={{ request.GET.search }}&position={{ request.GET.position }}">
+
+                                        Next
+
+                                    </a>
+
+                                </li>
+
+                            {% endif %}
+
+                        </ul>
+
+                    </nav>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =============================================================
+     ADD ONE POSITION
+============================================================== -->
+
+<div
+    class="modal fade"
+    id="addPositionModal"
+    tabindex="-1"
+    aria-hidden="true">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content rounded-4 border-0">
+
+            <form
+                method="post"
+                action="{% url 'position'%}">
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="action"
+                    value="single">
+
+
+                <div class="modal-header">
+
+                    <div>
+
+                        <h5 class="modal-title fw-bold">
+
+                            Add Position
+
+                        </h5>
+
+                        <small class="text-muted">
+
+                            Create one director position.
+
+                        </small>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+
+                <div class="modal-body">
+
+                    <label
+                        for="addPositionName"
+                        class="form-label fw-semibold">
+
+                        Position Name
+
+                    </label>
+
+                    <input
+                        id="addPositionName"
+                        type="text"
+                        name="name"
+                        class="form-control"
+                        placeholder="e.g. Managing Director"
+                        required>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        data-bs-dismiss="modal">
+
+                        Cancel
+
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary">
+
+                        <i class="bi bi-check-circle me-2"></i>
+
+                        Save Position
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =============================================================
+     ADD MULTIPLE POSITIONS
+============================================================== -->
+
+<div
+    class="modal fade"
+    id="addMultiplePositionModal"
+    tabindex="-1"
+    aria-hidden="true">
+
+    <div
+        class="modal-dialog modal-lg
+               modal-dialog-scrollable
+               modal-dialog-centered">
+
+        <div
+            class="modal-content
+                   rounded-4
+                   border-0
+                   d-flex
+                   flex-column">
+
+            <form
+                method="post"
+                action="{% url 'position'%}"
+                class="d-flex flex-column h-100">
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="action"
+                    value="bulk">
+
+
+                <!-- HEADER -->
+
+                <div
+                    class="modal-header
+                           flex-shrink-0">
+
+                    <div>
+
+                        <h5 class="modal-title fw-bold">
+
+                            Add Multiple Positions
+
+                        </h5>
+
+                        <small class="text-muted">
+
+                            Add up to 10 positions at once.
+
+                        </small>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                    </button>
+
+                </div>
+
+
+                <!-- SCROLLABLE BODY -->
+
+                <div
+                    class="modal-body
+                           overflow-auto">
+
+                    <div
+                        class="alert alert-info
+                               rounded-4">
+
+                        <i
+                            class="bi bi-info-circle
+                                   me-2">
+                        </i>
+
+                        Use <strong>Add More</strong>
+                        to add another position field.
+
+                    </div>
+
+
+                    <div id="bulkPositionContainer">
+
+                        <div
+                            class="border
+                                   rounded-4
+                                   p-3
+                                   mb-3
+                                   bulk-position-item">
+
+                            <div
+                                class="d-flex
+                                       justify-content-between
+                                       align-items-center
+                                       mb-3">
+
+                                <h6 class="fw-bold mb-0">
+
+                                    Position 1
+
+                                </h6>
+
+                            </div>
+
+
+                            <label
+                                class="form-label
+                                       fw-semibold">
+
+                                Position Name
+
+                            </label>
+
+
+                            <input
+                                type="text"
+                                name="name"
+                                class="form-control"
+                                placeholder="Enter position name"
+                                required>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- FIXED FOOTER -->
+
+                <div
+                    class="modal-footer
+                           justify-content-between
+                           flex-wrap
+                           gap-2
+                           flex-shrink-0">
+
+                    <button
+                        id="addMorePosition"
+                        type="button"
+                        class="btn btn-outline-primary">
+
+                        <i
+                            class="bi bi-plus-circle
+                                   me-2">
+                        </i>
+
+                        Add More
+
+                    </button>
+
+
+                    <div class="d-flex gap-2">
+
+                        <button
+                            type="button"
+                            class="btn btn-light"
+                            data-bs-dismiss="modal">
+
+                            Cancel
+
+                        </button>
+
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary">
+
+                            <i
+                                class="bi bi-check-circle
+                                       me-2">
+                            </i>
+
+                            Save Positions
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =============================================================
+     MANAGE POSITIONS
+============================================================== -->
+
+<div
+    class="modal fade"
+    id="managePositionsModal"
+    tabindex="-1"
+    aria-hidden="true">
+
+    <div
+        class="modal-dialog modal-lg
+               modal-dialog-scrollable">
+
+        <div class="modal-content rounded-4 border-0">
+
+            <div class="modal-header">
+
+                <div>
+
+                    <h5 class="modal-title fw-bold">
+
+                        Manage Positions
+
+                    </h5>
+
+                    <small class="text-muted">
+
+                        View, edit or delete director positions.
+
+                    </small>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+
+            <div class="modal-body">
+
+                <div
+                    class="d-flex justify-content-between
+                           align-items-center flex-wrap
+                           gap-2 mb-3">
+
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        data-bs-toggle="modal"
+                        data-bs-target="#addPositionModal">
+
+                        <i class="bi bi-plus-circle me-2"></i>
+
+                        Add Position
+
+                    </button>
+
+
+                    <button
+                        id="deleteSelectedPositionsBtn"
+                        type="button"
+                        class="btn btn-danger d-none"
+                        data-bs-toggle="modal"
+                        data-bs-target="#deleteSelectedPositionsModal"
+                        disabled>
+
+                        <i class="bi bi-trash me-2"></i>
+
+                        Delete Selected
+
+                    </button>
+
+                </div>
+
+
+                <div class="table-responsive">
+
+                    <table class="table align-middle">
+
+                        <thead>
+
+                            <tr>
+
+                                <th style="width: 45px;">
+
+                                    <input
+                                        id="selectAllPositions"
+                                        type="checkbox"
+                                        class="form-check-input">
+
+                                </th>
+
+                                <th>
+
+                                    Position
+
+                                </th>
+
+                                <th
+                                    class="text-end"
+                                    style="width: 130px;">
+
+                                    Actions
+
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for position in positions %}
+
+                                <tr>
+
+                                    <td>
+
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input
+                                                   position-checkbox"
+                                            value="{{ position.id }}">
+
+                                    </td>
+
+                                    <td class="fw-semibold">
+
+                                        {{ position.name }}
+
+                                    </td>
+
+                                    <td class="text-end">
+
+                                        <div class="btn-group">
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm
+                                                       btn-outline-primary"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editPositionModal"
+                                                data-id="{{ position.id }}"
+                                                data-name="{{ position.name }}">
+
+                                                <i
+                                                    class="bi
+                                                           bi-pencil-square">
+                                                </i>
+
+                                            </button>
+
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm
+                                                       btn-outline-danger"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deletePositionModal"
+                                                data-id="{{ position.id }}"
+                                                data-name="{{ position.name }}">
+
+                                                <i class="bi bi-trash"></i>
+
+                                            </button>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            {% empty %}
+
+                                <tr>
+
+                                    <td
+                                        colspan="3"
+                                        class="text-center
+                                               text-muted py-5">
+
+                                        No positions available.
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =============================================================
+     EDIT POSITION
+============================================================== -->
+
+<div
+    class="modal fade"
+    id="editPositionModal"
+    tabindex="-1"
+    aria-hidden="true">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content rounded-4 border-0">
+
+            <form
+                id="editPositionForm"
+                method="post">
+
+                {% csrf_token %}
+                <input type="hidden" name="action" value="single">
+        
+                <input
+                    id="editPositionId"
+                    type="hidden"
+                    name="position_id"
+                    >
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title fw-bold">
+
+                        Edit Position
+
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+
+                <div class="modal-body">
+
+                    <label
+                        for="editPositionName"
+                        class="form-label fw-semibold">
+
+                        Position Name
+
+                    </label>
+
+                    <input
+                        id="editPositionName"
+                        type="text"
+                        name="name"
+                        class="form-control"
+                        required>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        data-bs-dismiss="modal">
+
+                        Cancel
+
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary">
+
+                        <i
+                            class="bi bi-check-circle me-2">
+                        </i>
+
+                        Update Position
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =============================================================
+     DELETE ONE POSITION
+============================================================== -->
+
+<div
+    class="modal fade"
+    id="deletePositionModal"
+    tabindex="-1"
+    aria-hidden="true">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content rounded-4 border-0">
+
+            <form
+                id="deletePositionForm"
+                method="post">
+
+                {% csrf_token %}
+                <input type="hidden" name="action" value="single">
+
+                <input
+                    id="deletePositionId"
+                    type="hidden"
+                    name="position_id">
+                
+        
+                
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title text-danger fw-bold">
+
+                        Delete Position
+
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+
+                <div class="modal-body text-center">
+
+                    <i
+                        class="bi bi-trash text-danger"
+                        style="font-size: 3rem;">
+                    </i>
+
+                    <h5 class="fw-bold mt-3">
+
+                        Delete Position?
+
+                    </h5>
+
+                    <p class="text-muted mb-1">
+
+                        You are about to delete
+
+                        <strong id="deletePositionName"></strong>.
+
+                    </p>
+
+                    <p class="small text-danger mb-0">
+
+                        This action cannot be undone.
+
+                    </p>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        data-bs-dismiss="modal">
+
+                        Cancel
+
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-danger">
+
+                        <i class="bi bi-trash me-2"></i>
+
+                        Delete
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =============================================================
+     DELETE SELECTED POSITIONS
+============================================================== -->
+
+<div
+    class="modal fade"
+    id="deleteSelectedPositionsModal"
+    tabindex="-1"
+    aria-hidden="true">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content rounded-4 border-0">
+
+            <form
+                method="post"
+                action="{% url 'delete_positions'%}">
+
+                {% csrf_token %}
+                <input type="hidden" name="action" value="bulk">
+
+                <div id="selectedPositionInputs"></div>
+
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title text-danger fw-bold">
+
+                        Delete Selected Positions
+
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+
+                <div class="modal-body text-center">
+
+                    <i
+                        class="bi bi-trash text-danger"
+                        style="font-size: 3rem;">
+                    </i>
+
+                    <h5 class="fw-bold mt-3">
+
+                        Delete Selected Positions?
+
+                    </h5>
+
+                    <p class="mb-1">
+
+                        You are about to delete
+
+                        <strong id="selectedPositionCount"></strong>
+
+                        selected position(s).
+
+                    </p>
+
+                    <p class="text-danger mb-0">
+
+                        This action cannot be undone.
+
+                    </p>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        data-bs-dismiss="modal">
+
+                        Cancel
+
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-danger">
+
+                        <i class="bi bi-trash me-2"></i>
+
+                        Delete
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =============================================================
+     ADD ONE DIRECTOR
+============================================================== -->
+
+<div
+    class="modal fade"
+    id="addDirectorModal"
+    tabindex="-1"
+    aria-hidden="true">
+
+    <div
+        class="modal-dialog modal-lg
+               modal-dialog-scrollable">
+
+        <div class="modal-content rounded-4 border-0">
+
+            <form
+                method="post"
+                action="#">
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="action"
+                    value="single">
+
+
+                <div class="modal-header">
+
+                    <div>
+
+                        <h5 class="modal-title fw-bold">
+
+                            Add Director
+
+                        </h5>
+
+                        <small class="text-muted">
+
+                            Add one director record.
+
+                        </small>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+
+                <div class="modal-body">
+
+                    <div class="row g-3">
+
+                        <div class="col-12 col-md-4">
+
+                            <label class="form-label fw-semibold">
+
+                                Title
+
+                            </label>
+
+                            <select
+                                name="title"
+                                class="form-select"
+                                required>
+
+                                <option value="">
+
+                                    Select title
+
+                                </option>
+
+                                {% for title in titles %}
+
+                                    <option value="{{ title.id }}">
+
+                                        {{ title.name }}
+
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="col-12 col-md-4">
+
+                            <label class="form-label fw-semibold">
+
+                                First Name
+
+                            </label>
+
+                            <input
+                                type="text"
+                                name="first_name"
+                                class="form-control"
+                                placeholder="Enter first name"
+                                required>
+
+                        </div>
+
+
+                        <div class="col-12 col-md-4">
+
+                            <label class="form-label fw-semibold">
+
+                                Last Name
+
+                            </label>
+
+                            <input
+                                type="text"
+                                name="last_name"
+                                class="form-control"
+                                placeholder="Enter last name"
+                                required>
+
+                        </div>
+
+
+                        <div class="col-12 col-md-6">
+
+                            <label class="form-label fw-semibold">
+
+                                Position
+
+                            </label>
+
+                            <select
+                                name="position"
+                                class="form-select"
+                                required>
+
+                                <option value="">
+
+                                    Select position
+
+                                </option>
+
+                                {% for position in positions %}
+
+                                    <option value="{{ position.id }}">
+
+                                        {{ position.name }}
+
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="col-12 col-md-6">
+
+                            <label class="form-label fw-semibold">
+
+                                Nationality
+
+                            </label>
+
+                            <select
+                                name="nationality"
+                                class="form-select"
+                                required>
+
+                                <option value="">
+
+                                    Select nationality
+
+                                </option>
+
+                                {% for country in countries %}
+
+                                    <option value="{{ country.code }}">
+
+                                        {{ country.name }}
+
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="col-12 col-md-6">
+
+                            <label class="form-label fw-semibold">
+
+                                Email Address
+
+                            </label>
+
+                            <input
+                                type="email"
+                                name="email"
+                                class="form-control"
+                                placeholder="director@example.com">
+
+                        </div>
+
+
+                        <div class="col-12 col-md-6">
+
+                            <label class="form-label fw-semibold">
+
+                                Phone Number
+
+                            </label>
+
+                            <input
+                                type="text"
+                                name="phone_number"
+                                class="form-control"
+                                placeholder="+234 000 000 0000">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        data-bs-dismiss="modal">
+
+                        Cancel
+
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary">
+
+                        <i
+                            class="bi bi-check-circle me-2">
+                        </i>
+
+                        Save Director
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =============================================================
+     ADD MULTIPLE DIRECTORS
+============================================================== -->
+
+<div
+    class="modal fade"
+    id="addMultipleDirectorModal"
+    tabindex="-1"
+    aria-hidden="true">
+
+    <div
+        class="modal-dialog modal-xl
+               modal-dialog-scrollable">
+
+        <div class="modal-content rounded-4 border-0">
+
+            <form
+                method="post"
+                action="#">
+
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="action"
+                    value="bulk">
+
+
+                <div class="modal-header">
+
+                    <div>
+
+                        <h5 class="modal-title fw-bold">
+
+                            Add Multiple Directors
+
+                        </h5>
+
+                        <small class="text-muted">
+
+                            Add up to 5 directors at once.
+
+                        </small>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+
+                <div
+                    class="modal-body"
+                    style="max-height: 70vh; overflow-y: auto;">
+
+                    <div class="alert alert-info rounded-4">
+
+                        <i class="bi bi-info-circle me-2"></i>
+
+                        Use <strong>Add More</strong> to reveal another
+                        director form.
+
+                    </div>
+
+
+                    <div id="bulkDirectorContainer">
+
+                        <div
+                            class="border rounded-4 p-3 p-md-4 mb-4
+                                   bulk-director-item">
+
+                            <div
+                                class="d-flex justify-content-between
+                                       align-items-center mb-3">
+
+                                <h6 class="fw-bold mb-0">
+
+                                    Director 1
+
+                                </h6>
+
+                            </div>
+
+
+                            <div class="row g-3">
+
+                                <div class="col-12 col-md-4">
+
+                                    <label class="form-label">
+
+                                        Title
+
+                                    </label>
+
+                                    <select
+                                        name="title"
+                                        class="form-select"
+                                        required>
+
+                                        <option value="">
+
+                                            Select title
+
+                                        </option>
+
+                                        {% for title in titles %}
+
+                                            <option value="{{ title.id }}">
+
+                                                {{ title.name }}
+
+                                            </option>
+
+                                        {% endfor %}
+
+                                    </select>
+
+                                </div>
+
+
+                                <div class="col-12 col-md-4">
+
+                                    <label class="form-label">
+
+                                        First Name
+
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        name="first_name"
+                                        class="form-control"
+                                        required>
+
+                                </div>
+
+
+                                <div class="col-12 col-md-4">
+
+                                    <label class="form-label">
+
+                                        Last Name
+
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        name="last_name"
+                                        class="form-control"
+                                        required>
+
+                                </div>
+
+
+                                <div class="col-12 col-md-6">
+
+                                    <label class="form-label">
+
+                                        Position
+
+                                    </label>
+
+                                    <select
+                                        name="position"
+                                        class="form-select"
+                                        required>
+
+                                        <option value="">
+
+                                            Select position
+
+                                        </option>
+
+                                        {% for position in positions %}
+
+                                            <option value="{{ position.id }}">
+
+                                                {{ position.name }}
+
+                                            </option>
+
+                                        {% endfor %}
+
+                                    </select>
+
+                                </div>
+
+
+                                <div class="col-12 col-md-6">
+
+                                    <label class="form-label">
+
+                                        Nationality
+
+                                    </label>
+
+                                    <select
+                                        name="nationality"
+                                        class="form-select"
+                                        required>
+
+                                        <option value="">
+
+                                            Select nationality
+
+                                        </option>
+
+                                        {% for country in countries %}
+
+                                            <option value="{{ country.code }}">
+
+                                                {{ country.name }}
+
+                                            </option>
+
+                                        {% endfor %}
+
+                                    </select>
+
+                                </div>
+
+
+                                <div class="col-12 col-md-6">
+
+                                    <label class="form-label">
+
+                                        Email Address
+
+                                    </label>
+
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        class="form-control">
+
+                                </div>
+
+
+                                <div class="col-12 col-md-6">
+
+                                    <label class="form-label">
+
+                                        Phone Number
+
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        name="phone_number"
+                                        class="form-control">
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="modal-footer
+                           justify-content-between
+                           flex-wrap gap-2">
+
+                    <button
+                        id="addMoreDirector"
+                        type="button"
+                        class="btn btn-outline-primary">
+
+                        <i class="bi bi-plus-circle me-2"></i>
+
+                        Add More
+
+                    </button>
+
+
+                    <div class="d-flex gap-2">
+
+                        <button
+                            type="button"
+                            class="btn btn-light"
+                            data-bs-dismiss="modal">
+
+                            Cancel
+
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary">
+
+                            <i
+                                class="bi bi-check-circle me-2">
+                            </i>
+
+                            Save Directors
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =============================================================
+     VIEW DIRECTOR
+============================================================== -->
+
+<div
+    class="modal fade"
+    id="viewDirectorModal"
+    tabindex="-1"
+    aria-hidden="true">
+
+    <div class="modal-dialog modal-lg">
+
+        <div class="modal-content rounded-4 border-0">
+
+            <div class="modal-header">
+
+                <div>
+
+                    <h5 class="modal-title fw-bold">
+
+                        Director Details
+
+                    </h5>
+
+                    <small class="text-muted">
+
+                        View the complete director record.
+
+                    </small>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+
+            <div class="modal-body">
+
+                <div class="text-center mb-4">
+
+                    <div
+                        id="viewDirectorInitials"
+                        class="director-profile-avatar mx-auto">
+
+                        DD
+
+                    </div>
+
+                    <h4
+                        id="viewDirectorName"
+                        class="fw-bold mt-3 mb-1">
+
+                        Director Name
+
+                    </h4>
+
+                    <span
+                        id="viewDirectorPositionBadge"
+                        class="badge text-bg-primary">
+
+                        Position
+
+                    </span>
+
+                </div>
+
+
+                <div class="table-responsive">
+
+                    <table class="table mb-0">
+
+                        <tbody>
+
+                            <tr>
+
+                                <th
+                                    class="text-muted fw-semibold
+                                           py-3">
+
+                                    Title
+
+                                </th>
+
+                                <td
+                                    id="viewDirectorTitle"
+                                    class="text-end py-3">
+
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <th
+                                    class="text-muted fw-semibold
+                                           py-3">
+
+                                    First Name
+
+                                </th>
+
+                                <td
+                                    id="viewDirectorFirstName"
+                                    class="text-end py-3">
+
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <th
+                                    class="text-muted fw-semibold
+                                           py-3">
+
+                                    Last Name
+
+                                </th>
+
+                                <td
+                                    id="viewDirectorLastName"
+                                    class="text-end py-3">
+
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <th
+                                    class="text-muted fw-semibold
+                                           py-3">
+
+                                    Position
+
+                                </th>
+
+                                <td
+                                    id="viewDirectorPosition"
+                                    class="text-end py-3">
+
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <th
+                                    class="text-muted fw-semibold
+                                           py-3">
+
+                                    Nationality
+
+                                </th>
+
+                                <td
+                                    id="viewDirectorNationality"
+                                    class="text-end py-3">
+
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <th
+                                    class="text-muted fw-semibold
+                                           py-3">
+
+                                    Email Address
+
+                                </th>
+
+                                <td
+                                    id="viewDirectorEmail"
+                                    class="text-end py-3">
+
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <th
+                                    class="text-muted fw-semibold
+                                           py-3">
+
+                                    Phone Number
+
+                                </th>
+
+                                <td
+                                    id="viewDirectorPhone"
+                                    class="text-end py-3">
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-light"
+                    data-bs-dismiss="modal">
+
+                    Close
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =============================================================
+     EDIT DIRECTOR
+============================================================== -->
+
+<div
+    class="modal fade"
+    id="editDirectorModal"
+    tabindex="-1"
+    aria-hidden="true">
+
+    <div
+        class="modal-dialog modal-lg
+               modal-dialog-scrollable">
+
+        <div class="modal-content rounded-4 border-0">
+
+            <form
+                id="editDirectorForm"
+                method="post">
+
+                {% csrf_token %}
+
+                <input
+                    id="editDirectorId"
+                    type="hidden"
+                    name="director_id">
+
+
+                <div class="modal-header">
+
+                    <div>
+
+                        <h5 class="modal-title fw-bold">
+
+                            Edit Director
+
+                        </h5>
+
+                        <small class="text-muted">
+
+                            Update the selected director record.
+
+                        </small>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+
+                <div class="modal-body">
+
+                    <div class="row g-3">
+
+                        <div class="col-12 col-md-4">
+
+                            <label class="form-label fw-semibold">
+
+                                Title
+
+                            </label>
+
+                            <select
+                                id="editDirectorTitle"
+                                name="title"
+                                class="form-select"
+                                required>
+
+                                <option value="">
+
+                                    Select title
+
+                                </option>
+
+                                {% for title in titles %}
+
+                                    <option value="{{ title.id }}">
+
+                                        {{ title.name }}
+
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="col-12 col-md-4">
+
+                            <label class="form-label fw-semibold">
+
+                                First Name
+
+                            </label>
+
+                            <input
+                                id="editDirectorFirstName"
+                                type="text"
+                                name="first_name"
+                                class="form-control"
+                                required>
+
+                        </div>
+
+
+                        <div class="col-12 col-md-4">
+
+                            <label class="form-label fw-semibold">
+
+                                Last Name
+
+                            </label>
+
+                            <input
+                                id="editDirectorLastName"
+                                type="text"
+                                name="last_name"
+                                class="form-control"
+                                required>
+
+                        </div>
+
+
+                        <div class="col-12 col-md-6">
+
+                            <label class="form-label fw-semibold">
+
+                                Position
+
+                            </label>
+
+                            <select
+                                id="editDirectorPosition"
+                                name="position"
+                                class="form-select"
+                                required>
+
+                                <option value="">
+
+                                    Select position
+
+                                </option>
+
+                                {% for position in positions %}
+
+                                    <option value="{{ position.id }}">
+
+                                        {{ position.name }}
+
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="col-12 col-md-6">
+
+                            <label class="form-label fw-semibold">
+
+                                Nationality
+
+                            </label>
+
+                            <select
+                                id="editDirectorNationality"
+                                name="nationality"
+                                class="form-select"
+                                required>
+
+                                <option value="">
+
+                                    Select nationality
+
+                                </option>
+
+                                {% for country in countries %}
+
+                                    <option value="{{ country.code }}">
+
+                                        {{ country.name }}
+
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="col-12 col-md-6">
+
+                            <label class="form-label fw-semibold">
+
+                                Email Address
+
+                            </label>
+
+                            <input
+                                id="editDirectorEmail"
+                                type="email"
+                                name="email"
+                                class="form-control">
+
+                        </div>
+
+
+                        <div class="col-12 col-md-6">
+
+                            <label class="form-label fw-semibold">
+
+                                Phone Number
+
+                            </label>
+
+                            <input
+                                id="editDirectorPhone"
+                                type="text"
+                                name="phone_number"
+                                class="form-control">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        data-bs-dismiss="modal">
+
+                        Cancel
+
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary">
+
+                        <i
+                            class="bi bi-check-circle me-2">
+                        </i>
+
+                        Update Director
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =============================================================
+     DELETE ONE DIRECTOR
+============================================================== -->
+
+<div
+    class="modal fade"
+    id="deleteDirectorModal"
+    tabindex="-1"
+    aria-hidden="true">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content rounded-4 border-0">
+
+            <form
+                id="deleteDirectorForm"
+                method="post">
+
+                {% csrf_token %}
+
+                <input
+                    id="deleteDirectorId"
+                    type="hidden"
+                    name="director_id">
+
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title text-danger fw-bold">
+
+                        Delete Director
+
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+
+                <div class="modal-body text-center">
+
+                    <i
+                        class="bi bi-trash text-danger"
+                        style="font-size: 3rem;">
+                    </i>
+
+                    <h5 class="fw-bold mt-3">
+
+                        Delete Director?
+
+                    </h5>
+
+                    <p class="text-muted mb-1">
+
+                        You are about to permanently delete
+
+                        <strong id="deleteDirectorName"></strong>.
+
+                    </p>
+
+                    <p class="small text-danger mb-0">
+
+                        This action cannot be undone.
+
+                    </p>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        data-bs-dismiss="modal">
+
+                        Cancel
+
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-danger">
+
+                        <i class="bi bi-trash me-2"></i>
+
+                        Delete
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =============================================================
+     DELETE SELECTED DIRECTORS
+============================================================== -->
+
+<div
+    class="modal fade"
+    id="deleteSelectedDirectorsModal"
+    tabindex="-1"
+    aria-hidden="true">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content rounded-4 border-0">
+
+            <form
+                method="post"
+                action="#">
+
+                {% csrf_token %}
+
+                <div id="selectedDirectorInputs"></div>
+
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title text-danger fw-bold">
+
+                        Delete Selected Directors
+
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+
+                <div class="modal-body text-center">
+
+                    <i
+                        class="bi bi-trash text-danger"
+                        style="font-size: 3rem;">
+                    </i>
+
+                    <h5 class="fw-bold mt-3">
+
+                        Delete Selected Directors?
+
+                    </h5>
+
+                    <p class="mb-1">
+
+                        You are about to delete
+
+                        <strong id="selectedDirectorCount"></strong>
+
+                        selected director(s).
+
+                    </p>
+
+                    <p class="text-danger mb-0">
+
+                        This action cannot be undone.
+
+                    </p>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        data-bs-dismiss="modal">
+
+                        Cancel
+
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-danger">
+
+                        <i class="bi bi-trash me-2"></i>
+
+                        Delete
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+    /* =========================================================
+       PAGE COMPONENTS
+    ========================================================== */
+
+    .director-page-icon {
+
+        width: 52px;
+        height: 52px;
+
+        display: inline-flex;
+
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 16px;
+
+        background: rgba(13, 110, 253, .12);
+
+        color: #0d6efd;
+
+        font-size: 1.35rem;
+
+        flex-shrink: 0;
+
+    }
+
+
+    .director-summary-card {
+
+        min-height: 104px;
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 1rem;
+
+        padding: 1.1rem 1.25rem;
+
+        border: 1px solid #e9ecef;
+
+        border-radius: 18px;
+
+        background: #fff;
+
+    }
+
+
+    .director-summary-icon {
+
+        width: 52px;
+        height: 52px;
+
+        display: inline-flex;
+
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 15px;
+
+        background: #0d6efd;
+
+        color: #fff;
+
+        font-size: 1.25rem;
+
+        flex-shrink: 0;
+
+    }
+
+
+    .director-summary-icon-secondary {
+
+        background: #212529;
+
+    }
+
+
+    .director-avatar {
+
+        width: 44px;
+        height: 44px;
+
+        display: inline-flex;
+
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 50%;
+
+        background: #eef4ff;
+
+        color: #0d6efd;
+
+        font-weight: 800;
+
+        font-size: .82rem;
+
+        text-transform: uppercase;
+
+        flex-shrink: 0;
+
+    }
+
+
+    .director-profile-avatar {
+
+        width: 84px;
+        height: 84px;
+
+        display: flex;
+
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 50%;
+
+        background: #0d6efd;
+
+        color: #fff;
+
+        font-size: 1.5rem;
+
+        font-weight: 800;
+
+    }
+
+
+    .director-table tbody tr {
+
+        transition:
+            background-color .18s ease,
+            transform .18s ease;
+
+    }
+
+
+    .director-table tbody tr:hover {
+
+        background: #f8faff;
+
+    }
+
+
+    .empty-state-icon {
+
+        width: 68px;
+        height: 68px;
+
+        display: inline-flex;
+
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 20px;
+
+        background: #f1f3f5;
+
+        color: #6c757d;
+
+        font-size: 1.7rem;
+
+    }
+
+
+    .modal-content {
+
+        box-shadow:
+            0 1.5rem 3.5rem
+            rgba(15, 23, 42, .14);
+
+    }
+
+
+    .form-control,
+    .form-select,
+    .input-group-text {
+
+        min-height: 44px;
+
+        border-radius: 12px;
+
+    }
+
+
+    .input-group > .input-group-text {
+
+        border-top-right-radius: 0;
+
+        border-bottom-right-radius: 0;
+
+    }
+
+
+    .input-group > .form-control {
+
+        border-top-left-radius: 0;
+
+        border-bottom-left-radius: 0;
+
+    }
+    #addMultiplePositionModal .modal-dialog {
+        max-height: calc(100vh - 2rem);
+    }
+
+    #addMultiplePositionModal .modal-content {
+        max-height: calc(100vh - 2rem);
+    }
+
+    #addMultiplePositionModal .modal-body {
+        overflow-y: auto;
+    }
+
+
+    @media (max-width: 575.98px) {
+
+        .card-body {
+
+            padding: 1rem !important;
+
+        }
+
+        .director-summary-card {
+
+            min-height: 90px;
+
+        }
+
+        .modal-footer {
+
+            flex-direction: column;
+
+            align-items: stretch;
+
+        }
+
+        .modal-footer .btn {
+
+            width: 100%;
+
+        }
+
+    }
+
+</style>
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", () => {
+
+
+    /* =========================================================
+       URL BUILDERS
+
+       Change these three URL patterns only if your project
+       uses different route structures.
+    ========================================================== */
+
+    const positionEditUrl = (id) =>
+        `/directors/position/${id}/edit/`;
+
+    const positionDeleteUrl = (id) =>
+        `/directors/position/${id}/delete/`;
+
+    const directorEditUrl = (id) =>
+        `/directors/${id}/edit/`;
+
+    const directorDeleteUrl = (id) =>
+        `/directors/${id}/delete/`;
+
+
+    /* =========================================================
+       SMALL HELPERS
+    ========================================================== */
+
+    function setValue(id, value) {
+
+        const element = document.getElementById(id);
+
+        if (element) {
+
+            element.value = value || "";
+
+        }
+
+    }
+
+
+    function setText(id, value) {
+
+        const element = document.getElementById(id);
+
+        if (element) {
+
+            element.textContent = value || "—";
+
+        }
+
+    }
+
+
+    function createHiddenInputs(
+        containerId,
+        fieldName,
+        checkedElements
+    ) {
+
+        const container =
+            document.getElementById(containerId);
+
+        if (!container) return;
+
+        container.innerHTML = "";
+
+        checkedElements.forEach((checkbox) => {
+
+            const input =
+                document.createElement("input");
+
+            input.type = "hidden";
+
+            input.name = fieldName;
+
+            input.value = checkbox.value;
+
+            container.appendChild(input);
+
+        });
+
+    }
+
+
+    /* =========================================================
+       VIEW DIRECTOR
+    ========================================================== */
+
+    const viewDirectorModal =
+        document.getElementById("viewDirectorModal");
+
+    if (viewDirectorModal) {
+
+        viewDirectorModal.addEventListener(
+            "show.bs.modal",
+            function (event) {
+
+                const button =
+                    event.relatedTarget;
+
+                const title =
+                    button.dataset.title || "";
+
+                const firstName =
+                    button.dataset.firstName || "";
+
+                const lastName =
+                    button.dataset.lastName || "";
+
+                const initials =
+                    (
+                        title.charAt(0) +
+                        firstName.charAt(0) +
+                        lastName.charAt(0)
+                    )
+                    .toUpperCase()
+                    .slice(0, 3);
+
+                setText(
+                    "viewDirectorInitials",
+                    initials
+                );
+
+                setText(
+                    "viewDirectorName",
+                    `${title} ${firstName} ${lastName}`
+                        .replace(/\s+/g, " ")
+                        .trim()
+                );
+
+                setText(
+                    "viewDirectorTitle",
+                    title
+                );
+
+                setText(
+                    "viewDirectorFirstName",
+                    firstName
+                );
+
+                setText(
+                    "viewDirectorLastName",
+                    lastName
+                );
+
+                setText(
+                    "viewDirectorPosition",
+                    button.dataset.position
+                );
+
+                setText(
+                    "viewDirectorPositionBadge",
+                    button.dataset.position
+                );
+
+                setText(
+                    "viewDirectorNationality",
+                    button.dataset.nationality
+                );
+
+                setText(
+                    "viewDirectorEmail",
+                    button.dataset.email
+                );
+
+                setText(
+                    "viewDirectorPhone",
+                    button.dataset.phone
+                );
+
+            }
+        );
+
+    }
+
+
+    /* =========================================================
+       EDIT DIRECTOR
+    ========================================================== */
+
+    const editDirectorModal =
+        document.getElementById("editDirectorModal");
+
+    if (editDirectorModal) {
+
+        editDirectorModal.addEventListener(
+            "show.bs.modal",
+            function (event) {
+
+                const button =
+                    event.relatedTarget;
+
+                setValue(
+                    "editDirectorId",
+                    button.dataset.id
+                );
+
+                setValue(
+                    "editDirectorTitle",
+                    button.dataset.title
+                );
+
+                setValue(
+                    "editDirectorFirstName",
+                    button.dataset.firstName
+                );
+
+                setValue(
+                    "editDirectorLastName",
+                    button.dataset.lastName
+                );
+
+                setValue(
+                    "editDirectorPosition",
+                    button.dataset.position
+                );
+
+                setValue(
+                    "editDirectorNationality",
+                    button.dataset.nationality
+                );
+
+                setValue(
+                    "editDirectorEmail",
+                    button.dataset.email
+                );
+
+                setValue(
+                    "editDirectorPhone",
+                    button.dataset.phone
+                );
+
+                const form =
+                    document.getElementById(
+                        "editDirectorForm"
+                    );
+
+                if (form) {
+
+                    form.action =
+                        directorEditUrl(
+                            button.dataset.id
+                        );
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =========================================================
+       DELETE DIRECTOR
+    ========================================================== */
+
+    const deleteDirectorModal =
+        document.getElementById(
+            "deleteDirectorModal"
+        );
+
+    if (deleteDirectorModal) {
+
+        deleteDirectorModal.addEventListener(
+            "show.bs.modal",
+            function (event) {
+
+                const button =
+                    event.relatedTarget;
+
+                setValue(
+                    "deleteDirectorId",
+                    button.dataset.id
+                );
+
+                setText(
+                    "deleteDirectorName",
+                    button.dataset.name
+                );
+
+                const form =
+                    document.getElementById(
+                        "deleteDirectorForm"
+                    );
+
+                if (form) {
+
+                    form.action =
+                        directorDeleteUrl(
+                            button.dataset.id
+                        );
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =========================================================
+       DIRECTOR BULK SELECTION
+    ========================================================== */
+
+    const selectAllDirectors =
+        document.getElementById(
+            "selectAllDirectors"
+        );
+
+    const deleteSelectedDirectorsBtn =
+        document.getElementById(
+            "deleteSelectedDirectorsBtn"
+        );
+
+
+    function updateDirectorBulkButton() {
+
+        const checked =
+            document.querySelectorAll(
+                ".director-checkbox:checked"
+            );
+
+        const active =
+            checked.length > 0;
+
+        if (!deleteSelectedDirectorsBtn) return;
+
+        deleteSelectedDirectorsBtn
+            .classList
+            .toggle(
+                "d-none",
+                !active
+            );
+
+        deleteSelectedDirectorsBtn.disabled =
+            !active;
+
+        deleteSelectedDirectorsBtn.innerHTML =
+
+            `
+            <i class="bi bi-trash me-2"></i>
+            Delete Selected (${checked.length})
+            `;
+
+    }
+
+
+    if (selectAllDirectors) {
+
+        selectAllDirectors.addEventListener(
+            "change",
+            function () {
+
+                document
+                    .querySelectorAll(
+                        ".director-checkbox"
+                    )
+                    .forEach((checkbox) => {
+
+                        checkbox.checked =
+                            this.checked;
+
+                    });
+
+                updateDirectorBulkButton();
+
+            }
+        );
+
+    }
+
+
+    document
+        .querySelectorAll(
+            ".director-checkbox"
+        )
+        .forEach((checkbox) => {
+
+            checkbox.addEventListener(
+                "change",
+                function () {
+
+                    const all =
+                        document.querySelectorAll(
+                            ".director-checkbox"
+                        );
+
+                    const checked =
+                        document.querySelectorAll(
+                            ".director-checkbox:checked"
+                        );
+
+                    if (selectAllDirectors) {
+
+                        selectAllDirectors.checked =
+                            all.length > 0 &&
+                            all.length ===
+                            checked.length;
+
+                    }
+
+                    updateDirectorBulkButton();
+
+                }
+            );
+
+        });
+
+
+    if (deleteSelectedDirectorsBtn) {
+
+        deleteSelectedDirectorsBtn.addEventListener(
+            "click",
+            function () {
+
+                const checked =
+                    document.querySelectorAll(
+                        ".director-checkbox:checked"
+                    );
+
+                createHiddenInputs(
+                    "selectedDirectorInputs",
+                    "director_ids",
+                    checked
+                );
+
+                setText(
+                    "selectedDirectorCount",
+                    checked.length
+                );
+
+            }
+        );
+
+    }
+
+
+    updateDirectorBulkButton();
+
+
+    /* =========================================================
+       ADD MORE DIRECTORS
+    ========================================================== */
+
+    const bulkDirectorContainer =
+        document.getElementById(
+            "bulkDirectorContainer"
+        );
+
+    const addMoreDirector =
+        document.getElementById(
+            "addMoreDirector"
+        );
+
+
+    if (
+        bulkDirectorContainer &&
+        addMoreDirector
+    ) {
+
+        let directorCount = 1;
+
+        addMoreDirector.addEventListener(
+            "click",
+            function () {
+
+                if (directorCount >= 5) {
+
+                    alert(
+                        "A maximum of 5 directors can be added at once."
+                    );
+
+                    return;
+
+                }
+
+                directorCount++;
+
+                const firstItem =
+                    bulkDirectorContainer
+                    .querySelector(
+                        ".bulk-director-item"
+                    );
+
+                const clone =
+                    firstItem.cloneNode(true);
+
+                clone
+                    .querySelector("h6")
+                    .textContent =
+                    `Director ${directorCount}`;
+
+                clone
+                    .querySelectorAll("input")
+                    .forEach((input) => {
+
+                        input.value = "";
+
+                    });
+
+                clone
+                    .querySelectorAll("select")
+                    .forEach((select) => {
+
+                        select.selectedIndex = 0;
+
+                    });
+
+                bulkDirectorContainer
+                    .appendChild(clone);
+
+                clone.scrollIntoView({
+
+                    behavior: "smooth",
+
+                    block: "start"
+
+                });
+
+                if (directorCount >= 5) {
+
+                    addMoreDirector.disabled =
+                        true;
+
+                    addMoreDirector.innerHTML =
+                        `
+                        <i class="bi bi-check-circle me-2"></i>
+                        Maximum Reached
+                        `;
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =========================================================
+       ADD MORE POSITIONS
+    ========================================================== */
+
+    const bulkPositionContainer =
+        document.getElementById(
+            "bulkPositionContainer"
+        );
+
+    const addMorePosition =
+        document.getElementById(
+            "addMorePosition"
+        );
+
+
+    if (
+        bulkPositionContainer &&
+        addMorePosition
+    ) {
+
+        let positionCount = 1;
+
+        addMorePosition.addEventListener(
+            "click",
+            function () {
+
+                if (positionCount >= 10) {
+
+                    alert(
+                        "A maximum of 10 positions can be added."
+                    );
+
+                    return;
+
+                }
+
+                positionCount++;
+
+                const firstItem =
+                    bulkPositionContainer
+                    .querySelector(
+                        ".bulk-position-item"
+                    );
+
+                const clone =
+                    firstItem.cloneNode(true);
+
+                clone
+                    .querySelector("h6")
+                    .textContent =
+                    `Position ${positionCount}`;
+
+                clone
+                    .querySelector("input")
+                    .value = "";
+
+                bulkPositionContainer
+                    .appendChild(clone);
+
+                clone.scrollIntoView({
+
+                    behavior: "smooth",
+
+                    block: "center"
+
+                });
+
+                if (positionCount >= 10) {
+
+                    addMorePosition.disabled =
+                        true;
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =========================================================
+       EDIT POSITION
+    ========================================================== */
+
+    const editPositionModal =
+        document.getElementById(
+            "editPositionModal"
+        );
+
+    if (editPositionModal) {
+
+        editPositionModal.addEventListener(
+            "show.bs.modal",
+            function (event) {
+
+                const button =
+                    event.relatedTarget;
+
+                setValue(
+                    "editPositionId",
+                    button.dataset.id
+                );
+
+                setValue(
+                    "editPositionName",
+                    button.dataset.name
+                );
+
+                const form =
+                    document.getElementById(
+                        "editPositionForm"
+                    );
+
+                if (form) {
+
+                    form.action =
+                        positionEditUrl(
+                            button.dataset.id
+                        );
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =========================================================
+       DELETE POSITION
+    ========================================================== */
+
+    const deletePositionModal =
+        document.getElementById(
+            "deletePositionModal"
+        );
+
+    if (deletePositionModal) {
+
+        deletePositionModal.addEventListener(
+            "show.bs.modal",
+            function (event) {
+
+                const button =
+                    event.relatedTarget;
+
+                setValue(
+                    "deletePositionId",
+                    button.dataset.id
+                );
+
+                setText(
+                    "deletePositionName",
+                    button.dataset.name
+                );
+
+                const form =
+                    document.getElementById(
+                        "deletePositionForm"
+                    );
+
+                if (form) {
+
+                    form.action =
+                        positionDeleteUrl(
+                            button.dataset.id
+                        );
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =========================================================
+       POSITION BULK SELECTION
+    ========================================================== */
+
+    const selectAllPositions =
+        document.getElementById(
+            "selectAllPositions"
+        );
+
+    const deleteSelectedPositionsBtn =
+        document.getElementById(
+            "deleteSelectedPositionsBtn"
+        );
+
+
+    function updatePositionBulkButton() {
+
+        const checked =
+            document.querySelectorAll(
+                ".position-checkbox:checked"
+            );
+
+        const active =
+            checked.length > 0;
+
+        if (!deleteSelectedPositionsBtn) return;
+
+        deleteSelectedPositionsBtn
+            .classList
+            .toggle(
+                "d-none",
+                !active
+            );
+
+        deleteSelectedPositionsBtn.disabled =
+            !active;
+
+        deleteSelectedPositionsBtn.innerHTML =
+
+            `
+            <i class="bi bi-trash me-2"></i>
+            Delete Selected (${checked.length})
+            `;
+
+    }
+
+
+    if (selectAllPositions) {
+
+        selectAllPositions.addEventListener(
+            "change",
+            function () {
+
+                document
+                    .querySelectorAll(
+                        ".position-checkbox"
+                    )
+                    .forEach((checkbox) => {
+
+                        checkbox.checked =
+                            this.checked;
+
+                    });
+
+                updatePositionBulkButton();
+
+            }
+        );
+
+    }
+
+
+    document
+        .querySelectorAll(
+            ".position-checkbox"
+        )
+        .forEach((checkbox) => {
+
+            checkbox.addEventListener(
+                "change",
+                function () {
+
+                    const all =
+                        document.querySelectorAll(
+                            ".position-checkbox"
+                        );
+
+                    const checked =
+                        document.querySelectorAll(
+                            ".position-checkbox:checked"
+                        );
+
+                    if (selectAllPositions) {
+
+                        selectAllPositions.checked =
+                            all.length > 0 &&
+                            all.length ===
+                            checked.length;
+
+                    }
+
+                    updatePositionBulkButton();
+
+                }
+            );
+
+        });
+
+
+    if (deleteSelectedPositionsBtn) {
+
+        deleteSelectedPositionsBtn.addEventListener(
+            "click",
+            function () {
+
+                const checked =
+                    document.querySelectorAll(
+                        ".position-checkbox:checked"
+                    );
+
+                createHiddenInputs(
+                    "selectedPositionInputs",
+                    "position_ids",
+                    checked
+                );
+
+                setText(
+                    "selectedPositionCount",
+                    checked.length
+                );
+
+            }
+        );
+
+    }
+
+
+    updatePositionBulkButton();
+
+});
+
+
+</script>
+
+{% endblock %}
+

@@ -42,7 +42,7 @@
             Staff
         </a>
 
-        <a class="nav-link sidebar-link px-3 py-2 text-white-50" href="#">
+        <a class="nav-link sidebar-link px-3 py-2 text-white-50" href="{% url 'membership_application' %}">
             <i class="bi bi-people me-2"></i>
             Members
             <span class="badge rounded-pill bg-warning text-dark ms-auto">
@@ -50,12 +50,9 @@
             </span>
         </a>
 
-        <a class="nav-link rounded-3 px-3 py-2 text-white-50" href="#">
+        <a class="nav-link rounded-3 px-3 py-2 text-white" href="{% url 'director_records'%}">
             <i class="bi bi-person-workspace me-2"></i>
             Directors
-            <span class="badge rounded-pill bg-warning text-dark ms-auto">
-                Soon
-            </span>
         </a>
         <a class="nav-link rounded-3 px-3 py-2 text-white" href="{% url 'diesel_overview'%}">
             <i class="bi bi-fuel-pump me-2"></i>
@@ -77,7 +74,7 @@
             Reports
         </a>
 
-        <a class="nav-link rounded-3 px-3 py-2 text-white-50" href="#">
+        <a class="nav-link rounded-3 px-3 py-2 text-white-50" href="{% url 'membership_application' %}">
              <i class="bi bi-file-earmark-text me-2"></i>
             Templates
             <span class="badge rounded-pill bg-warning text-dark ms-auto">

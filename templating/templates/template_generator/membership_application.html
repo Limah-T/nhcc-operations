@@ -1,0 +1,2511 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        NHCC Membership Application Form
+    </title>
+
+
+    <style>
+
+        /*
+        ==================================================
+        PAGE SETTINGS
+        ==================================================
+        */
+
+        @page {
+
+            size: A4;
+
+            margin: 10mm;
+
+        }
+
+
+        /*
+        ==================================================
+        RESET
+        ==================================================
+        */
+
+        * {
+
+            box-sizing: border-box;
+
+        }
+
+
+        body {
+
+            margin: 0;
+
+            padding: 30px;
+
+            background: #e2e8f0;
+
+            color: #111827;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            font-size: 11px;
+
+            line-height: 1.45;
+
+        }
+
+
+        /*
+        ==================================================
+        A4 PAGE
+        ==================================================
+        */
+
+        .application-page {
+
+            width: 210mm;
+
+            min-height: 297mm;
+
+            margin: 0 auto 30px;
+
+            padding: 13mm 14mm;
+
+            background: #ffffff;
+
+            box-shadow:
+
+                0 12px 35px
+                rgba(15, 23, 42, .16);
+
+            position: relative;
+
+        }
+
+
+        /*
+        ==================================================
+        DOCUMENT HEADER
+        ==================================================
+        */
+
+        .document-header {
+
+            padding-bottom: 15px;
+
+            margin-bottom: 18px;
+
+            text-align: center;
+
+            border-bottom:
+
+                3px solid
+                #0f172a;
+
+        }
+
+
+        .logo-container {
+
+            width: 58px;
+
+            height: 58px;
+
+            margin:
+
+                0 auto
+                10px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            overflow: hidden;
+
+            border:
+
+                1px solid
+                #cbd5e1;
+
+            border-radius: 50%;
+
+            background: #ffffff;
+
+        }
+
+
+        .logo-container img {
+
+            width: 100%;
+
+            height: 100%;
+
+            object-fit: contain;
+
+        }
+
+
+        .chamber-name {
+
+            margin: 0;
+
+            color: #0f172a;
+
+            font-size: 19px;
+
+            font-weight: 800;
+
+            letter-spacing: .04em;
+
+            text-transform: uppercase;
+
+        }
+
+
+        .chamber-address {
+
+            margin:
+
+                5px 0
+                12px;
+
+            color: #475569;
+
+            font-size: 10px;
+
+            font-weight: 600;
+
+        }
+
+
+        .document-title {
+
+            display: inline-block;
+
+            margin: 0;
+
+            padding:
+
+                8px 20px;
+
+            color: #ffffff;
+
+            background: #0f172a;
+
+            border-radius: 5px;
+
+            font-size: 13px;
+
+            font-weight: 800;
+
+            letter-spacing: .05em;
+
+            text-transform: uppercase;
+
+        }
+
+
+        .document-introduction {
+
+            max-width: 620px;
+
+            margin:
+
+                13px auto
+                0;
+
+            color: #475569;
+
+            font-size: 10px;
+
+        }
+
+
+        /*
+        ==================================================
+        SECTION HEADINGS
+        ==================================================
+        */
+
+        .section-heading {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            margin:
+
+                18px 0
+                11px;
+
+            padding:
+
+                7px 10px;
+
+            color: #ffffff;
+
+            background: #1e293b;
+
+            border-radius: 4px;
+
+            font-size: 11px;
+
+            font-weight: 800;
+
+            letter-spacing: .03em;
+
+            text-transform: uppercase;
+
+        }
+
+
+        .section-number {
+
+            width: 23px;
+
+            height: 23px;
+
+            display: flex;
+
+            flex-shrink: 0;
+
+            align-items: center;
+
+            justify-content: center;
+
+            color: #1e293b;
+
+            background: #ffffff;
+
+            border-radius: 50%;
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+        }
+
+
+        /*
+        ==================================================
+        TWO-COLUMN LAYOUT
+        ==================================================
+        */
+
+        .two-column {
+
+            display: grid;
+
+            grid-template-columns:
+
+                minmax(0, 1fr)
+                minmax(0, 1fr);
+
+            gap: 25px;
+
+        }
+
+
+        .column {
+
+            min-width: 0;
+
+        }
+
+
+        /*
+        ==================================================
+        FORM FIELDS
+        ==================================================
+        */
+
+        .field {
+
+            margin-bottom: 10px;
+
+        }
+
+
+        .field-label {
+
+            display: block;
+
+            margin-bottom: 4px;
+
+            color: #1e293b;
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+        }
+
+
+        .field-line {
+
+            width: 100%;
+
+            min-height: 24px;
+
+            border-bottom:
+
+                1.3px solid
+                #334155;
+
+        }
+
+
+        .field-line.small {
+
+            min-height: 20px;
+
+        }
+
+
+        .inline-fields {
+
+            display: grid;
+
+            grid-template-columns:
+
+                1fr
+                1fr;
+
+            gap: 12px;
+
+        }
+
+
+        .inline-field {
+
+            display: flex;
+
+            align-items: flex-end;
+
+            gap: 7px;
+
+        }
+
+
+        .inline-label {
+
+            flex-shrink: 0;
+
+            color: #1e293b;
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+            white-space: nowrap;
+
+        }
+
+
+        .inline-line {
+
+            flex: 1;
+
+            min-height: 21px;
+
+            border-bottom:
+
+                1.3px solid
+                #334155;
+
+        }
+
+
+        /*
+        ==================================================
+        CHECKBOXES
+        ==================================================
+        */
+
+        .checkbox {
+
+            width: 15px;
+
+            height: 15px;
+
+            display: inline-block;
+
+            flex-shrink: 0;
+
+            border:
+
+                1.4px solid
+                #334155;
+
+            border-radius: 2px;
+
+            background: #ffffff;
+
+        }
+
+
+        .checkbox-item {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            margin-bottom: 7px;
+
+            color: #1e293b;
+
+            font-size: 10px;
+
+            font-weight: 600;
+
+        }
+
+
+        .checkbox-grid {
+
+            display: grid;
+
+            grid-template-columns:
+
+                1fr
+                1fr;
+
+            gap:
+
+                3px
+                15px;
+
+        }
+
+
+        /*
+        ==================================================
+        DIRECTORS
+        ==================================================
+        */
+
+        .director-row {
+
+            display: grid;
+
+            grid-template-columns:
+
+                25px
+                1fr;
+
+            gap: 8px;
+
+            margin-bottom: 10px;
+
+        }
+
+
+        .director-letter {
+
+            padding-top: 4px;
+
+            color: #0f172a;
+
+            font-weight: 800;
+
+        }
+
+
+        .director-fields {
+
+            display: grid;
+
+            gap: 6px;
+
+        }
+
+
+        /*
+        ==================================================
+        REPRESENTATIVE BOX
+        ==================================================
+        */
+
+        .representative-box {
+
+            padding: 13px;
+
+            margin-bottom: 12px;
+
+            border:
+
+                1px solid
+                #cbd5e1;
+
+            border-radius: 6px;
+
+            background: #f8fafc;
+
+        }
+
+
+        .representative-title {
+
+            margin:
+
+                0 0
+                10px;
+
+            color: #0f172a;
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+            text-transform: uppercase;
+
+        }
+
+
+        /*
+        ==================================================
+        MEMBERSHIP CATEGORY
+        ==================================================
+        */
+
+        .membership-card {
+
+            padding: 14px;
+
+            margin-bottom: 12px;
+
+            border:
+
+                1px solid
+                #cbd5e1;
+
+            border-radius: 7px;
+
+            background: #ffffff;
+
+        }
+
+
+        .membership-card-header {
+
+            display: flex;
+
+            align-items: flex-start;
+
+            justify-content: space-between;
+
+            gap: 15px;
+
+            padding-bottom: 10px;
+
+            margin-bottom: 11px;
+
+            border-bottom:
+
+                1px solid
+                #e2e8f0;
+
+        }
+
+
+        .membership-name {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            color: #0f172a;
+
+            font-size: 11px;
+
+            font-weight: 800;
+
+        }
+
+
+        .membership-fee {
+
+            color: #1d4ed8;
+
+            font-size: 11px;
+
+            font-weight: 800;
+
+            white-space: nowrap;
+
+        }
+
+
+        .benefit-list {
+
+            display: grid;
+
+            gap: 8px;
+
+        }
+
+
+        .benefit-item {
+
+            display: grid;
+
+            grid-template-columns:
+
+                14px
+                1fr
+                17px;
+
+            gap: 8px;
+
+            align-items: center;
+
+            color: #334155;
+
+            font-size: 10px;
+
+        }
+
+
+        .benefit-bullet {
+
+            color: #2563eb;
+
+            font-weight: 900;
+
+        }
+
+
+        /*
+        ==================================================
+        QUESTION AREAS
+        ==================================================
+        */
+
+        .question-box {
+
+            padding:
+
+                12px
+                13px;
+
+            margin-bottom: 11px;
+
+            border:
+
+                1px solid
+                #cbd5e1;
+
+            border-radius: 6px;
+
+            background: #f8fafc;
+
+        }
+
+
+        .question {
+
+            margin:
+
+                0 0
+                9px;
+
+            color: #0f172a;
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+        }
+
+
+        .answer-line {
+
+            height: 24px;
+
+            border-bottom:
+
+                1px solid
+                #64748b;
+
+        }
+
+
+        /*
+        ==================================================
+        REQUIRED DOCUMENTS
+        ==================================================
+        */
+
+        .document-list {
+
+            margin: 0;
+
+            padding-left: 19px;
+
+        }
+
+
+        .document-list li {
+
+            padding-left: 3px;
+
+            margin-bottom: 7px;
+
+            color: #334155;
+
+            font-size: 10px;
+
+            font-weight: 600;
+
+        }
+
+
+        /*
+        ==================================================
+        DECLARATION
+        ==================================================
+        */
+
+        .declaration {
+
+            padding: 14px;
+
+            border:
+
+                1px solid
+                #cbd5e1;
+
+            border-radius: 7px;
+
+            background: #f8fafc;
+
+        }
+
+
+        .declaration p {
+
+            margin:
+
+                0 0
+                12px;
+
+            color: #334155;
+
+            font-size: 9.5px;
+
+            line-height: 1.65;
+
+            text-align: justify;
+
+        }
+
+
+        /*
+        ==================================================
+        SIGNATURE AREA
+        ==================================================
+        */
+
+        .signature-area {
+
+            display: grid;
+
+            grid-template-columns:
+
+                1fr
+                110px;
+
+            gap: 20px;
+
+            margin-top: 20px;
+
+        }
+
+
+        .signature-line {
+
+            min-height: 30px;
+
+            border-bottom:
+
+                1.3px solid
+                #334155;
+
+        }
+
+
+        .signature-label {
+
+            margin-top: 5px;
+
+            color: #475569;
+
+            font-size: 8.5px;
+
+            font-weight: 700;
+
+        }
+
+
+        /*
+        ==================================================
+        NOTICE
+        ==================================================
+        */
+
+        .notice {
+
+            padding: 11px 13px;
+
+            margin:
+
+                13px 0;
+
+            color: #92400e;
+
+            background: #fffbeb;
+
+            border:
+
+                1px solid
+                #fde68a;
+
+            border-radius: 6px;
+
+            font-size: 9.5px;
+
+            font-weight: 700;
+
+        }
+
+
+        /*
+        ==================================================
+        FOOTER
+        ==================================================
+        */
+
+        .page-footer {
+
+            position: absolute;
+
+            right: 14mm;
+
+            bottom: 8mm;
+
+            left: 14mm;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding-top: 7px;
+
+            color: #64748b;
+
+            border-top:
+
+                1px solid
+                #e2e8f0;
+
+            font-size: 8px;
+
+        }
+
+
+        /*
+        ==================================================
+        PAGE BREAK
+        ==================================================
+        */
+
+        .page-break {
+
+            page-break-before: always;
+
+            break-before: page;
+
+        }
+
+
+        /*
+        ==================================================
+        PRINT SETTINGS
+        ==================================================
+        */
+
+        @media print {
+
+            body {
+
+                padding: 0;
+
+                background: #ffffff;
+
+            }
+
+
+            .application-page {
+
+                width: 100%;
+
+                min-height: 277mm;
+
+                margin: 0;
+
+                padding: 10mm 12mm;
+
+                box-shadow: none;
+
+                page-break-after: always;
+
+                break-after: page;
+
+            }
+
+
+            .application-page:last-child {
+
+                page-break-after: auto;
+
+                break-after: auto;
+
+            }
+
+
+            .page-footer {
+
+                right: 12mm;
+
+                bottom: 6mm;
+
+                left: 12mm;
+
+            }
+
+        }
+
+
+        /*
+        ==================================================
+        SMALL SCREEN PREVIEW
+        ==================================================
+        */
+
+        @media screen and (max-width: 900px) {
+
+            body {
+
+                padding: 10px;
+
+            }
+
+
+            .application-page {
+
+                width: 100%;
+
+                min-height: auto;
+
+                padding: 25px 20px;
+
+            }
+
+
+            .two-column {
+
+                grid-template-columns:
+
+                    1fr;
+
+            }
+
+
+            .checkbox-grid {
+
+                grid-template-columns:
+
+                    1fr;
+
+            }
+
+
+            .page-footer {
+
+                position: static;
+
+                margin-top: 30px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- ==================================================
+     PAGE ONE
+================================================== -->
+<main class="print-document">
+
+<section class="application-page">
+
+
+    <!-- HEADER -->
+
+    <header class="document-header">
+
+        <div class="logo-container">
+
+
+            <img src="{% static 'images/logo.png' %}" alt="NHCC Logo">
+            
+        </div>
+
+
+        <h1 class="chamber-name">
+
+            Nigerian-Hungarian Chamber of Commerce
+
+        </h1>
+
+
+        <p class="chamber-address">
+
+            6, Okoya Crescent, Ikoyi, Lagos, Nigeria.
+
+        </p>
+
+
+        <h2 class="document-title">
+
+            Membership Application Form
+
+        </h2>
+
+
+        <p class="document-introduction">
+
+            Thank you for your interest in becoming a member of the
+            Nigerian-Hungarian Chamber of Commerce. Please complete
+            this application form clearly and return it to the Chamber.
+
+        </p>
+
+    </header>
+
+
+    <div class="two-column">
+
+
+        <!-- LEFT COLUMN -->
+
+        <div class="column">
+
+
+            <!-- INDIVIDUAL MEMBERSHIP DETAILS -->
+
+            <div class="section-heading">
+
+                <span class="section-number">
+
+                    1
+
+                </span>
+
+                Individual Membership Details
+
+            </div>
+
+
+            <div class="field">
+
+                <span class="field-label">
+
+                    Full Name
+
+                </span>
+
+                <div class="field-line"></div>
+
+            </div>
+
+
+            <div class="field">
+
+                <span class="field-label">
+
+                    Registration / Business Number
+
+                </span>
+
+                <div class="field-line"></div>
+
+            </div>
+
+
+            <div class="field">
+
+                <span class="field-label">
+
+                    Office Address
+
+                </span>
+
+                <div class="field-line"></div>
+
+            </div>
+
+
+            <div class="field">
+
+                <span class="field-label">
+
+                    Telephone Number
+
+                </span>
+
+                <div class="field-line"></div>
+
+            </div>
+
+
+            <div class="field">
+
+                <span class="field-label">
+
+                    Type of Business
+
+                </span>
+
+                <div class="field-line"></div>
+
+            </div>
+
+
+            <!-- COMPANY DETAILS -->
+
+            <div class="section-heading">
+
+                <span class="section-number">
+
+                    2
+
+                </span>
+
+                Company Details
+
+            </div>
+
+
+            <div class="field">
+
+                <span class="field-label">
+
+                    Company Name
+
+                </span>
+
+                <div class="field-line"></div>
+
+            </div>
+
+
+            <div class="field">
+
+                <span class="field-label">
+
+                    Holding Company
+                    <small>(if applicable)</small>
+
+                </span>
+
+                <div class="field-line"></div>
+
+            </div>
+
+
+            <div class="field">
+
+                <span class="field-label">
+
+                    RC Number
+
+                </span>
+
+                <div class="field-line"></div>
+
+            </div>
+
+
+            <div class="inline-fields">
+
+                <div class="field">
+
+                    <span class="field-label">
+
+                        Number of Employees
+
+                    </span>
+
+                    <div class="field-line"></div>
+
+                </div>
+
+
+                <div class="field">
+
+                    <span class="field-label">
+
+                        Year Established
+
+                    </span>
+
+                    <div class="field-line"></div>
+
+                </div>
+
+            </div>
+
+
+            <div class="field">
+
+                <span class="field-label">
+
+                    Physical Address
+
+                </span>
+
+                <div class="field-line"></div>
+
+                <div class="field-line"></div>
+
+            </div>
+
+
+            <div class="field">
+
+                <span class="field-label">
+
+                    Postal Address
+                    <small>(if different from above)</small>
+
+                </span>
+
+                <div class="field-line"></div>
+
+                <div class="field-line"></div>
+
+            </div>
+
+
+            <div class="field">
+
+                <span class="field-label">
+
+                    Telephone Number
+
+                </span>
+
+                <div class="field-line"></div>
+
+            </div>
+
+
+            <div class="field">
+
+                <span class="field-label">
+
+                    Website
+
+                </span>
+
+                <div class="field-line"></div>
+
+            </div>
+
+
+            <div class="field">
+
+                <span class="field-label">
+
+                    Core Line of Business
+
+                </span>
+
+                <div class="field-line"></div>
+
+            </div>
+
+
+            <div class="field">
+
+                <span class="field-label">
+
+                    Other Business Interests
+
+                </span>
+
+                <div class="field-line"></div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- RIGHT COLUMN -->
+
+        <div class="column">
+
+
+            <!-- BUSINESS CLASSIFICATION -->
+
+            <div class="section-heading">
+
+                <span class="section-number">
+
+                    2A
+
+                </span>
+
+                Business Classification
+
+            </div>
+
+
+            <div class="checkbox-grid">
+
+                <div>
+
+                    <div class="checkbox-item">
+
+                        <span class="checkbox"></span>
+
+                        Manufacturer
+
+                    </div>
+
+
+                    <div class="checkbox-item">
+
+                        <span class="checkbox"></span>
+
+                        Retailer
+
+                    </div>
+
+
+                    <div class="checkbox-item">
+
+                        <span class="checkbox"></span>
+
+                        Distributor
+
+                    </div>
+
+
+                    <div class="checkbox-item">
+
+                        <span class="checkbox"></span>
+
+                        Wholesaler
+
+                    </div>
+
+
+                    <div class="checkbox-item">
+
+                        <span class="checkbox"></span>
+
+                        Contractor
+
+                    </div>
+
+                </div>
+
+
+                <div>
+
+                    <div class="checkbox-item">
+
+                        <span class="checkbox"></span>
+
+                        Service Provider
+
+                    </div>
+
+
+                    <div class="checkbox-item">
+
+                        <span class="checkbox"></span>
+
+                        Exporter
+
+                    </div>
+
+
+                    <div class="checkbox-item">
+
+                        <span class="checkbox"></span>
+
+                        Importer
+
+                    </div>
+
+
+                    <div class="checkbox-item">
+
+                        <span class="checkbox"></span>
+
+                        Consultant
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="field">
+
+                <span class="field-label">
+
+                    Other
+                    <small>(Please specify)</small>
+
+                </span>
+
+                <div class="field-line"></div>
+
+                <div class="field-line"></div>
+
+            </div>
+
+
+            <!-- DIRECTORS -->
+
+            <div class="section-heading">
+
+                <span class="section-number">
+
+                    3
+
+                </span>
+
+                Particulars of Directors / Partners
+
+            </div>
+
+
+            <div class="director-row">
+
+                <span class="director-letter">
+
+                    (a)
+
+                </span>
+
+
+                <div class="director-fields">
+
+                    <div class="inline-field">
+
+                        <span class="inline-label">
+
+                            Name:
+
+                        </span>
+
+                        <span class="inline-line"></span>
+
+                    </div>
+
+
+                    <div class="inline-field">
+
+                        <span class="inline-label">
+
+                            Nationality:
+
+                        </span>
+
+                        <span class="inline-line"></span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="director-row">
+
+                <span class="director-letter">
+
+                    (b)
+
+                </span>
+
+
+                <div class="director-fields">
+
+                    <div class="inline-field">
+
+                        <span class="inline-label">
+
+                            Name:
+
+                        </span>
+
+                        <span class="inline-line"></span>
+
+                    </div>
+
+
+                    <div class="inline-field">
+
+                        <span class="inline-label">
+
+                            Nationality:
+
+                        </span>
+
+                        <span class="inline-line"></span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="director-row">
+
+                <span class="director-letter">
+
+                    (c)
+
+                </span>
+
+
+                <div class="director-fields">
+
+                    <div class="inline-field">
+
+                        <span class="inline-label">
+
+                            Name:
+
+                        </span>
+
+                        <span class="inline-line"></span>
+
+                    </div>
+
+
+                    <div class="inline-field">
+
+                        <span class="inline-label">
+
+                            Nationality:
+
+                        </span>
+
+                        <span class="inline-line"></span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="director-row">
+
+                <span class="director-letter">
+
+                    (d)
+
+                </span>
+
+
+                <div class="director-fields">
+
+                    <div class="inline-field">
+
+                        <span class="inline-label">
+
+                            Name:
+
+                        </span>
+
+                        <span class="inline-line"></span>
+
+                    </div>
+
+
+                    <div class="inline-field">
+
+                        <span class="inline-label">
+
+                            Nationality:
+
+                        </span>
+
+                        <span class="inline-line"></span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- PRIMARY REPRESENTATIVE -->
+
+            <div class="section-heading">
+
+                <span class="section-number">
+
+                    4
+
+                </span>
+
+                Primary Member / Accredited Representative
+
+            </div>
+
+
+            <div class="representative-box">
+
+                <p class="representative-title">
+
+                    Primary Representative
+
+                </p>
+
+
+                <div class="field">
+
+                    <span class="field-label">
+
+                        Full Name
+
+                    </span>
+
+                    <div class="field-line small"></div>
+
+                </div>
+
+
+                <div class="field">
+
+                    <span class="field-label">
+
+                        Position
+
+                    </span>
+
+                    <div class="field-line small"></div>
+
+                </div>
+
+
+                <div class="field">
+
+                    <span class="field-label">
+
+                        Office Telephone Number
+                        <small>(Direct)</small>
+
+                    </span>
+
+                    <div class="field-line small"></div>
+
+                </div>
+
+
+                <div class="field">
+
+                    <span class="field-label">
+
+                        Mobile Telephone Number
+                        <small>(Direct)</small>
+
+                    </span>
+
+                    <div class="field-line small"></div>
+
+                </div>
+
+
+                <div class="field">
+
+                    <span class="field-label">
+
+                        Email Address
+                        <small>(Direct)</small>
+
+                    </span>
+
+                    <div class="field-line small"></div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ALTERNATIVE REPRESENTATIVE -->
+
+            <div class="section-heading">
+
+                <span class="section-number">
+
+                    5
+
+                </span>
+
+                Alternative Representative
+
+            </div>
+
+
+            <div class="representative-box">
+
+                <div class="field">
+
+                    <span class="field-label">
+
+                        Full Name
+
+                    </span>
+
+                    <div class="field-line small"></div>
+
+                </div>
+
+
+                <div class="field">
+
+                    <span class="field-label">
+
+                        Position
+
+                    </span>
+
+                    <div class="field-line small"></div>
+
+                </div>
+
+
+                <div class="field">
+
+                    <span class="field-label">
+
+                        Office Telephone Number
+                        <small>(Direct)</small>
+
+                    </span>
+
+                    <div class="field-line small"></div>
+
+                </div>
+
+
+                <div class="field">
+
+                    <span class="field-label">
+
+                        Mobile Telephone Number
+                        <small>(Direct)</small>
+
+                    </span>
+
+                    <div class="field-line small"></div>
+
+                </div>
+
+
+                <div class="field">
+
+                    <span class="field-label">
+
+                        Email Address
+                        <small>(Direct)</small>
+
+                    </span>
+
+                    <div class="field-line small"></div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <footer class="page-footer">
+
+        <span>
+
+            Nigerian-Hungarian Chamber of Commerce
+
+        </span>
+
+
+        <span>
+
+            Membership Application Form · Page 1 of 2
+
+        </span>
+
+    </footer>
+
+
+</section>
+
+
+
+<!-- ==================================================
+     PAGE TWO
+================================================== -->
+
+<section class="application-page page-break">
+
+
+    <!-- SMALL HEADER -->
+
+    <header class="document-header">
+
+        <h1 class="chamber-name">
+
+            Nigerian-Hungarian Chamber of Commerce
+
+        </h1>
+
+
+        <p class="chamber-address">
+
+            Membership Application Form
+
+        </p>
+
+    </header>
+
+
+    <div class="two-column">
+
+
+        <!-- LEFT COLUMN -->
+
+        <div class="column">
+
+
+            <!-- ASSOCIATED HUNGARIAN COMPANIES -->
+
+            <div class="section-heading">
+
+                <span class="section-number">
+
+                    6
+
+                </span>
+
+                Name & Address of Associated Hungarian Company / Companies
+
+            </div>
+
+
+            <div class="field-line"></div>
+
+            <div class="field-line"></div>
+
+            <div class="field-line"></div>
+
+
+            <!-- MEMBERSHIP CATEGORY -->
+
+            <div class="section-heading">
+
+                <span class="section-number">
+
+                    7
+
+                </span>
+
+                Membership Categories
+
+            </div>
+
+
+            <!-- CORPORATE -->
+
+            <div class="membership-card">
+
+
+                <div class="membership-card-header">
+
+                    <div class="membership-name">
+
+                        <span class="checkbox"></span>
+
+                        (A) Corporate Membership
+
+                    </div>
+
+
+                    <span class="membership-fee">
+
+                        ₦250,000.00
+
+                    </span>
+
+                </div>
+
+
+                <div class="benefit-list">
+
+
+                    <div class="benefit-item">
+
+                        <span class="benefit-bullet">
+
+                            •
+
+                        </span>
+
+
+                        <span>
+
+                            Name and logo mentioned in all official
+                            publications of the Chamber.
+
+                        </span>
+
+
+                        <span class="checkbox"></span>
+
+                    </div>
+
+
+                    <div class="benefit-item">
+
+                        <span class="benefit-bullet">
+
+                            •
+
+                        </span>
+
+
+                        <span>
+
+                            Discounted fees on membership programmes.
+
+                        </span>
+
+
+                        <span class="checkbox"></span>
+
+                    </div>
+
+
+                    <div class="benefit-item">
+
+                        <span class="benefit-bullet">
+
+                            •
+
+                        </span>
+
+
+                        <span>
+
+                            Complimentary conference registration
+                            within Nigeria.
+
+                        </span>
+
+
+                        <span class="checkbox"></span>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+
+            <!-- INDIVIDUAL -->
+
+            <div class="membership-card">
+
+
+                <div class="membership-card-header">
+
+                    <div class="membership-name">
+
+                        <span class="checkbox"></span>
+
+                        (B) Individual Membership
+
+                    </div>
+
+
+                    <span class="membership-fee">
+
+                        ₦100,000.00
+
+                    </span>
+
+                </div>
+
+
+                <div class="benefit-list">
+
+
+                    <div class="benefit-item">
+
+                        <span class="benefit-bullet">
+
+                            •
+
+                        </span>
+
+
+                        <span>
+
+                            Networking
+
+                        </span>
+
+
+                        <span class="checkbox"></span>
+
+                    </div>
+
+
+                    <div class="benefit-item">
+
+                        <span class="benefit-bullet">
+
+                            •
+
+                        </span>
+
+
+                        <span>
+
+                            Business Development
+
+                        </span>
+
+
+                        <span class="checkbox"></span>
+
+                    </div>
+
+
+                    <div class="benefit-item">
+
+                        <span class="benefit-bullet">
+
+                            •
+
+                        </span>
+
+
+                        <span>
+
+                            Bilateral Exchanges
+
+                        </span>
+
+
+                        <span class="checkbox"></span>
+
+                    </div>
+
+
+                    <div class="benefit-item">
+
+                        <span class="benefit-bullet">
+
+                            •
+
+                        </span>
+
+
+                        <span>
+
+                            Participation in NHCC-endorsed events
+
+                        </span>
+
+
+                        <span class="checkbox"></span>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+
+            <!-- OTHER INFORMATION -->
+
+            <div class="section-heading">
+
+                <span class="section-number">
+
+                    C
+
+                </span>
+
+                Other Information
+
+            </div>
+
+
+            <div class="question-box">
+
+                <p class="question">
+
+                    What is your company's interest in Hungary?
+
+                </p>
+
+
+                <div class="answer-line"></div>
+
+                <div class="answer-line"></div>
+
+            </div>
+
+
+            <div class="question-box">
+
+                <p class="question">
+
+                    What are your main challenges to date?
+
+                </p>
+
+
+                <div class="answer-line"></div>
+
+                <div class="answer-line"></div>
+
+            </div>
+
+
+            <div class="question-box">
+
+                <p class="question">
+
+                    List the areas where you believe the Chamber
+                    can assist your organization.
+
+                </p>
+
+
+                <div class="answer-line"></div>
+
+                <div class="answer-line"></div>
+
+                <div class="answer-line"></div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- RIGHT COLUMN -->
+
+        <div class="column">
+
+
+            <!-- REQUIRED DOCUMENTS -->
+
+            <div class="section-heading">
+
+                <span class="section-number">
+
+                    8
+
+                </span>
+
+                Required Documents for Registration
+
+            </div>
+
+
+            <div class="membership-card">
+
+
+                <div class="checkbox-item">
+
+                    <span class="checkbox"></span>
+
+                    All required documents must be submitted with
+                    the application form.
+
+                </div>
+
+
+                <ul class="document-list">
+
+                    <li>
+
+                        Government-issued identification documents
+                        for the individual responsible.
+
+                    </li>
+
+
+                    <li>
+
+                        Company annual / financial report.
+
+                    </li>
+
+
+                    <li>
+
+                        Copy of the Certificate of Registration of
+                        the Business Name or Limited Liability Company.
+
+                    </li>
+
+                </ul>
+
+            </div>
+
+
+            <!-- DECLARATION -->
+
+            <div class="section-heading">
+
+                <span class="section-number">
+
+                    9
+
+                </span>
+
+                Declaration
+
+            </div>
+
+
+            <div class="declaration">
+
+
+                <p>
+
+                    We wish to be admitted as members of the
+                    Nigerian-Hungarian Chamber of Commerce and,
+                    if admitted, we agree to be bound by the
+                    Constitution, Memorandum and Articles of
+                    Association, Bye-Laws of the Association,
+                    and to pay the annual fee at the rate in
+                    force from time to time. We hereby declare
+                    that all statements made in this application
+                    form are correct.
+
+                </p>
+
+
+                <div class="signature-area">
+
+
+                    <div>
+
+                        <div class="signature-line"></div>
+
+                        <div class="signature-label">
+
+                            Authorized Signature
+
+                        </div>
+
+                    </div>
+
+
+                    <div>
+
+                        <div class="signature-line"></div>
+
+                        <div class="signature-label">
+
+                            Date
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="notice">
+
+                Please note that submission of this form does not
+                guarantee automatic registration or membership.
+
+            </div>
+
+
+            <!-- SPONSOR -->
+
+            <div class="section-heading">
+
+                <span class="section-number">
+
+                    10
+
+                </span>
+
+                Sponsor / Proposer Declaration
+
+            </div>
+
+
+            <div class="declaration">
+
+
+                <p>
+
+                    We, the undersigned, being a member of the
+                    Nigerian-Hungarian Chamber of Commerce in
+                    good standing, hereby declare that the
+                    applicant is known to us and, in our opinion,
+                    is suitable for admission to membership of
+                    the Chamber of Commerce.
+
+                </p>
+
+
+                <div class="field">
+
+                    <span class="field-label">
+
+                        Name of Proposer
+
+                    </span>
+
+                    <div class="field-line"></div>
+
+                </div>
+
+
+                <div class="field">
+
+                    <span class="field-label">
+
+                        Company Represented
+
+                    </span>
+
+                    <div class="field-line"></div>
+
+                </div>
+
+
+                <div class="signature-area">
+
+
+                    <div>
+
+                        <div class="signature-line"></div>
+
+                        <div class="signature-label">
+
+                            Signature
+
+                        </div>
+
+                    </div>
+
+
+                    <div>
+
+                        <div class="signature-line"></div>
+
+                        <div class="signature-label">
+
+                            Date
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+    <footer class="page-footer">
+
+        <span>
+
+            Nigerian-Hungarian Chamber of Commerce
+
+        </span>
+
+
+        <span>
+
+            Membership Application Form · Page 2 of 2
+
+        </span>
+
+    </footer>
+
+
+</section>
+
+</main>
+</body>
+
+</html>

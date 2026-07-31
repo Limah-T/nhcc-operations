@@ -82,8 +82,7 @@ class SignUpView(View):
             template_name=signup_temp_name, 
             context={"form": form}, status=400
         )
-        
-        
+             
     
 class LoginView(View):
     def get(self, request):

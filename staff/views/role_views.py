@@ -7,15 +7,15 @@ from dashboard.views import staff_account_temp_name
 from nhcc_operations.services.http_response_services import (
     success_response, error_response
 )
-from .services.role_service import (
+from ..services.role_service import (
     RolePayloadParser,
     create_single, create_bulk,
     update_single,
     delete_single, delete_bulk
 )
-from .services.staff_service import staff_url_name, staff_context_data
+from ..services.staff_service import staff_url_name, staff_context_data
 from nhcc_operations.services.generic_service import role_404
-from .forms import RoleForm
+from ..forms import RoleForm
 
 
 @method_decorator(login_required, "dispatch")

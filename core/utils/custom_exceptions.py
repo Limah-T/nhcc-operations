@@ -1,0 +1,2 @@
+class NothingToUpdateError(Exception):
+    pass

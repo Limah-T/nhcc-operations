@@ -1,18 +1,6 @@
 from django import forms
 from .models import CustomUser
-from .services.generic_service import NAME_ERROR
-import re
-
-NAME_REGEX = r"^[A-Za-z]+(?:[ '-][A-Za-z]+)*$"
-
-
-def valid_name(value):
-    if not re.fullmatch(
-        NAME_REGEX,
-        value.strip(),
-    ):
-        return False
-    return True
+from .services.generic_service import NAME_ERROR, valid_name
 
 class SignupForm(forms.Form):
     first_name = forms.CharField(min_length=2, max_length=255)

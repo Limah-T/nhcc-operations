@@ -25,12 +25,17 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     # 'silk',
+    'django_countries',
     'account',
     'dashboard',
     'finance',
     'finance.expense',
     'report',
     'staff',
+    'templating',
+    'core',
+    'directors',
+    'members',
 ]
 
 MIDDLEWARE = [
