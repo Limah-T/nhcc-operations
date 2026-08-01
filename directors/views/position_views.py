@@ -7,14 +7,13 @@ from django.utils.decorators import method_decorator
 from django.contrib import messages
 from django.shortcuts import redirect
 from dashboard.views import director_temp_name
-from core.utils.error_responses import SERVER_ERROR
+from core.utils.error_responses import SERVER_ERROR, NOTHING_TO_UPDATE
 from ..forms import PositionForm
 from ..services.director_service import director_context_data
 from ..utils.error_responses import (
-    POSITION_EXISTS, POSITIONS_EXISTS, NOTHING_TO_UPDATE,
-    POSITION_NOT_FOUND, POSITIONS_NOT_FOUND, POSITION_CREATED,
-    POSITIONS_CREATED, POSITION_UPDATED, POSITION_DELETED,
-    POSITIONS_DELETED
+    POSITION_EXISTS, POSITIONS_EXISTS, POSITION_NOT_FOUND,
+    POSITIONS_NOT_FOUND, POSITION_CREATED, POSITIONS_CREATED,
+    POSITION_UPDATED, POSITION_DELETED, POSITIONS_DELETED
 )
 from ..services.position_service import (
     PostionPayloadParser, PositionDataCreate, 

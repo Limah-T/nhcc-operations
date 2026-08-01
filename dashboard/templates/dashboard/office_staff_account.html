@@ -50,7 +50,12 @@ Staff Accounts | NHCC Operations
 
                     </div>
 
-                    <div class="d-flex gap-2">
+                    <div
+                        class="d-flex
+                            align-items-center
+                            justify-content-center
+                            gap-3
+                            w-100">
 
                         <div class="dropdown">
 
@@ -888,12 +893,27 @@ Staff Accounts | NHCC Operations
                         ============================== -->
 
                         <div class="border rounded-4 p-3 mb-4 bulk-staff-item">
+                            <div
+                                class="d-flex
+                                    justify-content-between
+                                    align-items-center
+                                    mb-3">
+                                <h6 class="fw-bold mb-3">
 
-                            <h6 class="fw-bold mb-3">
+                                    Staff 1
 
-                                Staff 1
+                                </h6>
 
-                            </h6>
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-danger btn-sm rounded-3 remove-staff">
+
+                                    <i class="bi bi-trash me-1"></i>
+
+                                    Remove
+
+                                </button>
+                            </div>
 
                             <div class="row g-3">
 
@@ -2026,12 +2046,27 @@ Staff Accounts | NHCC Operations
                     <div id="bulkRoleContainer">
 
                         <div class="border rounded-4 p-3 mb-3 bulk-role-item">
+                            <div
+                                class="d-flex
+                                    justify-content-between
+                                    align-items-center
+                                    mb-3">
 
-                            <h6 class="fw-bold">
+                                <h6 class="fw-bold">
 
-                                Role 1
+                                    Role 1
 
-                            </h6>
+                                </h6>
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-danger btn-sm rounded-3 remove-role">
+
+                                    <i class="bi bi-trash me-1"></i>
+
+                                    Remove
+
+                                </button>
+                            </div>
 
                             <label class="form-label">
 
@@ -2381,6 +2416,148 @@ document.addEventListener("DOMContentLoaded", () => {
 
         });
     }
+
+    document.addEventListener(
+    "click",
+    function (event) {
+
+        /*
+         * REMOVE ROLE
+         */
+
+        const removeRole = event.target.closest(
+            ".remove-role"
+        );
+
+        if (removeRole) {
+
+            const roleItem = removeRole.closest(
+                ".bulk-role-item"
+            );
+
+            const roleContainer =
+                document.getElementById(
+                    "bulkRoleContainer"
+                );
+
+            const roleItems =
+                roleContainer.querySelectorAll(
+                    ".bulk-role-item"
+                );
+
+            /*
+             * Keep at least one role form.
+             */
+
+            if (roleItems.length > 1) {
+
+                roleItem.remove();
+
+                updateRoleNumbers();
+
+            }
+
+        }
+
+
+        /*
+         * REMOVE STAFF
+         */
+
+        const removeStaff = event.target.closest(
+            ".remove-staff"
+        );
+
+        if (removeStaff) {
+
+            const staffItem = removeStaff.closest(
+                ".bulk-staff-item"
+            );
+
+            const staffContainer =
+                document.getElementById(
+                    "bulkStaffContainer"
+                );
+
+            const staffItems =
+                staffContainer.querySelectorAll(
+                    ".bulk-staff-item"
+                );
+
+            /*
+             * Keep at least one staff form.
+             */
+
+            if (staffItems.length > 1) {
+
+                staffItem.remove();
+
+                updateStaffNumbers();
+
+            }
+
+        }
+
+    }
+);
+
+
+/*
+ * RENNUMBER ROLE FORMS
+ */
+
+function updateRoleNumbers() {
+
+    document
+        .querySelectorAll(
+            "#bulkRoleContainer .bulk-role-item"
+        )
+        .forEach(
+            function (item, index) {
+
+                const heading =
+                    item.querySelector("h6");
+
+                if (heading) {
+
+                    heading.textContent =
+                        `Role ${index + 1}`;
+
+                }
+
+            }
+        );
+
+}
+
+
+/*
+ * RENNUMBER STAFF FORMS
+ */
+
+function updateStaffNumbers() {
+
+    document
+        .querySelectorAll(
+            "#bulkStaffContainer .bulk-staff-item"
+        )
+        .forEach(
+            function (item, index) {
+
+                const heading =
+                    item.querySelector("h6");
+
+                if (heading) {
+
+                    heading.textContent =
+                        `Staff ${index + 1}`;
+
+                }
+
+            }
+        );
+
+}
 
     /* ===============================
     EDIT STAFF

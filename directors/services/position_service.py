@@ -60,7 +60,6 @@ class PositionDataCreate:
         try:
             self._insert_many()
         except IntegrityError as e:
-            print(str(e))
             raise
         except Exception:
             raise

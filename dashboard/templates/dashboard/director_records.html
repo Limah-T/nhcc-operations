@@ -32,7 +32,6 @@ Director Management | NHCC Operations
             {% endfor %}
         {% endif %}
 
-
         <!-- =========================================================
              MAIN CARD
         ========================================================== -->
@@ -47,8 +46,8 @@ Director Management | NHCC Operations
                 ================================================== -->
 
                 <div
-                    class="d-flex justify-content-between align-items-start
-                           flex-wrap gap-3 mb-4">
+                    class="d-flex justify-content-between align-items-center
+                        flex-wrap gap-3 mb-4">
 
                     <div>
 
@@ -83,10 +82,13 @@ Director Management | NHCC Operations
 
                     <!-- ACTION DROPDOWNS -->
 
+
                     <div
-                        class="d-flex gap-2">
-
-
+                        class="d-flex
+                            align-items-center
+                            justify-content-center
+                            gap-3
+                            w-100">
                         <!-- POSITION ACTIONS -->
 
                         <div class="dropdown">
@@ -450,22 +452,30 @@ Director Management | NHCC Operations
 
                                 </th>
 
-                                <th class="py-3">
+                                <th class="py-3 text-center">
 
                                     Position
 
                                 </th>
 
-                                <th class="py-3">
+                                <th class="py-3 text-center">
 
                                     Nationality
 
                                 </th>
 
-                                <th class="py-3">
+                                <th class="py-3 text-center">
 
-                                    Contact
+                                    Email
 
+                                </th>
+                                 <th class="py-3 text-center">
+
+                                    Phone number
+
+                                </th>
+                                <th class="py-3 text-center">
+                                    Date Joined
                                 </th>
 
                                 <th
@@ -504,27 +514,13 @@ Director Management | NHCC Operations
                                             class="d-flex align-items-center
                                                    gap-3">
 
-                                            <div class="director-avatar">
 
-                                                {{ director.title.name|default:director.title|slice:":1" }}{{ director.first_name|slice:":1" }}{{ director.last_name|slice:":1" }}
+                                                <div class="fw-semibold text-nowrap">
 
-                                            </div>
-
-                                            <div>
-
-                                                <div class="fw-semibold">
-
-                                                    {{ director.title.name|default:director.title }}
-                                                    {{ director.first_name }}
-                                                    {{ director.last_name }}
+                                                    {{ director.title.name}}. 
+                                                    {{ director.first_name }} {{ director.last_name }}
 
                                                 </div>
-
-                                                <small class="text-muted">
-
-                                                    {{ director.email|default:"No email provided" }}
-
-                                                </small>
 
                                             </div>
 
@@ -533,7 +529,7 @@ Director Management | NHCC Operations
                                     </td>
 
 
-                                    <td>
+                                    <td style="width: 15%;" class="text-nowrap text-center">
 
                                         <span
                                             class="badge text-bg-light
@@ -546,28 +542,27 @@ Director Management | NHCC Operations
                                     </td>
 
 
-                                    <td>
+                                    <td style="width: 25%;" class="text-nowrap text-center">
 
-                                        {{ director.nationality.name|default:director.nationality }}
+                                        {{ director.get_nationality_display }}
 
                                     </td>
 
 
-                                    <td>
+                                    <td style="width: 25%;" class="text-nowrap text-center">
 
-                                        <div class="small">
+                                        <div>
 
-                                            <div>
+                                            <i
+                                                class="bi bi-envelope
+                                                        text-muted me-1">
+                                            </i>
 
-                                                <i
-                                                    class="bi bi-envelope
-                                                           text-muted me-1">
-                                                </i>
+                                            {{ director.email|default:"—" }}
 
-                                                {{ director.email|default:"—" }}
-
-                                            </div>
-
+                                        </div>
+                                    </td>
+                                    <td style="width: 25%;" class="text-nowrap text-center">
                                             <div>
 
                                                 <i
@@ -582,7 +577,9 @@ Director Management | NHCC Operations
                                         </div>
 
                                     </td>
-
+                                    <td style="width: 25%;" class="text-nowrap text-center">
+                                        {{ director.date_joined|date:"d M Y" }}
+                                    </td>
 
                                     <td class="text-end">
 
@@ -605,9 +602,10 @@ Director Management | NHCC Operations
                                                 data-first-name="{{ director.first_name }}"
                                                 data-last-name="{{ director.last_name }}"
                                                 data-position="{{ director.position.name|default:director.position }}"
-                                                data-nationality="{{ director.nationality.name|default:director.nationality }}"
+                                                data-nationality="{{ director.get_nationality_display }}"
                                                 data-email="{{ director.email }}"
-                                                data-phone="{{ director.phone_number }}">
+                                                data-phone="{{ director.phone_number }}"
+                                                data-date-joined="{{ director.date_joined|date:'d M Y' }}">
 
                                                 <i class="bi bi-eye"></i>
 
@@ -626,10 +624,11 @@ Director Management | NHCC Operations
                                                 data-first-name="{{ director.first_name }}"
                                                 data-last-name="{{ director.last_name }}"
                                                 data-position="{{ director.position.id|default:director.position }}"
-                                                data-nationality="{{ director.nationality.code|default:director.nationality }}"
+                                                data-nationality="{{ director.nationality }}"
                                                 data-email="{{ director.email }}"
-                                                data-phone="{{ director.phone_number }}">
-
+                                                data-phone="{{ director.phone_number }}"
+                                               data-date-joined="{{ director.date_joined|date:'Y-m-d' }}">
+                                            
                                                 <i
                                                     class="bi
                                                            bi-pencil-square">
@@ -657,27 +656,14 @@ Director Management | NHCC Operations
 
                                         <!-- MOBILE ACTIONS -->
 
-                                        <div
-                                            class="dropdown
-                                                   d-inline-block
-                                                   d-lg-none">
-
+                                        <div class="dropdown dropstart d-inline-block d-lg-none">
                                             <button
+                                                class="btn p-0 border-0 bg-transparent shadow-none"
                                                 type="button"
-                                                class="btn p-0 border-0
-                                                       bg-transparent
-                                                       shadow-none"
                                                 data-bs-toggle="dropdown"
                                                 aria-expanded="false">
-
-                                                <i
-                                                    class="bi
-                                                           bi-three-dots-vertical
-                                                           fs-5">
-                                                </i>
-
+                                                <i class="bi bi-three-dots-vertical fs-5 text-dark"></i>
                                             </button>
-
 
                                             <ul
                                                 class="dropdown-menu
@@ -698,9 +684,10 @@ Director Management | NHCC Operations
                                                         data-first-name="{{ director.first_name }}"
                                                         data-last-name="{{ director.last_name }}"
                                                         data-position="{{ director.position.name|default:director.position }}"
-                                                        data-nationality="{{ director.nationality.name|default:director.nationality }}"
+                                                        data-nationality="{{ director.get_nationality_display }}"
                                                         data-email="{{ director.email }}"
-                                                        data-phone="{{ director.phone_number }}">
+                                                        data-phone="{{ director.phone_number }}"
+                                                        data-date-joined="{{ director.date_joined|date:'d M Y' }}">
 
                                                         <i
                                                             class="bi bi-eye
@@ -728,7 +715,8 @@ Director Management | NHCC Operations
                                                         data-position="{{ director.position.id|default:director.position }}"
                                                         data-nationality="{{ director.nationality.code|default:director.nationality }}"
                                                         data-email="{{ director.email }}"
-                                                        data-phone="{{ director.phone_number }}">
+                                                        data-phone="{{ director.phone_number }}"
+                                                        data-date-joined="{{ director.date_joined|date:'Y-m-d' }}">
 
                                                         <i
                                                             class="bi
@@ -1004,6 +992,7 @@ Director Management | NHCC Operations
         class="modal-dialog modal-lg
                modal-dialog-scrollable
                modal-dialog-centered">
+     
 
         <div
             class="modal-content
@@ -1060,17 +1049,12 @@ Director Management | NHCC Operations
                 <!-- SCROLLABLE BODY -->
 
                 <div
-                    class="modal-body
-                           overflow-auto">
+                    class="modal-body"
+                    style="max-height: 70vh; overflow-y: auto;">
 
-                    <div
-                        class="alert alert-info
-                               rounded-4">
+                    <div class="alert alert-info rounded-4">
 
-                        <i
-                            class="bi bi-info-circle
-                                   me-2">
-                        </i>
+                        <i class="bi bi-info-circle me-2"></i>
 
                         Use <strong>Add More</strong>
                         to add another position field.
@@ -1098,6 +1082,16 @@ Director Management | NHCC Operations
                                     Position 1
 
                                 </h6>
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-danger btn-sm
+                                        remove-position">
+
+                                    <i class="bi bi-trash me-1"></i>
+
+                                    Remove
+
+                                </button>
 
                             </div>
 
@@ -1129,10 +1123,8 @@ Director Management | NHCC Operations
 
                 <div
                     class="modal-footer
-                           justify-content-between
-                           flex-wrap
-                           gap-2
-                           flex-shrink-0">
+                        justify-content-between
+                        flex-nowrap">
 
                     <button
                         id="addMorePosition"
@@ -1726,7 +1718,7 @@ Director Management | NHCC Operations
 
             <form
                 method="post"
-                action="#">
+                action="{% url 'director'%}">
 
                 {% csrf_token %}
 
@@ -1763,47 +1755,15 @@ Director Management | NHCC Operations
                 </div>
 
 
-                <div class="modal-body">
+                <div
+                    class="modal-body"
+                    style="max-height:70vh; overflow-y:auto;">
 
                     <div class="row g-3">
 
-                        <div class="col-12 col-md-4">
+                        <div class="col-12">
 
-                            <label class="form-label fw-semibold">
-
-                                Title
-
-                            </label>
-
-                            <select
-                                name="title"
-                                class="form-select"
-                                required>
-
-                                <option value="">
-
-                                    Select title
-
-                                </option>
-
-                                {% for title in titles %}
-
-                                    <option value="{{ title.id }}">
-
-                                        {{ title.name }}
-
-                                    </option>
-
-                                {% endfor %}
-
-                            </select>
-
-                        </div>
-
-
-                        <div class="col-12 col-md-4">
-
-                            <label class="form-label fw-semibold">
+                            <label class="form-label">
 
                                 First Name
 
@@ -1813,15 +1773,14 @@ Director Management | NHCC Operations
                                 type="text"
                                 name="first_name"
                                 class="form-control"
-                                placeholder="Enter first name"
                                 required>
 
                         </div>
 
 
-                        <div class="col-12 col-md-4">
+                        <div class="col-12">
 
-                            <label class="form-label fw-semibold">
+                            <label class="form-label">
 
                                 Last Name
 
@@ -1831,49 +1790,41 @@ Director Management | NHCC Operations
                                 type="text"
                                 name="last_name"
                                 class="form-control"
-                                placeholder="Enter last name"
                                 required>
 
                         </div>
+                        <div class="col-12">
 
+                            <label class="form-label">
 
-                        <div class="col-12 col-md-6">
-
-                            <label class="form-label fw-semibold">
-
-                                Position
+                                Email Address
 
                             </label>
 
-                            <select
-                                name="position"
-                                class="form-select"
-                                required>
-
-                                <option value="">
-
-                                    Select position
-
-                                </option>
-
-                                {% for position in positions %}
-
-                                    <option value="{{ position.id }}">
-
-                                        {{ position.name }}
-
-                                    </option>
-
-                                {% endfor %}
-
-                            </select>
+                            <input
+                                type="email"
+                                name="email"
+                                class="form-control">
 
                         </div>
-
-
                         <div class="col-12 col-md-6">
 
-                            <label class="form-label fw-semibold">
+                            <label class="form-label">
+
+                                Phone Number
+
+                            </label>
+
+                            <input
+                                type="text"
+                                name="phone_number"
+                                class="form-control">
+
+                        </div>
+                        
+                        <div class="col-12 col-md-6">
+
+                            <label class="form-label">
 
                                 Nationality
 
@@ -1904,45 +1855,93 @@ Director Management | NHCC Operations
 
                         </div>
 
+                        <div class="col-12 col-md-4">
 
-                        <div class="col-12 col-md-6">
+                            <label class="form-label">
 
-                            <label class="form-label fw-semibold">
-
-                                Email Address
+                                Title
 
                             </label>
 
-                            <input
-                                type="email"
-                                name="email"
-                                class="form-control"
-                                placeholder="director@example.com">
+                            <select
+                                name="title"
+                                class="form-select"
+                                required>
+
+                                <option value="">
+
+                                    Select title
+
+                                </option>
+
+                                {% for title in titles %}
+
+                                    <option value="{{ title.id }}">
+
+                                        {{ title.name }}
+
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
 
                         </div>
 
+                        <div class="col-12 col-md-4">
 
-                        <div class="col-12 col-md-6">
+                            <label class="form-label">
 
-                            <label class="form-label fw-semibold">
+                                Position
 
-                                Phone Number
+                            </label>
+
+                            <select
+                                name="position"
+                                class="form-select"
+                                required>
+
+                                <option value="">
+
+                                    Select position
+
+                                </option>
+
+                                {% for position in positions %}
+
+                                    <option value="{{ position.id }}">
+
+                                        {{ position.name }}
+
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+                        
+                        
+                        <div class="col-12 col-md-4">
+
+                            <label class="form-label">
+
+                                Date Joined
 
                             </label>
 
                             <input
-                                type="text"
-                                name="phone_number"
-                                class="form-control"
-                                placeholder="+234 000 000 0000">
+                                type="date"
+                                name="date_joined"
+                                class="form-control rounded-3"
+                                >
 
                         </div>
 
                     </div>
-
+                
                 </div>
-
-
                 <div class="modal-footer">
 
                     <button
@@ -1993,17 +1992,10 @@ Director Management | NHCC Operations
 
         <div class="modal-content rounded-4 border-0">
 
-            <form
-                method="post"
-                action="#">
-
+            <form method="post" action="{% url 'director'%}">
                 {% csrf_token %}
 
-                <input
-                    type="hidden"
-                    name="action"
-                    value="bulk">
-
+                <input type="hidden" name="action" value="bulk">
 
                 <div class="modal-header">
 
@@ -2061,11 +2053,116 @@ Director Management | NHCC Operations
                                     Director 1
 
                                 </h6>
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-danger btn-sm
+                                        remove-director">
+
+                                    <i class="bi bi-trash me-1"></i>
+
+                                    Remove
+
+                                </button>
+
 
                             </div>
 
 
                             <div class="row g-3">
+
+                                <div class="col-12">
+
+                                    <label class="form-label">
+
+                                        First Name
+
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        name="first_name"
+                                        class="form-control"
+                                        required>
+
+                                </div>
+
+
+                                <div class="col-12">
+
+                                    <label class="form-label">
+
+                                        Last Name
+
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        name="last_name"
+                                        class="form-control"
+                                        required>
+
+                                </div>
+                                <div class="col-12">
+
+                                    <label class="form-label">
+
+                                        Email Address
+
+                                    </label>
+
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        class="form-control">
+
+                                </div>
+                                <div class="col-12 col-md-6">
+
+                                    <label class="form-label">
+
+                                        Phone Number
+
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        name="phone_number"
+                                        class="form-control">
+
+                                </div>
+                                
+                                <div class="col-12 col-md-6">
+
+                                    <label class="form-label">
+
+                                        Nationality
+
+                                    </label>
+
+                                    <select
+                                        name="nationality"
+                                        class="form-select"
+                                        required>
+
+                                        <option value="">
+
+                                            Select nationality
+
+                                        </option>
+
+                                        {% for country in countries %}
+
+                                            <option value="{{ country.code }}">
+
+                                                {{ country.name }}
+
+                                            </option>
+
+                                        {% endfor %}
+
+                                    </select>
+
+                                </div>
 
                                 <div class="col-12 col-md-4">
 
@@ -2100,42 +2197,7 @@ Director Management | NHCC Operations
 
                                 </div>
 
-
                                 <div class="col-12 col-md-4">
-
-                                    <label class="form-label">
-
-                                        First Name
-
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        name="first_name"
-                                        class="form-control"
-                                        required>
-
-                                </div>
-
-
-                                <div class="col-12 col-md-4">
-
-                                    <label class="form-label">
-
-                                        Last Name
-
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        name="last_name"
-                                        class="form-control"
-                                        required>
-
-                                </div>
-
-
-                                <div class="col-12 col-md-6">
 
                                     <label class="form-label">
 
@@ -2168,73 +2230,26 @@ Director Management | NHCC Operations
 
                                 </div>
 
-
-                                <div class="col-12 col-md-6">
-
-                                    <label class="form-label">
-
-                                        Nationality
-
-                                    </label>
-
-                                    <select
-                                        name="nationality"
-                                        class="form-select"
-                                        required>
-
-                                        <option value="">
-
-                                            Select nationality
-
-                                        </option>
-
-                                        {% for country in countries %}
-
-                                            <option value="{{ country.code }}">
-
-                                                {{ country.name }}
-
-                                            </option>
-
-                                        {% endfor %}
-
-                                    </select>
-
-                                </div>
-
-
-                                <div class="col-12 col-md-6">
+                                
+                                
+                                <div class="col-12 col-md-4">
 
                                     <label class="form-label">
 
-                                        Email Address
+                                        Date Joined
 
                                     </label>
 
                                     <input
-                                        type="email"
-                                        name="email"
-                                        class="form-control">
-
-                                </div>
-
-
-                                <div class="col-12 col-md-6">
-
-                                    <label class="form-label">
-
-                                        Phone Number
-
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        name="phone_number"
-                                        class="form-control">
+                                        type="date"
+                                        name="date_joined"
+                                        class="form-control rounded-3"
+                                        >
 
                                 </div>
 
                             </div>
+
 
                         </div>
 
@@ -2242,29 +2257,30 @@ Director Management | NHCC Operations
 
                 </div>
 
-
                 <div
                     class="modal-footer
-                           justify-content-between
-                           flex-wrap gap-2">
+                        justify-content-between
+                        flex-nowrap">
 
                     <button
-                        id="addMoreDirector"
                         type="button"
-                        class="btn btn-outline-primary">
+                        class="btn btn-outline-primary rounded-3"
+                        id="addMoreDirector">
 
-                        <i class="bi bi-plus-circle me-2"></i>
+                        <i class="bi bi-plus-circle me-1"></i>
 
                         Add More
 
                     </button>
 
-
-                    <div class="d-flex gap-2">
+                    <div
+                        class="d-flex
+                            flex-nowrap
+                            gap-1">
 
                         <button
                             type="button"
-                            class="btn btn-light"
+                            class="btn btn-light rounded-3"
                             data-bs-dismiss="modal">
 
                             Cancel
@@ -2273,13 +2289,11 @@ Director Management | NHCC Operations
 
                         <button
                             type="submit"
-                            class="btn btn-primary">
+                            class="btn btn-primary rounded-3">
 
-                            <i
-                                class="bi bi-check-circle me-2">
-                            </i>
+                            <i class="bi bi-check-circle me-1"></i>
 
-                            Save Directors
+                            Save
 
                         </button>
 
@@ -2505,6 +2519,19 @@ Director Management | NHCC Operations
                                 </td>
 
                             </tr>
+                            <tr>
+                                <th
+                                   class="text-muted fw-semibold
+                                        py-3">
+                                    Date Joined
+                                </th>
+                                <td
+                                    id="viewDirectorDateJoined"
+                                    class="text-end py-3"
+                                    >
+
+                                </td>
+                            </tr>
 
                         </tbody>
 
@@ -2535,6 +2562,7 @@ Director Management | NHCC Operations
 </div>
 
 
+
 <!-- =============================================================
      EDIT DIRECTOR
 ============================================================== -->
@@ -2553,17 +2581,25 @@ Director Management | NHCC Operations
 
             <form
                 id="editDirectorForm"
-                method="post">
+                method="post"
+                class="d-flex flex-column">
 
                 {% csrf_token %}
+                <input type="hidden" name="action" value="single">
 
                 <input
                     id="editDirectorId"
                     type="hidden"
-                    name="director_id">
+                    
+                    name="director_id"
+                >
 
 
-                <div class="modal-header">
+                <!-- =================================================
+                     MODAL HEADER
+                ================================================== -->
+
+                <div class="modal-header flex-shrink-0">
 
                     <div>
 
@@ -2584,15 +2620,29 @@ Director Management | NHCC Operations
                     <button
                         type="button"
                         class="btn-close"
-                        data-bs-dismiss="modal">
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
                     </button>
 
                 </div>
 
 
-                <div class="modal-body">
+                <!-- =================================================
+                     SCROLLABLE MODAL BODY
+                ================================================== -->
+
+                <div
+                    class="modal-body"
+                    style="
+                        max-height: 70vh;
+                        overflow-y: auto;
+                        overflow-x: hidden;
+                    ">
 
                     <div class="row g-3">
+
+
+                        <!-- TITLE -->
 
                         <div class="col-12 col-md-4">
 
@@ -2629,6 +2679,8 @@ Director Management | NHCC Operations
                         </div>
 
 
+                        <!-- FIRST NAME -->
+
                         <div class="col-12 col-md-4">
 
                             <label class="form-label fw-semibold">
@@ -2647,6 +2699,8 @@ Director Management | NHCC Operations
                         </div>
 
 
+                        <!-- LAST NAME -->
+
                         <div class="col-12 col-md-4">
 
                             <label class="form-label fw-semibold">
@@ -2664,6 +2718,8 @@ Director Management | NHCC Operations
 
                         </div>
 
+
+                        <!-- POSITION -->
 
                         <div class="col-12 col-md-6">
 
@@ -2700,6 +2756,8 @@ Director Management | NHCC Operations
                         </div>
 
 
+                        <!-- NATIONALITY -->
+
                         <div class="col-12 col-md-6">
 
                             <label class="form-label fw-semibold">
@@ -2735,6 +2793,8 @@ Director Management | NHCC Operations
                         </div>
 
 
+                        <!-- EMAIL -->
+
                         <div class="col-12 col-md-6">
 
                             <label class="form-label fw-semibold">
@@ -2752,6 +2812,8 @@ Director Management | NHCC Operations
                         </div>
 
 
+                        <!-- PHONE NUMBER -->
+
                         <div class="col-12 col-md-6">
 
                             <label class="form-label fw-semibold">
@@ -2768,12 +2830,41 @@ Director Management | NHCC Operations
 
                         </div>
 
+
+                        <!-- DATE JOINED -->
+
+                        <div class="col-12">
+
+                            <label class="form-label fw-semibold">
+
+                                Date Joined
+
+                            </label>
+
+                            <input
+                                id="editDirectorDateJoined"
+                                type="date"
+                                name="date_joined"
+                                class="form-control">
+
+                        </div>
+
+
                     </div>
 
                 </div>
 
 
-                <div class="modal-footer">
+                <!-- =================================================
+                     MODAL FOOTER
+                ================================================== -->
+
+                <div
+                    class="modal-footer
+                           flex-shrink-0
+                           justify-content-end
+                           flex-wrap
+                           gap-2">
 
                     <button
                         type="button"
@@ -2806,7 +2897,6 @@ Director Management | NHCC Operations
 
 </div>
 
-
 <!-- =============================================================
      DELETE ONE DIRECTOR
 ============================================================== -->
@@ -2826,6 +2916,7 @@ Director Management | NHCC Operations
                 method="post">
 
                 {% csrf_token %}
+                <input type="hidden" name="action" value="single">
 
                 <input
                     id="deleteDirectorId"
@@ -2925,10 +3016,11 @@ Director Management | NHCC Operations
     <div class="modal-dialog">
 
         <div class="modal-content rounded-4 border-0">
+            <input type="hidden" name="action" value="bulk">
 
             <form
                 method="post"
-                action="#">
+                action="{% url 'delete_directors'%}">
 
                 {% csrf_token %}
 
@@ -3436,6 +3528,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     "viewDirectorPhone",
                     button.dataset.phone
                 );
+                setText(
+                    "viewDirectorDateJoined",
+                    button.dataset.dateJoined
+                );
 
             }
         );
@@ -3497,6 +3593,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 setValue(
                     "editDirectorPhone",
                     button.dataset.phone
+                );
+                setValue(
+                    "editDirectorDateJoined",
+                    button.dataset.dateJoined
                 );
 
                 const form =
@@ -3883,6 +3983,73 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
     }
+    document.addEventListener(
+        "click",
+        function (event) {
+
+            const removePosition = event.target.closest(
+                ".remove-position"
+            );
+
+            if (removePosition) {
+
+                const item = removePosition.closest(
+                    ".bulk-position-item"
+                );
+
+                const container = document.getElementById(
+                    "bulkPositionContainer"
+                );
+
+                /*
+                * Keep at least one position form.
+                */
+
+                if (
+                    container.querySelectorAll(
+                        ".bulk-position-item"
+                    ).length > 1
+                ) {
+
+                    item.remove();
+
+                }
+
+            }
+
+
+            const removeDirector = event.target.closest(
+                ".remove-director"
+            );
+
+            if (removeDirector) {
+
+                const item = removeDirector.closest(
+                    ".bulk-director-item"
+                );
+
+                const container = document.getElementById(
+                    "bulkDirectorContainer"
+                );
+
+                /*
+                * Keep at least one director form.
+                */
+
+                if (
+                    container.querySelectorAll(
+                        ".bulk-director-item"
+                    ).length > 1
+                ) {
+
+                    item.remove();
+
+                }
+
+            }
+
+        }
+    );
 
 
     /* =========================================================
