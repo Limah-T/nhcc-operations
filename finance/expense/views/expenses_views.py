@@ -31,19 +31,12 @@ def expenseOverview(request):
 
     )
 
-@login_required
-def expenseFilter(request):
-    print(request)
-    return redirect(expense_url_name)
-
 @method_decorator(login_required, "dispatch")
 class ExpenseManagementView(View):
 
     def get(self, request):
-        print("IN MANAGEMENT")
         start_date = request.GET.get("start_date")
         end_date = request.GET.get("end_date")
-        print(start_date, end_date)
         form = DateForm(data={"start_date":start_date, "end_date":end_date})
         if form.is_valid():
             start_date = form.cleaned_data["start_date"]
@@ -59,7 +52,6 @@ class ExpenseManagementView(View):
     def _handle_single_action(self, request):
         """Orchestrates single workflow"""
         field_data = ExpensePayloadParser(request).parse_single()
-        print("field_data", field_data)
         
         form = ExpenseForm(data=field_data)
         if form.is_valid():

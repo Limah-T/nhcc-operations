@@ -36,41 +36,10 @@ class ExpenseRecordCalculator:
         self.current_month = timezone.now().month
         self.current_year = timezone.now().year
 
-    def total_monthly_records(
-            self, queryset:Expense, start_date=None, end_date=None
-        ) -> Decimal:
-        if start_date and end_date:
-            summ =  sum(
-                item.total for item in queryset 
-                if item.created_at and (
-                    item.created_at.month == start_date.month and 
-                    item.created_at.year == end_date.year
-                ) 
-            )
-            return summ
-
+    def total_monthly_records(self, queryset:Expense) -> Decimal:
         return sum(
-            item.total for item in queryset 
-            if item.created_at and (
-                item.created_at.month == self.current_month and 
-                item.created_at.year == self.current_year
-            ) 
-        )
-
-    def count_monthly_records(
-            self, start_date=None, end_date=None) -> int:
-        if start_date and end_date:
-            return Expense.objects.filter(
-                    created_at__gte=start_date, 
-                    created_at__lte=end_date
-            ).count()
-        
-        now = timezone.now()
-        start_date, end_date = date_constructor(now.year, now.month)
-        return Expense.objects.filter(
-                created_at__gte=start_date, 
-                created_at__lte=end_date
-        ).count()
+            item.total for item in queryset
+        ) 
 
     def total_annual_records(
             self, queryset:Expense, year:int=None) -> Decimal:
@@ -100,7 +69,7 @@ class ExpenseDataRetrieval:
             return Expense.objects.select_related(
                 "category").filter(
                     created_at__gte=start_date, 
-                    created_at__lt=end_date
+                    created_at__lte=end_date
                 ).order_by("category__name")
 
         now = timezone.now()
@@ -108,8 +77,9 @@ class ExpenseDataRetrieval:
         return Expense.objects.select_related(
             "category").filter(
                 created_at__gte=start_date, 
-                created_at__lt=end_date
+                created_at__lte=end_date
             ).order_by("category__name")
+
 
     @staticmethod
     def retrieve_locked_bulk_expenses(expense_ids) -> Expense:
@@ -122,7 +92,7 @@ def expense_context_data(user, start_date=None, end_date=None):
     categories = CategoryDataRetrieval().retrieve_all()
     expenses = ExpenseDataRetrieval().retrieve_all_with_category(start_date, end_date)
     calculator = ExpenseRecordCalculator()
-    total_expenses = calculator.total_monthly_records(expenses, start_date, end_date)
+    total_expenses = calculator.total_monthly_records(expenses)
     
     return {
         "categories":categories,
