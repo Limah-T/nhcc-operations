@@ -48,7 +48,7 @@ class ExpenseManagementView(View):
         if form.is_valid():
             start_date = form.cleaned_data["start_date"]
             end_date = form.cleaned_data["end_date"]
-            
+
         return render(
             request=request, 
             template_name=expense_record_temp_name,
@@ -59,6 +59,7 @@ class ExpenseManagementView(View):
     def _handle_single_action(self, request):
         """Orchestrates single workflow"""
         field_data = ExpensePayloadParser(request).parse_single()
+        print("field_data", field_data)
         
         form = ExpenseForm(data=field_data)
         if form.is_valid():

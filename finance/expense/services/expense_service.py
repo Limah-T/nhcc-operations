@@ -40,13 +40,14 @@ class ExpenseRecordCalculator:
             self, queryset:Expense, start_date=None, end_date=None
         ) -> Decimal:
         if start_date and end_date:
-            return sum(
+            summ =  sum(
                 item.total for item in queryset 
                 if item.created_at and (
                     item.created_at.month == start_date.month and 
                     item.created_at.year == end_date.year
                 ) 
             )
+            return summ
 
         return sum(
             item.total for item in queryset 
@@ -101,7 +102,7 @@ class ExpenseDataRetrieval:
                     created_at__gte=start_date, 
                     created_at__lt=end_date
                 ).order_by("category__name")
-        
+
         now = timezone.now()
         start_date, end_date = date_constructor(now.year, now.month)
         return Expense.objects.select_related(
