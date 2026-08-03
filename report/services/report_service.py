@@ -22,8 +22,8 @@ def build_image_url():
 def monthly_expenses_cxt_data(user, start_date, end_date, month, year)-> dict:
     queryset = ExpenseDataRetrieval().retrieve_all_with_category(start_date, end_date)
     expenses = ExpenseRecordCalculator()
-    total_expenses = expenses.total_monthly_records(queryset, start_date, end_date)
-    total_records = expenses.count_monthly_records(start_date, end_date)
+    total_expenses = expenses.total_monthly_records(queryset)
+    total_records = expenses.count()
     prepared_by = getFullName(user)
     generated_at = timezone.now()
     return {
@@ -43,7 +43,7 @@ def monthly_expenditure_cxt_data(user, start_date, end_date, month, year):
     ekedc_queryset = EKedcDataRetrieval().retrieve_by_month(start_date, end_date)
 
     total_expenses = ExpenseRecordCalculator().total_monthly_records(
-        expense_queryset, start_date, end_date)
+        expense_queryset)
     total_diesel = DieselRecordCalculator().total_monthly_records(
         diesel_queryset, start_date, end_date)
     total_ekedc = EkedcRecordCalculator().total_monthly_records(
