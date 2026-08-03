@@ -1,0 +1,745 @@
+{% extends "dashboard/dashboard_base.html" %}
+{% load static %}
+
+{% block title %}Review Membership Application{% endblock %}
+
+{% block content %}
+<div class="membership-review-page">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1>Review Membership Application</h1>
+            <p>
+                Review the application details, supporting information,
+                representatives, and uploaded documents.
+            </p>
+        </div>
+
+        <div class="page-header-actions">
+            <a
+                href="{% url 'membership:application_detail' application.id %}"
+                class="btn btn-outline"
+            >
+                <i class="fas fa-arrow-left"></i>
+                Back to Details
+            </a>
+        </div>
+    </div>
+
+    <!-- Application Summary -->
+    <section class="review-summary-card">
+        <div class="summary-header">
+            <div>
+                <span class="section-label">
+                    APPLICATION INFORMATION
+                </span>
+
+                <h2>
+                    {{ application.application_number|default:"Application" }}
+                </h2>
+            </div>
+
+            <span class="status-badge status-{{ application.status }}">
+                {{ application.get_status_display }}
+            </span>
+        </div>
+
+        <div class="summary-grid">
+
+            <div class="summary-item">
+                <span class="summary-label">
+                    Application Type
+                </span>
+
+                <strong>
+                    {{ application.get_application_type_display }}
+                </strong>
+            </div>
+
+            <div class="summary-item">
+                <span class="summary-label">
+                    Application Number
+                </span>
+
+                <strong>
+                    {{ application.application_number|default:"—" }}
+                </strong>
+            </div>
+
+            <div class="summary-item">
+                <span class="summary-label">
+                    Proposer
+                </span>
+
+                <strong>
+                    {{ application.general.proposer_name|default:"—" }}
+                </strong>
+            </div>
+
+            <div class="summary-item">
+                <span class="summary-label">
+                    Date Submitted
+                </span>
+
+                <strong>
+                    {{ application.created_at|date:"d M Y"|default:"—" }}
+                </strong>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- Review Layout -->
+    <div class="review-layout">
+
+        <!-- Main Review Content -->
+        <div class="review-main">
+
+            <!-- Applicant Details -->
+            <section class="review-card">
+
+                <div class="review-card-header">
+                    <div>
+                        <h3>Applicant Information</h3>
+                        <p>
+                            Review the applicant's personal information.
+                        </p>
+                    </div>
+
+                    <span class="review-status completed">
+                        <i class="fas fa-check-circle"></i>
+                        Information Provided
+                    </span>
+                </div>
+
+                <div class="review-details-grid">
+
+                    <div class="detail-item">
+                        <span>Full Name</span>
+                        <strong>
+                            {{ profile.title|default:"" }}
+                            {{ profile.first_name|default:"" }}
+                            {{ profile.last_name|default:"" }}
+                        </strong>
+                    </div>
+
+                    <div class="detail-item">
+                        <span>Nationality</span>
+                        <strong>
+                            {{ profile.nationality.name|default:"—" }}
+                        </strong>
+                    </div>
+
+                    <div class="detail-item">
+                        <span>Email Address</span>
+                        <strong>
+                            {{ profile.email|default:"—" }}
+                        </strong>
+                    </div>
+
+                    <div class="detail-item">
+                        <span>Phone Number</span>
+                        <strong>
+                            {{ profile.phone_number|default:"—" }}
+                        </strong>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- Application Details -->
+            <section class="review-card">
+
+                <div class="review-card-header">
+                    <div>
+                        <h3>Application Information</h3>
+                        <p>
+                            Review the information submitted by the applicant.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="review-response-list">
+
+                    <div class="review-response">
+                        <span class="response-label">
+                            Other Business Interests
+                        </span>
+
+                        <div class="response-content">
+                            {{ application.general.other_business_interests|default:"No information provided."|linebreaks }}
+                        </div>
+                    </div>
+
+                    <div class="review-response">
+                        <span class="response-label">
+                            Interest in Hungary
+                        </span>
+
+                        <div class="response-content">
+                            {{ application.general.interest_in_hungary|default:"No information provided."|linebreaks }}
+                        </div>
+                    </div>
+
+                    <div class="review-response">
+                        <span class="response-label">
+                            Main Challenges
+                        </span>
+
+                        <div class="response-content">
+                            {{ application.general.main_challenges|default:"No information provided."|linebreaks }}
+                        </div>
+                    </div>
+
+                    <div class="review-response">
+                        <span class="response-label">
+                            Areas the Chamber Can Assist
+                        </span>
+
+                        <div class="response-content">
+                            {{ application.general.areas_chamber_can_assist|default:"No information provided."|linebreaks }}
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- Type-Specific Details -->
+            <section class="review-card">
+
+                <div class="review-card-header">
+                    <div>
+                        <h3>
+                            {{ application.get_application_type_display }}
+                            Application Details
+                        </h3>
+
+                        <p>
+                            Information specific to this membership type.
+                        </p>
+                    </div>
+                </div>
+
+
+                {% if application.application_type == "individual" %}
+
+                    <div class="review-details-grid">
+
+                        <div class="detail-item">
+                            <span>
+                                Registered Business Name
+                            </span>
+
+                            <strong>
+                                {{ application.individual_applications.registered_business_name|default:"—" }}
+                            </strong>
+                        </div>
+
+                        <div class="detail-item">
+                            <span>
+                                Office Telephone
+                            </span>
+
+                            <strong>
+                                {{ application.individual_applications.office_telephone|default:"—" }}
+                            </strong>
+                        </div>
+
+                        <div class="detail-item full-width">
+                            <span>
+                                Type of Business
+                            </span>
+
+                            <strong>
+                                {{ application.individual_applications.type_of_business|default:"—" }}
+                            </strong>
+                        </div>
+
+                    </div>
+
+                {% elif application.application_type == "corporate" %}
+
+                    <div class="review-details-grid">
+
+                        <div class="detail-item">
+                            <span>Company Name</span>
+
+                            <strong>
+                                {{ application.corporate_applications.company_name|default:"—" }}
+                            </strong>
+                        </div>
+
+                        <div class="detail-item">
+                            <span>Registration Number</span>
+
+                            <strong>
+                                {{ application.corporate_applications.registration_number|default:"—" }}
+                            </strong>
+                        </div>
+
+                        <div class="detail-item">
+                            <span>Company Email</span>
+
+                            <strong>
+                                {{ application.corporate_applications.company_email|default:"—" }}
+                            </strong>
+                        </div>
+
+                        <div class="detail-item">
+                            <span>Company Telephone</span>
+
+                            <strong>
+                                {{ application.corporate_applications.company_telephone|default:"—" }}
+                            </strong>
+                        </div>
+
+                        <div class="detail-item">
+                            <span>Business Type</span>
+
+                            <strong>
+                                {{ application.corporate_applications.business_type|default:"—" }}
+                            </strong>
+                        </div>
+
+                        <div class="detail-item">
+                            <span>Holding Company</span>
+
+                            <strong>
+                                {{ application.corporate_applications.holding_company|default:"—" }}
+                            </strong>
+                        </div>
+
+                        <div class="detail-item">
+                            <span>Number of Employees</span>
+
+                            <strong>
+                                {{ application.corporate_applications.number_of_employees|default:"—" }}
+                            </strong>
+                        </div>
+
+                        <div class="detail-item">
+                            <span>Year Established</span>
+
+                            <strong>
+                                {{ application.corporate_applications.year_established|default:"—" }}
+                            </strong>
+                        </div>
+
+                        <div class="detail-item">
+                            <span>Website</span>
+
+                            {% if application.corporate_applications.website %}
+                                <a
+                                    href="{{ application.corporate_applications.website }}"
+                                    target="_blank"
+                                    rel="noopener"
+                                >
+                                    {{ application.corporate_applications.website }}
+                                </a>
+                            {% else %}
+                                <strong>—</strong>
+                            {% endif %}
+                        </div>
+
+                        <div class="detail-item">
+                            <span>Position</span>
+
+                            <strong>
+                                {{ application.corporate_applications.position|default:"—" }}
+                            </strong>
+                        </div>
+
+                        <div class="detail-item full-width">
+                            <span>Company Address</span>
+
+                            <strong>
+                                {{ application.corporate_applications.company_address|default:"—"|linebreaksbr }}
+                            </strong>
+                        </div>
+
+                        <div class="detail-item full-width">
+                            <span>Core Business</span>
+
+                            <strong>
+                                {{ application.corporate_applications.core_business|default:"—"|linebreaksbr }}
+                            </strong>
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+            </section>
+
+
+            <!-- Documents -->
+            <section class="review-card">
+
+                <div class="review-card-header">
+                    <div>
+                        <h3>Supporting Documents</h3>
+
+                        <p>
+                            Verify all documents submitted with this application.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="review-document-list">
+
+                    {% for document in application.documents.all %}
+
+                        <div class="review-document-item">
+
+                            <div class="document-information">
+
+                                <div class="document-icon">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+
+                                <div>
+                                    <h4>
+                                        {{ document.document_type.title }}
+                                    </h4>
+
+                                    <p>
+                                        Uploaded
+                                        {{ document.uploaded_at|date:"d M Y, H:i" }}
+                                    </p>
+                                </div>
+
+                            </div>
+
+                            <div class="document-actions">
+
+                                {% if document.verified %}
+
+                                    <span class="verification-badge verified">
+                                        <i class="fas fa-check-circle"></i>
+                                        Verified
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="verification-badge pending">
+                                        <i class="fas fa-clock"></i>
+                                        Pending Verification
+                                    </span>
+
+                                {% endif %}
+
+                                <a
+                                    href="{{ document.file.url }}"
+                                    target="_blank"
+                                    class="btn btn-sm btn-outline"
+                                >
+                                    <i class="fas fa-eye"></i>
+                                    View
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    {% empty %}
+
+                        <div class="empty-review-state">
+
+                            <i class="fas fa-folder-open"></i>
+
+                            <h4>
+                                No documents uploaded
+                            </h4>
+
+                            <p>
+                                No supporting documents are currently attached
+                                to this application.
+                            </p>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <!-- Review Decision Sidebar -->
+        <aside class="review-sidebar">
+
+            <section class="decision-card">
+
+                <div class="decision-card-header">
+
+                    <h3>
+                        Review Decision
+                    </h3>
+
+                    <p>
+                        Select the appropriate decision for this application.
+                    </p>
+
+                </div>
+
+                <form
+                    method="post"
+                    action="{% url 'membership:application_review' application.id %}"
+                    id="applicationReviewForm"
+                >
+
+                    {% csrf_token %}
+
+                    <div class="review-decision-options">
+
+                        <label class="decision-option approve">
+
+                            <input
+                                type="radio"
+                                name="decision"
+                                value="approved"
+                            >
+
+                            <span class="decision-option-content">
+
+                                <span class="decision-icon">
+                                    <i class="fas fa-check"></i>
+                                </span>
+
+                                <span>
+                                    <strong>
+                                        Approve Application
+                                    </strong>
+
+                                    <small>
+                                        Approve and proceed with membership.
+                                    </small>
+                                </span>
+
+                            </span>
+
+                        </label>
+
+
+                        <label class="decision-option review">
+
+                            <input
+                                type="radio"
+                                name="decision"
+                                value="under_review"
+                            >
+
+                            <span class="decision-option-content">
+
+                                <span class="decision-icon">
+                                    <i class="fas fa-search"></i>
+                                </span>
+
+                                <span>
+                                    <strong>
+                                        Keep Under Review
+                                    </strong>
+
+                                    <small>
+                                        Additional review is required.
+                                    </small>
+                                </span>
+
+                            </span>
+
+                        </label>
+
+
+                        <label class="decision-option reject">
+
+                            <input
+                                type="radio"
+                                name="decision"
+                                value="rejected"
+                            >
+
+                            <span class="decision-option-content">
+
+                                <span class="decision-icon">
+                                    <i class="fas fa-times"></i>
+                                </span>
+
+                                <span>
+                                    <strong>
+                                        Reject Application
+                                    </strong>
+
+                                    <small>
+                                        Reject the application and provide a reason.
+                                    </small>
+                                </span>
+
+                            </span>
+
+                        </label>
+
+                    </div>
+
+
+                    <div
+                        class="form-group rejection-reason-wrapper"
+                        id="rejectionReasonWrapper"
+                        hidden
+                    >
+
+                        <label for="rejectionReason">
+                            Rejection Reason
+                        </label>
+
+                        <textarea
+                            id="rejectionReason"
+                            name="rejection_reason"
+                            rows="5"
+                            placeholder="Enter the reason for rejecting this application..."
+                        ></textarea>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="reviewComment">
+                            Review Comment
+                        </label>
+
+                        <textarea
+                            id="reviewComment"
+                            name="review_comment"
+                            rows="5"
+                            placeholder="Add an internal review comment..."
+                        ></textarea>
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary btn-block"
+                    >
+
+                        <i class="fas fa-save"></i>
+
+                        Submit Review Decision
+
+                    </button>
+
+                </form>
+
+            </section>
+
+
+            <!-- Review Information -->
+            <section class="review-information-card">
+
+                <h4>
+                    <i class="fas fa-info-circle"></i>
+                    Review Information
+                </h4>
+
+                <div class="review-information-item">
+
+                    <span>
+                        Current Status
+                    </span>
+
+                    <strong>
+                        {{ application.get_status_display }}
+                    </strong>
+
+                </div>
+
+                <div class="review-information-item">
+
+                    <span>
+                        Previously Reviewed By
+                    </span>
+
+                    <strong>
+                        {{ application.reviewed_by|default:"Not reviewed" }}
+                    </strong>
+
+                </div>
+
+                <div class="review-information-item">
+
+                    <span>
+                        Last Reviewed
+                    </span>
+
+                    <strong>
+                        {{ application.reviewed_at|date:"d M Y, H:i"|default:"Not reviewed" }}
+                    </strong>
+
+                </div>
+
+            </section>
+
+        </aside>
+
+    </div>
+
+</div>
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const decisionInputs = document.querySelectorAll(
+        'input[name="decision"]'
+    );
+
+    const rejectionWrapper = document.getElementById(
+        "rejectionReasonWrapper"
+    );
+
+    const rejectionReason = document.getElementById(
+        "rejectionReason"
+    );
+
+
+    decisionInputs.forEach(function (input) {
+
+        input.addEventListener("change", function () {
+
+            if (this.value === "rejected") {
+
+                rejectionWrapper.hidden = false;
+
+                rejectionReason.required = true;
+
+            } else {
+
+                rejectionWrapper.hidden = true;
+
+                rejectionReason.required = false;
+
+                rejectionReason.value = "";
+
+            }
+
+        });
+
+    });
+
+});
+
+</script>
+
+{% endblock %}

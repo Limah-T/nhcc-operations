@@ -139,6 +139,845 @@
             <i class="bi bi-arrow-left-right"></i>
             Swipe left to view more columns
         </div>
+        <!-- =====================================================
+            EXPENSE DATE FILTER
+        ===================================================== -->
+
+        <div
+            class="card
+                border-0
+                shadow-sm
+                rounded-4
+                mb-4"
+        >
+            <div class="card-body p-3 p-md-4">
+
+                <div
+                    class="d-flex
+                        flex-column
+                        flex-lg-row
+                        justify-content-between
+                        align-items-lg-center
+                        gap-3"
+                >
+
+                    <!-- Filter Information -->
+
+                    <div>
+
+                        <h6 class="fw-bold mb-1">
+
+                            Filter Expenses
+
+                        </h6>
+
+                        <p class="text-muted small mb-0">
+
+                            Select a year, then choose a start
+                            and end date.
+
+                        </p>
+
+                    </div>
+
+
+                    <!-- Filter Form -->
+
+                    <form
+                        method="get"
+                        id="expenseDateFilterForm"
+                        class="d-flex
+                            flex-column
+                            flex-sm-row
+                            align-items-sm-end
+                            gap-2"
+                    >
+
+
+                        <!-- =================================================
+                            YEAR SELECTOR
+
+                            This is only for the user interface.
+
+                            It does NOT have a name attribute,
+                            so it will NOT be sent to Django.
+                        ================================================== -->
+
+                        <div>
+
+                            <label
+                                for="expenseYear"
+                                class="form-label
+                                    small
+                                    fw-semibold
+                                    mb-1"
+                            >
+
+                                Select Year
+
+                            </label>
+
+                            <select
+                                id="expenseYear"
+                                class="form-select"
+                            >
+
+                                <!-- JavaScript adds years here -->
+
+                            </select>
+
+                        </div>
+
+                        <script>
+                            document.addEventListener(
+                "DOMContentLoaded",
+                function () {
+
+
+                    /* ================================================
+                    GET ELEMENTS
+                    ================================================= */
+
+                    const expenseYear =
+
+                        document.getElementById(
+                            "expenseYear"
+                        );
+
+
+                    const openExpenseDateModal =
+
+                        document.getElementById(
+                            "openExpenseDateModal"
+                        );
+
+
+                    const expenseDateRangeModal =
+
+                        document.getElementById(
+                            "expenseDateRangeModal"
+                        );
+
+
+                    const selectedExpenseYearText =
+
+                        document.getElementById(
+                            "selectedExpenseYearText"
+                        );
+
+
+                    const expenseStartDate =
+
+                        document.getElementById(
+                            "expenseStartDate"
+                        );
+
+
+                    const expenseEndDate =
+
+                        document.getElementById(
+                            "expenseEndDate"
+                        );
+
+
+                    const selectedExpenseStartDate =
+
+                        document.getElementById(
+                            "selectedExpenseStartDate"
+                        );
+
+
+                    const selectedExpenseEndDate =
+
+                        document.getElementById(
+                            "selectedExpenseEndDate"
+                        );
+
+
+                    const applyExpenseDateFilter =
+
+                        document.getElementById(
+                            "applyExpenseDateFilter"
+                        );
+
+
+                    const expenseDateFilterForm =
+
+                        document.getElementById(
+                            "expenseDateFilterForm"
+                        );
+
+
+                    const expenseDateRangeError =
+
+                        document.getElementById(
+                            "expenseDateRangeError"
+                        );
+
+
+                    /* ================================================
+                    SAFETY CHECK
+                    ================================================= */
+
+                    if (
+
+                        !expenseYear ||
+
+                        !openExpenseDateModal ||
+
+                        !expenseDateRangeModal ||
+
+                        !selectedExpenseYearText ||
+
+                        !expenseStartDate ||
+
+                        !expenseEndDate ||
+
+                        !selectedExpenseStartDate ||
+
+                        !selectedExpenseEndDate ||
+
+                        !applyExpenseDateFilter ||
+
+                        !expenseDateFilterForm ||
+
+                        !expenseDateRangeError
+
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    /* ================================================
+                    GENERATE YEARS
+
+                    Starts at 2023.
+
+                    Ends at the current year automatically.
+                    ================================================= */
+
+                    const currentYear =
+
+                        new Date().getFullYear();
+
+
+                    const firstYear =
+
+                        2023;
+
+
+                    /* Default option */
+
+                    const defaultYearOption =
+
+                        document.createElement(
+                            "option"
+                        );
+
+
+                    defaultYearOption.value = "";
+
+
+                    defaultYearOption.textContent =
+
+                        "Select year";
+
+
+                    expenseYear.appendChild(
+
+                        defaultYearOption
+
+                    );
+
+
+                    /* Add years */
+
+                    for (
+
+                        let year = currentYear;
+
+                        year >= firstYear;
+
+                        year--
+
+                    ) {
+
+
+                        const yearOption =
+
+                            document.createElement(
+                                "option"
+                            );
+
+
+                        yearOption.value = year;
+
+
+                        yearOption.textContent = year;
+
+
+                        expenseYear.appendChild(
+
+                            yearOption
+
+                        );
+
+                    }
+
+
+                    /* ================================================
+                    ENABLE DATE BUTTON
+
+                    Only after a year is selected.
+                    ================================================= */
+
+                    expenseYear.addEventListener(
+
+                        "change",
+
+                        function () {
+
+
+                            openExpenseDateModal.disabled =
+
+                                !this.value;
+
+                        }
+
+                    );
+
+
+                    /* ================================================
+                    OPEN DATE MODAL
+                    ================================================= */
+
+                    openExpenseDateModal.addEventListener(
+
+                        "click",
+
+                        function () {
+
+
+                            const year =
+
+                                expenseYear.value;
+
+
+                            if (!year) {
+
+                                return;
+
+                            }
+
+
+                            /* Display selected year */
+
+                            selectedExpenseYearText.textContent =
+
+                                year;
+
+
+                            /* Limit dates to selected year */
+
+                            const minimumDate =
+
+                                `${year}-01-01`;
+
+
+                            const maximumDate =
+
+                                `${year}-12-31`;
+
+
+                            expenseStartDate.min =
+
+                                minimumDate;
+
+
+                            expenseStartDate.max =
+
+                                maximumDate;
+
+
+                            expenseEndDate.min =
+
+                                minimumDate;
+
+
+                            expenseEndDate.max =
+
+                                maximumDate;
+
+
+                            /* Clear previous error */
+
+                            expenseDateRangeError
+
+                                .classList
+
+                                .add(
+                                    "d-none"
+                                );
+
+
+                            /* Open Bootstrap modal */
+
+                            const modal =
+
+                                new bootstrap.Modal(
+
+                                    expenseDateRangeModal
+
+                                );
+
+
+                            modal.show();
+
+                        }
+
+                    );
+
+
+                    /* ================================================
+                    APPLY DATE FILTER
+                    ================================================= */
+
+                    applyExpenseDateFilter.addEventListener(
+
+                        "click",
+
+                        function () {
+
+
+                            const startDate =
+
+                                expenseStartDate.value;
+
+
+                            const endDate =
+
+                                expenseEndDate.value;
+
+
+                            /* Clear previous error */
+
+                            expenseDateRangeError
+
+                                .classList
+
+                                .add(
+                                    "d-none"
+                                );
+
+
+                            /* Validate empty dates */
+
+                            if (
+
+                                !startDate ||
+
+                                !endDate
+
+                            ) {
+
+
+                                expenseDateRangeError
+
+                                    .textContent =
+
+                                    "Please select both a start date and an end date.";
+
+
+                                expenseDateRangeError
+
+                                    .classList
+
+                                    .remove(
+                                        "d-none"
+                                    );
+
+
+                                return;
+
+                            }
+
+
+                            /* Validate date order */
+
+                            if (
+
+                                startDate > endDate
+
+                            ) {
+
+
+                                expenseDateRangeError
+
+                                    .textContent =
+
+                                    "The start date cannot be later than the end date.";
+
+
+                                expenseDateRangeError
+
+                                    .classList
+
+                                    .remove(
+                                        "d-none"
+                                    );
+
+
+                                return;
+
+                            }
+
+
+                            /* Put dates into GET form */
+
+                            selectedExpenseStartDate.value =
+
+                                startDate;
+
+
+                            selectedExpenseEndDate.value =
+
+                                endDate;
+
+
+                            /* Submit only:
+
+                            start_date
+
+                            end_date
+
+                            */
+
+                            expenseDateFilterForm.submit();
+
+                        }
+
+                    );
+
+
+                }
+
+            );
+                        </script>
+                        <!-- =================================================
+                            OPEN DATE MODAL
+                        ================================================== -->
+
+                        <div>
+
+                            <button
+                                type="button"
+                                id="openExpenseDateModal"
+                                class="btn
+                                    btn-primary
+                                    w-100"
+                                disabled
+                            >
+
+                                <i
+                                    class="bi
+                                        bi-calendar-range
+                                        me-1"
+                                ></i>
+
+                                Select Date Range
+
+                            </button>
+
+                        </div>
+
+
+                        <!-- =================================================
+                            RESET
+                        ================================================== -->
+
+                        <div>
+
+                            <a
+                                href="{% url 'expenses'%}"
+                                class="btn
+                                    btn-light
+                                    border
+                                    w-100"
+                            >
+
+                                <i
+                                    class="bi
+                                        bi-arrow-counterclockwise
+                                        me-1"
+                                ></i>
+
+                                Reset
+
+                            </a>
+
+                        </div>
+
+
+                        <!-- =================================================
+                            ONLY THESE TWO VALUES GO TO THE BACKEND
+                        ================================================== -->
+
+                        <input
+                            type="hidden"
+                            name="start_date"
+                            id="selectedExpenseStartDate"
+                            value="{{ request.GET.start_date }}"
+                        >
+
+                        <input
+                            type="hidden"
+                            name="end_date"
+                            id="selectedExpenseEndDate"
+                            value="{{ request.GET.end_date }}"
+                        >
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- =====================================================
+            DATE RANGE MODAL
+        ===================================================== -->
+
+        <div
+            class="modal fade"
+            id="expenseDateRangeModal"
+            tabindex="-1"
+            aria-hidden="true"
+        >
+
+        ```
+        <div
+            class="modal-dialog
+                modal-dialog-centered"
+        >
+
+            <div
+                class="modal-content
+                    border-0
+                    rounded-4"
+            >
+
+
+                <!-- Modal Header -->
+
+                <div
+                    class="modal-header
+                        border-0"
+                >
+
+                    <div>
+
+                        <h5
+                            class="modal-title
+                                fw-bold
+                                mb-1"
+                        >
+
+                            Select Expense Date Range
+
+                        </h5>
+
+                        <p
+                            class="text-muted
+                                small
+                                mb-0"
+                        >
+
+                            Choose dates within the selected year.
+
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                    ></button>
+
+                </div>
+
+
+                <!-- Modal Body -->
+
+                <div
+                    class="modal-body
+                        pt-2"
+                >
+
+                    <div
+                        class="alert
+                            alert-primary
+                            border-0
+                            rounded-3
+                            small"
+                    >
+
+                        <i
+                            class="bi
+                                bi-calendar-event
+                                me-1"
+                        ></i>
+
+                        Selected Year:
+
+                        <strong
+                            id="selectedExpenseYearText"
+                        >
+
+                            —
+
+                        </strong>
+
+                    </div>
+
+
+                    <div
+                        class="row
+                            g-3"
+                    >
+
+
+                        <!-- Start Date -->
+
+                        <div class="col-12">
+
+                            <label
+                                for="expenseStartDate"
+                                class="form-label
+                                    fw-semibold"
+                            >
+
+                                Start Date
+
+                                <span class="text-danger">
+
+                                    *
+
+                                </span>
+
+                            </label>
+
+
+                            <input
+                                type="date"
+                                id="expenseStartDate"
+                                class="form-control"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- End Date -->
+
+                        <div class="col-12">
+
+                            <label
+                                for="expenseEndDate"
+                                class="form-label
+                                    fw-semibold"
+                            >
+
+                                End Date
+
+                                <span class="text-danger">
+
+                                    *
+
+                                </span>
+
+                            </label>
+
+
+                            <input
+                                type="date"
+                                id="expenseEndDate"
+                                class="form-control"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Date Error -->
+
+                    <div
+                        id="expenseDateRangeError"
+                        class="alert
+                            alert-danger
+                            small
+                            mt-3
+                            mb-0
+                            d-none"
+                    >
+
+                    </div>
+
+                </div>
+
+
+                <!-- Modal Footer -->
+
+                <div
+                    class="modal-footer
+                        border-0"
+                >
+
+                    <button
+                        type="button"
+                        class="btn
+                            btn-light
+                            border"
+                        data-bs-dismiss="modal"
+                    >
+
+                        Cancel
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="applyExpenseDateFilter"
+                        class="btn
+                            btn-primary"
+                    >
+
+                        <i
+                            class="bi
+                                bi-search
+                                me-1"
+                        ></i>
+
+                        Search Expenses
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        </div>
+
         <div class="table-responsive expense-table-container">
                 <table class="table table-hover align-middle mb-0" style="min-width: 900px;">
 
@@ -1526,6 +2365,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
     }
+
 
 });
 </script>

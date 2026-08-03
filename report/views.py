@@ -10,11 +10,10 @@ from django.views import View
 from account.services.profile_service import getNameAvatar
 from dashboard.views import report_temp_name
 from nhcc_operations.services.http_response_services import error_response
+from core.utils.pdf_generator import pdf_generator, file_naming_constructor
 from .forms import ReportForm
 from .services.report_service import (
-    pdf_generator, get_template_context,
-    file_naming_constructor, build_image_url, 
-    url_name
+    get_template_context, build_image_url, url_name
 )
 import os
 load_dotenv()

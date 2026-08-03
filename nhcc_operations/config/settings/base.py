@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'widget_tweaks',
     # 'silk',
     'django_countries',
     'account',
@@ -35,7 +36,7 @@ INSTALLED_APPS = [
     'templating',
     'core',
     'directors',
-    'members',
+    'membership',
 ]
 
 MIDDLEWARE = [

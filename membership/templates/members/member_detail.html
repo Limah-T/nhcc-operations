@@ -1,0 +1,1483 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}
+    Member Details
+{% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <!-- Page Header -->
+    <div class="d-flex flex-column flex-lg-row
+                justify-content-between
+                align-items-lg-center
+                gap-3
+                mb-4">
+
+        <div>
+
+            <div class="d-flex align-items-center gap-2 mb-2">
+
+                <a
+                    href="{% url 'membership:member_list' %}"
+                    class="btn btn-sm btn-light"
+                    title="Back to members"
+                >
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+
+                <span class="text-muted small">
+                    Members / Member Details
+                </span>
+
+            </div>
+
+            <h1 class="h3 mb-1">
+
+                {{ member.profile.first_name }}
+                {{ member.profile.last_name }}
+
+            </h1>
+
+            <p class="text-muted mb-0">
+
+                Membership application:
+
+                <strong>
+                    {{ member.application.application_number|default:"Not assigned" }}
+                </strong>
+
+            </p>
+
+        </div>
+
+
+        <!-- Page Actions -->
+        <div class="d-flex flex-wrap gap-2">
+
+            <a
+                href="{% url 'membership:member_list' %}"
+                class="btn btn-outline-secondary"
+            >
+
+                <i class="bi bi-list me-1"></i>
+
+                All Members
+
+            </a>
+
+
+            <a
+                href="{% url 'membership:application_detail' member.application.pk %}"
+                class="btn btn-outline-primary"
+            >
+
+                <i class="bi bi-file-earmark-text me-1"></i>
+
+                View Application
+
+            </a>
+
+
+            <a
+                href="{% url 'membership:member_edit' member.pk %}"
+                class="btn btn-primary"
+            >
+
+                <i class="bi bi-pencil-square me-1"></i>
+
+                Edit Member
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- Membership Summary -->
+    <div class="row g-3 mb-4">
+
+        <!-- Membership Type -->
+        <div class="col-12 col-md-6 col-xl-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <p class="text-muted
+                              text-uppercase
+                              small
+                              fw-semibold
+                              mb-2">
+
+                        Membership Type
+
+                    </p>
+
+
+                    {% if member.application.application_type == "individual" %}
+
+                        <span
+                            class="badge
+                                   bg-success-subtle
+                                   text-success
+                                   border
+                                   border-success-subtle
+                                   px-3
+                                   py-2"
+                        >
+
+                            <i class="bi bi-person me-1"></i>
+
+                            Individual
+
+                        </span>
+
+                    {% elif member.application.application_type == "corporate" %}
+
+                        <span
+                            class="badge
+                                   bg-info-subtle
+                                   text-info-emphasis
+                                   border
+                                   border-info-subtle
+                                   px-3
+                                   py-2"
+                        >
+
+                            <i class="bi bi-building me-1"></i>
+
+                            Corporate
+
+                        </span>
+
+                    {% else %}
+
+                        <span class="text-muted">
+
+                            Not specified
+
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Membership Status -->
+        <div class="col-12 col-md-6 col-xl-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <p class="text-muted
+                              text-uppercase
+                              small
+                              fw-semibold
+                              mb-2">
+
+                        Application Status
+
+                    </p>
+
+
+                    {% if member.application.status == "approved" %}
+
+                        <span
+                            class="badge
+                                   bg-success-subtle
+                                   text-success
+                                   border
+                                   border-success-subtle
+                                   px-3
+                                   py-2"
+                        >
+
+                            <i class="bi bi-check-circle me-1"></i>
+
+                            Approved
+
+                        </span>
+
+                    {% elif member.application.status == "suspended" %}
+
+                        <span
+                            class="badge
+                                   bg-danger-subtle
+                                   text-danger
+                                   border
+                                   border-danger-subtle
+                                   px-3
+                                   py-2"
+                        >
+
+                            <i class="bi bi-pause-circle me-1"></i>
+
+                            Suspended
+
+                        </span>
+
+                    {% else %}
+
+                        <span
+                            class="badge
+                                   bg-secondary-subtle
+                                   text-secondary
+                                   border
+                                   px-3
+                                   py-2"
+                        >
+
+                            {{ member.application.get_status_display }}
+
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Date Joined -->
+        <div class="col-12 col-md-6 col-xl-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <p class="text-muted
+                              text-uppercase
+                              small
+                              fw-semibold
+                              mb-2">
+
+                        Date Joined
+
+                    </p>
+
+                    <h6 class="mb-0">
+
+                        {% if member.application.date_joined %}
+
+                            {{ member.application.date_joined|date:"d M Y" }}
+
+                        {% else %}
+
+                            <span class="text-muted">
+
+                                Not recorded
+
+                            </span>
+
+                        {% endif %}
+
+                    </h6>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Proposer -->
+        <div class="col-12 col-md-6 col-xl-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <p class="text-muted
+                              text-uppercase
+                              small
+                              fw-semibold
+                              mb-2">
+
+                        Proposed By
+
+                    </p>
+
+                    <h6 class="mb-0">
+
+                        {% if member.application.general.proposer %}
+
+                            {{ member.application.general.proposer }}
+
+                        {% else %}
+
+                            <span class="text-muted">
+
+                                Not assigned
+
+                            </span>
+
+                        {% endif %}
+
+                    </h6>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="row g-4">
+
+        <!-- Left Column -->
+        <div class="col-12 col-xl-8">
+
+
+            <!-- Profile Information -->
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header
+                            bg-white
+                            border-bottom
+                            py-3">
+
+                    <div class="d-flex
+                                justify-content-between
+                                align-items-center">
+
+                        <div>
+
+                            <h5 class="mb-1">
+
+                                Profile Information
+
+                            </h5>
+
+                            <p class="text-muted
+                                      small
+                                      mb-0">
+
+                                Personal and contact information.
+
+                            </p>
+
+                        </div>
+
+
+                        <a
+                            href="{% url 'membership:member_edit' member.pk %}"
+                            class="btn
+                                   btn-sm
+                                   btn-outline-primary"
+                        >
+
+                            <i class="bi bi-pencil me-1"></i>
+
+                            Edit
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div class="row g-4">
+
+
+                        <!-- Title -->
+                        <div class="col-12 col-md-4">
+
+                            <p class="text-muted
+                                      small
+                                      mb-1">
+
+                                Title
+
+                            </p>
+
+                            <p class="fw-semibold mb-0">
+
+                                {{ member.profile.title|default:"—" }}
+
+                            </p>
+
+                        </div>
+
+
+                        <!-- First Name -->
+                        <div class="col-12 col-md-4">
+
+                            <p class="text-muted
+                                      small
+                                      mb-1">
+
+                                First Name
+
+                            </p>
+
+                            <p class="fw-semibold mb-0">
+
+                                {{ member.profile.first_name }}
+
+                            </p>
+
+                        </div>
+
+
+                        <!-- Last Name -->
+                        <div class="col-12 col-md-4">
+
+                            <p class="text-muted
+                                      small
+                                      mb-1">
+
+                                Last Name
+
+                            </p>
+
+                            <p class="fw-semibold mb-0">
+
+                                {{ member.profile.last_name }}
+
+                            </p>
+
+                        </div>
+
+
+                        <!-- Nationality -->
+                        <div class="col-12 col-md-4">
+
+                            <p class="text-muted
+                                      small
+                                      mb-1">
+
+                                Nationality
+
+                            </p>
+
+                            <p class="fw-semibold mb-0">
+
+                                {{ member.profile.nationality.name|default:"—" }}
+
+                            </p>
+
+                        </div>
+
+
+                        <!-- Email -->
+                        <div class="col-12 col-md-4">
+
+                            <p class="text-muted
+                                      small
+                                      mb-1">
+
+                                Email Address
+
+                            </p>
+
+                            {% if member.profile.email %}
+
+                                <a
+                                    href="mailto:{{ member.profile.email }}"
+                                    class="fw-semibold
+                                           text-decoration-none"
+                                >
+
+                                    {{ member.profile.email }}
+
+                                </a>
+
+                            {% else %}
+
+                                <span class="text-muted">
+
+                                    —
+
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- Phone -->
+                        <div class="col-12 col-md-4">
+
+                            <p class="text-muted
+                                      small
+                                      mb-1">
+
+                                Phone Number
+
+                            </p>
+
+                            <p class="fw-semibold mb-0">
+
+                                {{ member.profile.phone_number|default:"—" }}
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Individual Application Details -->
+            {% if member.application.application_type == "individual" %}
+
+                <div class="card border-0 shadow-sm mb-4">
+
+                    <div class="card-header
+                                bg-white
+                                border-bottom
+                                py-3">
+
+                        <h5 class="mb-1">
+
+                            Individual Membership Details
+
+                        </h5>
+
+                        <p class="text-muted
+                                  small
+                                  mb-0">
+
+                            Information submitted for the
+                            individual membership application.
+
+                        </p>
+
+                    </div>
+
+
+                    <div class="card-body">
+
+                        {% with individual=member.application.individual_applications %}
+
+                            <div class="row g-4">
+
+                                <div class="col-12 col-md-4">
+
+                                    <p class="text-muted
+                                              small
+                                              mb-1">
+
+                                        Registered Business Name
+
+                                    </p>
+
+                                    <p class="fw-semibold mb-0">
+
+                                        {{ individual.registered_business_name|default:"—" }}
+
+                                    </p>
+
+                                </div>
+
+
+                                <div class="col-12 col-md-4">
+
+                                    <p class="text-muted
+                                              small
+                                              mb-1">
+
+                                        Office Telephone
+
+                                    </p>
+
+                                    <p class="fw-semibold mb-0">
+
+                                        {{ individual.office_telephone|default:"—" }}
+
+                                    </p>
+
+                                </div>
+
+
+                                <div class="col-12 col-md-4">
+
+                                    <p class="text-muted
+                                              small
+                                              mb-1">
+
+                                        Type of Business
+
+                                    </p>
+
+                                    <p class="fw-semibold mb-0">
+
+                                        {{ individual.type_of_business|default:"—" }}
+
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        {% endwith %}
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- Corporate Application Details -->
+            {% if member.application.application_type == "corporate" %}
+
+                <div class="card border-0 shadow-sm mb-4">
+
+                    <div class="card-header
+                                bg-white
+                                border-bottom
+                                py-3">
+
+                        <h5 class="mb-1">
+
+                            Corporate Membership Details
+
+                        </h5>
+
+                        <p class="text-muted
+                                  small
+                                  mb-0">
+
+                            Company information submitted
+                            with the membership application.
+
+                        </p>
+
+                    </div>
+
+
+                    <div class="card-body">
+
+                        {% with corporate=member.application.corporate_applications %}
+
+                            <div class="row g-4">
+
+                                <div class="col-12 col-md-6">
+
+                                    <p class="text-muted
+                                              small
+                                              mb-1">
+
+                                        Company Name
+
+                                    </p>
+
+                                    <p class="fw-semibold mb-0">
+
+                                        {{ corporate.company_name|default:"—" }}
+
+                                    </p>
+
+                                </div>
+
+
+                                <div class="col-12 col-md-6">
+
+                                    <p class="text-muted
+                                              small
+                                              mb-1">
+
+                                        Company Email
+
+                                    </p>
+
+                                    <p class="fw-semibold mb-0">
+
+                                        {{ corporate.company_email|default:"—" }}
+
+                                    </p>
+
+                                </div>
+
+
+                                <div class="col-12 col-md-6">
+
+                                    <p class="text-muted
+                                              small
+                                              mb-1">
+
+                                        Company Telephone
+
+                                    </p>
+
+                                    <p class="fw-semibold mb-0">
+
+                                        {{ corporate.company_telephone|default:"—" }}
+
+                                    </p>
+
+                                </div>
+
+
+                                <div class="col-12 col-md-6">
+
+                                    <p class="text-muted
+                                              small
+                                              mb-1">
+
+                                        Registration Number
+
+                                    </p>
+
+                                    <p class="fw-semibold mb-0">
+
+                                        {{ corporate.registration_number|default:"—" }}
+
+                                    </p>
+
+                                </div>
+
+
+                                <div class="col-12 col-md-6">
+
+                                    <p class="text-muted
+                                              small
+                                              mb-1">
+
+                                        Business Type
+
+                                    </p>
+
+                                    <p class="fw-semibold mb-0">
+
+                                        {{ corporate.business_type|default:"—" }}
+
+                                    </p>
+
+                                </div>
+
+
+                                <div class="col-12 col-md-6">
+
+                                    <p class="text-muted
+                                              small
+                                              mb-1">
+
+                                        Holding Company
+
+                                    </p>
+
+                                    <p class="fw-semibold mb-0">
+
+                                        {{ corporate.holding_company|default:"—" }}
+
+                                    </p>
+
+                                </div>
+
+
+                                <div class="col-12 col-md-6">
+
+                                    <p class="text-muted
+                                              small
+                                              mb-1">
+
+                                        Number of Employees
+
+                                    </p>
+
+                                    <p class="fw-semibold mb-0">
+
+                                        {{ corporate.number_of_employees|default:"—" }}
+
+                                    </p>
+
+                                </div>
+
+
+                                <div class="col-12 col-md-6">
+
+                                    <p class="text-muted
+                                              small
+                                              mb-1">
+
+                                        Year Established
+
+                                    </p>
+
+                                    <p class="fw-semibold mb-0">
+
+                                        {{ corporate.year_established|default:"—" }}
+
+                                    </p>
+
+                                </div>
+
+
+                                <div class="col-12">
+
+                                    <p class="text-muted
+                                              small
+                                              mb-1">
+
+                                        Company Address
+
+                                    </p>
+
+                                    <p class="fw-semibold mb-0">
+
+                                        {{ corporate.company_address|default:"—"|linebreaksbr }}
+
+                                    </p>
+
+                                </div>
+
+
+                                <div class="col-12">
+
+                                    <p class="text-muted
+                                              small
+                                              mb-1">
+
+                                        Core Business
+
+                                    </p>
+
+                                    <p class="fw-semibold mb-0">
+
+                                        {{ corporate.core_business|default:"—"|linebreaksbr }}
+
+                                    </p>
+
+                                </div>
+
+
+                                <div class="col-12">
+
+                                    <p class="text-muted
+                                              small
+                                              mb-1">
+
+                                        Website
+
+                                    </p>
+
+                                    {% if corporate.website %}
+
+                                        <a
+                                            href="{{ corporate.website }}"
+                                            target="_blank"
+                                            rel="noopener"
+                                            class="fw-semibold
+                                                   text-decoration-none"
+                                        >
+
+                                            {{ corporate.website }}
+
+                                            <i
+                                                class="bi
+                                                       bi-box-arrow-up-right
+                                                       ms-1"
+                                            ></i>
+
+                                        </a>
+
+                                    {% else %}
+
+                                        <span class="text-muted">
+
+                                            —
+
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        {% endwith %}
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- Application Information -->
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header
+                            bg-white
+                            border-bottom
+                            py-3">
+
+                    <h5 class="mb-1">
+
+                        Application Information
+
+                    </h5>
+
+                    <p class="text-muted
+                              small
+                              mb-0">
+
+                        General information supplied
+                        during the application process.
+
+                    </p>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div class="row g-4">
+
+                        <div class="col-12">
+
+                            <p class="text-muted
+                                      small
+                                      mb-1">
+
+                                Other Business Interests
+
+                            </p>
+
+                            <p class="mb-0">
+
+                                {{ member.application.general.other_business_interests|default:"—"|linebreaksbr }}
+
+                            </p>
+
+                        </div>
+
+
+                        <div class="col-12">
+
+                            <p class="text-muted
+                                      small
+                                      mb-1">
+
+                                Interest in Hungary
+
+                            </p>
+
+                            <p class="mb-0">
+
+                                {{ member.application.general.interest_in_hungary|default:"—"|linebreaksbr }}
+
+                            </p>
+
+                        </div>
+
+
+                        <div class="col-12">
+
+                            <p class="text-muted
+                                      small
+                                      mb-1">
+
+                                Main Challenges
+
+                            </p>
+
+                            <p class="mb-0">
+
+                                {{ member.application.general.main_challenges|default:"—"|linebreaksbr }}
+
+                            </p>
+
+                        </div>
+
+
+                        <div class="col-12">
+
+                            <p class="text-muted
+                                      small
+                                      mb-1">
+
+                                Areas the Chamber Can Assist
+
+                            </p>
+
+                            <p class="mb-0">
+
+                                {{ member.application.general.areas_chamber_can_assist|default:"—"|linebreaksbr }}
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Right Column -->
+        <div class="col-12 col-xl-4">
+
+
+            <!-- Associated Hungarian Company -->
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header
+                            bg-white
+                            border-bottom
+                            py-3">
+
+                    <h6 class="mb-0">
+
+                        Associated Hungarian Company
+
+                    </h6>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    {% if member.application.associated_hungarian_company %}
+
+                        <h6 class="mb-2">
+
+                            {{ member.application.associated_hungarian_company.company_name }}
+
+                        </h6>
+
+                        <p class="text-muted mb-0">
+
+                            {{ member.application.associated_hungarian_company.address|default:"Address not recorded"|linebreaksbr }}
+
+                        </p>
+
+                    {% else %}
+
+                        <div class="text-center py-3">
+
+                            <i
+                                class="bi
+                                       bi-building
+                                       fs-2
+                                       text-muted"
+                            ></i>
+
+                            <p class="text-muted
+                                      small
+                                      mb-0
+                                      mt-2">
+
+                                No associated Hungarian
+                                company was selected.
+
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <!-- Representatives -->
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header
+                            bg-white
+                            border-bottom
+                            py-3">
+
+                    <div class="d-flex
+                                justify-content-between
+                                align-items-center">
+
+                        <h6 class="mb-0">
+
+                            Member Representatives
+
+                        </h6>
+
+                        <span class="badge bg-light text-dark">
+
+                            {{ member.application.representatives.count }}
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="list-group
+                            list-group-flush">
+
+                    {% for representative in member.application.representatives.all %}
+
+                        <div class="list-group-item py-3">
+
+                            <div class="d-flex
+                                        justify-content-between
+                                        gap-2">
+
+                                <div>
+
+                                    <div class="fw-semibold">
+
+                                        {{ representative.profile.first_name }}
+
+                                        {{ representative.profile.last_name }}
+
+                                    </div>
+
+                                    <small class="text-muted">
+
+                                        {{ representative.position }}
+
+                                    </small>
+
+                                </div>
+
+
+                                {% if representative.representative_type == "primary" %}
+
+                                    <span
+                                        class="badge
+                                               bg-primary-subtle
+                                               text-primary
+                                               align-self-start"
+                                    >
+
+                                        Primary
+
+                                    </span>
+
+                                {% else %}
+
+                                    <span
+                                        class="badge
+                                               bg-secondary-subtle
+                                               text-secondary
+                                               align-self-start"
+                                    >
+
+                                        Alternative
+
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    {% empty %}
+
+                        <div class="text-center
+                                    py-4">
+
+                            <i
+                                class="bi
+                                       bi-person-plus
+                                       fs-3
+                                       text-muted"
+                            ></i>
+
+                            <p class="text-muted
+                                      small
+                                      mb-0
+                                      mt-2">
+
+                                No representatives recorded.
+
+                            </p>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+
+            <!-- Documents -->
+            <div class="card border-0 shadow-sm mb-4">
+
+                <div class="card-header
+                            bg-white
+                            border-bottom
+                            py-3">
+
+                    <div class="d-flex
+                                justify-content-between
+                                align-items-center">
+
+                        <h6 class="mb-0">
+
+                            Membership Documents
+
+                        </h6>
+
+                        <span class="badge bg-light text-dark">
+
+                            {{ member.application.documents.count }}
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="list-group
+                            list-group-flush">
+
+                    {% for document in member.application.documents.all %}
+
+                        <div class="list-group-item py-3">
+
+                            <div class="d-flex
+                                        justify-content-between
+                                        align-items-start
+                                        gap-3">
+
+                                <div>
+
+                                    <div class="fw-semibold">
+
+                                        {{ document.document_type.title }}
+
+                                    </div>
+
+
+                                    <small class="text-muted">
+
+                                        Uploaded:
+
+                                        {{ document.uploaded_at|date:"d M Y" }}
+
+                                    </small>
+
+                                </div>
+
+
+                                <a
+                                    href="{{ document.file.url }}"
+                                    target="_blank"
+                                    class="btn
+                                           btn-sm
+                                           btn-outline-primary"
+                                    title="View document"
+                                >
+
+                                    <i class="bi bi-eye"></i>
+
+                                </a>
+
+                            </div>
+
+
+                            <div class="mt-2">
+
+                                {% if document.verified %}
+
+                                    <span
+                                        class="badge
+                                               bg-success-subtle
+                                               text-success"
+                                    >
+
+                                        <i
+                                            class="bi
+                                                   bi-check-circle
+                                                   me-1"
+                                        ></i>
+
+                                        Verified
+
+                                    </span>
+
+                                {% else %}
+
+                                    <span
+                                        class="badge
+                                               bg-warning-subtle
+                                               text-warning-emphasis"
+                                    >
+
+                                        <i
+                                            class="bi
+                                                   bi-clock
+                                                   me-1"
+                                        ></i>
+
+                                        Pending Verification
+
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    {% empty %}
+
+                        <div class="text-center py-4">
+
+                            <i
+                                class="bi
+                                       bi-file-earmark
+                                       fs-3
+                                       text-muted"
+                            ></i>
+
+                            <p class="text-muted
+                                      small
+                                      mb-0
+                                      mt-2">
+
+                                No membership documents
+                                have been uploaded.
+
+                            </p>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+
+            <!-- Review Information -->
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-header
+                            bg-white
+                            border-bottom
+                            py-3">
+
+                    <h6 class="mb-0">
+
+                        Review Information
+
+                    </h6>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div class="mb-3">
+
+                        <p class="text-muted
+                                  small
+                                  mb-1">
+
+                            Reviewed By
+
+                        </p>
+
+                        <p class="fw-semibold mb-0">
+
+                            {% if member.application.reviewed_by_user %}
+
+                                {{ member.application.reviewed_by_user }}
+
+                            {% elif member.application.reviewed_by %}
+
+                                {{ member.application.reviewed_by }}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </p>
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <p class="text-muted
+                                  small
+                                  mb-1">
+
+                            Review Date
+
+                        </p>
+
+                        <p class="fw-semibold mb-0">
+
+                            {% if member.application.reviewed_at %}
+
+                                {{ member.application.reviewed_at|date:"d M Y, H:i" }}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </p>
+
+                    </div>
+
+
+                    {% if member.application.rejection_reason %}
+
+                        <div>
+
+                            <p class="text-muted
+                                      small
+                                      mb-1">
+
+                                Rejection Reason
+
+                            </p>
+
+                            <div
+                                class="alert
+                                       alert-danger
+                                       mb-0"
+                            >
+
+                                {{ member.application.rejection_reason|linebreaksbr }}
+
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock content %}

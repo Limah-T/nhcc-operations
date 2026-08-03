@@ -1,0 +1,997 @@
+{% extends "membership/dashboard.html" %}
+
+{% block title %}General Membership Benefits{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+
+    <!-- Page Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+
+        <div>
+            <h3 class="fw-bold mb-1">General Membership Benefits</h3>
+
+            <p class="text-muted mb-0">
+                Manage benefits available to all membership categories.
+            </p>
+        </div>
+
+        <div class="mt-3 mt-md-0">
+
+            <button
+                type="button"
+                class="btn btn-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#addGeneralBenefitModal"
+            >
+                <i class="bi bi-plus-circle me-1"></i>
+                Add General Benefit
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-4">
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-body">
+
+                    <p class="text-muted mb-1">
+                        Total Benefits
+                    </p>
+
+                    <h3 class="fw-bold mb-0">
+                        {{ total_general_benefits|default:"0" }}
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-body">
+
+                    <p class="text-muted mb-1">
+                        Active Benefits
+                    </p>
+
+                    <h3 class="fw-bold text-success mb-0">
+                        {{ active_general_benefits|default:"0" }}
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4">
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-body">
+
+                    <p class="text-muted mb-1">
+                        Inactive Benefits
+                    </p>
+
+                    <h3 class="fw-bold text-secondary mb-0">
+                        {{ inactive_general_benefits|default:"0" }}
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Benefits Table -->
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-header bg-white border-bottom">
+
+            <div class="d-flex flex-wrap justify-content-between align-items-center">
+
+                <h5 class="fw-bold mb-0">
+                    General Benefits
+                </h5>
+
+                <div class="d-flex gap-2 mt-2 mt-md-0">
+
+                    <input
+                        type="search"
+                        id="generalBenefitSearch"
+                        class="form-control"
+                        placeholder="Search benefits..."
+                    >
+
+                    <button
+                        type="button"
+                        class="btn btn-outline-danger"
+                        id="deleteSelectedBenefits"
+                        disabled
+                    >
+                        <i class="bi bi-trash me-1"></i>
+                        Delete Selected
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table
+                    class="table table-hover align-middle mb-0"
+                    id="generalBenefitsTable"
+                >
+
+                    <thead class="table-light">
+
+                        <tr>
+
+                            <th class="ps-4">
+
+                                <input
+                                    type="checkbox"
+                                    id="selectAllBenefits"
+                                >
+
+                            </th>
+
+                            <th>
+                                Description
+                            </th>
+
+                            <th>
+                                Display Order
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Date Created
+                            </th>
+
+                            <th class="text-end pe-4">
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for benefit in general_benefits %}
+
+                        <tr>
+
+                            <td class="ps-4">
+
+                                <input
+                                    type="checkbox"
+                                    class="benefit-checkbox"
+                                    value="{{ benefit.id }}"
+                                >
+
+                            </td>
+
+
+                            <td>
+
+                                <div class="fw-semibold">
+
+                                    {{ benefit.description|truncatechars:100 }}
+
+                                </div>
+
+                            </td>
+
+
+                            <td>
+
+                                <span class="badge bg-light text-dark">
+
+                                    {{ benefit.display_order }}
+
+                                </span>
+
+                            </td>
+
+
+                            <td>
+
+                                {% if benefit.is_active %}
+
+                                    <span class="badge bg-success">
+
+                                        Active
+
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge bg-secondary">
+
+                                        Inactive
+
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td>
+
+                                {{ benefit.created_at|date:"M d, Y" }}
+
+                            </td>
+
+
+                            <td class="text-end pe-4">
+
+                                <!-- View -->
+
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-outline-primary"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#viewGeneralBenefitModal{{ benefit.id }}"
+                                    title="View benefit"
+                                >
+
+                                    <i class="bi bi-eye"></i>
+
+                                </button>
+
+
+                                <!-- Edit -->
+
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-outline-warning"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editGeneralBenefitModal{{ benefit.id }}"
+                                    title="Edit benefit"
+                                >
+
+                                    <i class="bi bi-pencil-square"></i>
+
+                                </button>
+
+
+                                <!-- Delete -->
+
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-outline-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteGeneralBenefitModal{{ benefit.id }}"
+                                    title="Delete benefit"
+                                >
+
+                                    <i class="bi bi-trash"></i>
+
+                                </button>
+
+                            </td>
+
+                        </tr>
+
+
+                        <!-- ================================= -->
+                        <!-- View General Benefit Modal -->
+                        <!-- ================================= -->
+
+                        <div
+                            class="modal fade"
+                            id="viewGeneralBenefitModal{{ benefit.id }}"
+                            tabindex="-1"
+                        >
+
+                            <div class="modal-dialog modal-dialog-centered">
+
+                                <div class="modal-content">
+
+                                    <div class="modal-header">
+
+                                        <h5 class="modal-title">
+
+                                            General Benefit Details
+
+                                        </h5>
+
+                                        <button
+                                            type="button"
+                                            class="btn-close"
+                                            data-bs-dismiss="modal"
+                                        ></button>
+
+                                    </div>
+
+
+                                    <div class="modal-body">
+
+                                        <div class="mb-3">
+
+                                            <label class="fw-semibold">
+
+                                                Description
+
+                                            </label>
+
+                                            <p class="text-muted mb-0">
+
+                                                {{ benefit.description }}
+
+                                            </p>
+
+                                        </div>
+
+
+                                        <div class="row">
+
+                                            <div class="col-md-6">
+
+                                                <label class="fw-semibold">
+
+                                                    Display Order
+
+                                                </label>
+
+                                                <p>
+
+                                                    {{ benefit.display_order }}
+
+                                                </p>
+
+                                            </div>
+
+
+                                            <div class="col-md-6">
+
+                                                <label class="fw-semibold">
+
+                                                    Status
+
+                                                </label>
+
+                                                <p>
+
+                                                    {% if benefit.is_active %}
+
+                                                        <span class="badge bg-success">
+
+                                                            Active
+
+                                                        </span>
+
+                                                    {% else %}
+
+                                                        <span class="badge bg-secondary">
+
+                                                            Inactive
+
+                                                        </span>
+
+                                                    {% endif %}
+
+                                                </p>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <label class="fw-semibold">
+
+                                                Date Created
+
+                                            </label>
+
+                                            <p class="mb-0">
+
+                                                {{ benefit.created_at|date:"F d, Y" }}
+
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="modal-footer">
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-secondary"
+                                            data-bs-dismiss="modal"
+                                        >
+
+                                            Close
+
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ================================= -->
+                        <!-- Edit General Benefit Modal -->
+                        <!-- ================================= -->
+
+                        <div
+                            class="modal fade"
+                            id="editGeneralBenefitModal{{ benefit.id }}"
+                            tabindex="-1"
+                        >
+
+                            <div class="modal-dialog modal-dialog-centered">
+
+                                <form
+                                    method="post"
+                                    action="{% url 'membership:general_benefit_edit' benefit.id %}"
+                                >
+
+                                    {% csrf_token %}
+
+
+                                    <div class="modal-content">
+
+                                        <div class="modal-header">
+
+                                            <h5 class="modal-title">
+
+                                                Edit General Benefit
+
+                                            </h5>
+
+                                            <button
+                                                type="button"
+                                                class="btn-close"
+                                                data-bs-dismiss="modal"
+                                            ></button>
+
+                                        </div>
+
+
+                                        <div class="modal-body">
+
+                                            <div class="mb-3">
+
+                                                <label
+                                                    for="description{{ benefit.id }}"
+                                                    class="form-label"
+                                                >
+
+                                                    Description
+
+                                                </label>
+
+                                                <textarea
+                                                    name="description"
+                                                    id="description{{ benefit.id }}"
+                                                    class="form-control"
+                                                    rows="5"
+                                                    required
+                                                >{{ benefit.description }}</textarea>
+
+                                            </div>
+
+
+                                            <div class="mb-3">
+
+                                                <label
+                                                    for="displayOrder{{ benefit.id }}"
+                                                    class="form-label"
+                                                >
+
+                                                    Display Order
+
+                                                </label>
+
+                                                <input
+                                                    type="number"
+                                                    name="display_order"
+                                                    id="displayOrder{{ benefit.id }}"
+                                                    class="form-control"
+                                                    value="{{ benefit.display_order }}"
+                                                    min="0"
+                                                >
+
+                                            </div>
+
+
+                                            <div class="form-check">
+
+                                                <input
+                                                    type="checkbox"
+                                                    name="is_active"
+                                                    id="isActive{{ benefit.id }}"
+                                                    class="form-check-input"
+                                                    {% if benefit.is_active %}checked{% endif %}
+                                                >
+
+                                                <label
+                                                    for="isActive{{ benefit.id }}"
+                                                    class="form-check-label"
+                                                >
+
+                                                    Active Benefit
+
+                                                </label>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="modal-footer">
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-secondary"
+                                                data-bs-dismiss="modal"
+                                            >
+
+                                                Cancel
+
+                                            </button>
+
+
+                                            <button
+                                                type="submit"
+                                                class="btn btn-primary"
+                                            >
+
+                                                Save Changes
+
+                                            </button>
+
+                                        </div>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ================================= -->
+                        <!-- Delete General Benefit Modal -->
+                        <!-- ================================= -->
+
+                        <div
+                            class="modal fade"
+                            id="deleteGeneralBenefitModal{{ benefit.id }}"
+                            tabindex="-1"
+                        >
+
+                            <div class="modal-dialog modal-dialog-centered">
+
+                                <form
+                                    method="post"
+                                    action="{% url 'membership:general_benefit_delete' benefit.id %}"
+                                >
+
+                                    {% csrf_token %}
+
+
+                                    <div class="modal-content">
+
+                                        <div class="modal-header bg-danger text-white">
+
+                                            <h5 class="modal-title">
+
+                                                Delete General Benefit
+
+                                            </h5>
+
+                                            <button
+                                                type="button"
+                                                class="btn-close btn-close-white"
+                                                data-bs-dismiss="modal"
+                                            ></button>
+
+                                        </div>
+
+
+                                        <div class="modal-body">
+
+                                            <p>
+
+                                                Are you sure you want to delete this
+                                                general benefit?
+
+                                            </p>
+
+                                            <div class="alert alert-light border">
+
+                                                {{ benefit.description }}
+
+                                            </div>
+
+                                            <p class="text-danger mb-0">
+
+                                                This action cannot be undone.
+
+                                            </p>
+
+                                        </div>
+
+
+                                        <div class="modal-footer">
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-secondary"
+                                                data-bs-dismiss="modal"
+                                            >
+
+                                                Cancel
+
+                                            </button>
+
+
+                                            <button
+                                                type="submit"
+                                                class="btn btn-danger"
+                                            >
+
+                                                Delete Benefit
+
+                                            </button>
+
+                                        </div>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+
+                        {% empty %}
+
+                        <tr>
+
+                            <td
+                                colspan="6"
+                                class="text-center py-5"
+                            >
+
+                                <i
+                                    class="bi bi-gift fs-1 text-muted"
+                                ></i>
+
+                                <h5 class="mt-3">
+
+                                    No General Benefits Found
+
+                                </h5>
+
+                                <p class="text-muted">
+
+                                    Add a general membership benefit to begin.
+
+                                </p>
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ================================= -->
+<!-- Add General Benefit Modal -->
+<!-- ================================= -->
+
+<div
+    class="modal fade"
+    id="addGeneralBenefitModal"
+    tabindex="-1"
+>
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <form
+            method="post"
+            action="{% url 'membership:general_benefit_create' %}"
+        >
+
+            {% csrf_token %}
+
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+
+                        Add General Benefit
+
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                    ></button>
+
+                </div>
+
+
+                <div class="modal-body">
+
+                    <div class="mb-3">
+
+                        <label
+                            for="generalBenefitDescription"
+                            class="form-label"
+                        >
+
+                            Description
+
+                        </label>
+
+                        <textarea
+                            name="description"
+                            id="generalBenefitDescription"
+                            class="form-control"
+                            rows="5"
+                            required
+                        ></textarea>
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label
+                            for="generalBenefitOrder"
+                            class="form-label"
+                        >
+
+                            Display Order
+
+                        </label>
+
+                        <input
+                            type="number"
+                            name="display_order"
+                            id="generalBenefitOrder"
+                            class="form-control"
+                            value="0"
+                            min="0"
+                        >
+
+                    </div>
+
+
+                    <div class="form-check">
+
+                        <input
+                            type="checkbox"
+                            name="is_active"
+                            id="generalBenefitActive"
+                            class="form-check-input"
+                            checked
+                        >
+
+                        <label
+                            for="generalBenefitActive"
+                            class="form-check-label"
+                        >
+
+                            Active Benefit
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal"
+                    >
+
+                        Cancel
+
+                    </button>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+
+                        Add Benefit
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const selectAll =
+            document.getElementById(
+                "selectAllBenefits"
+            );
+
+        const checkboxes =
+            document.querySelectorAll(
+                ".benefit-checkbox"
+            );
+
+        const deleteSelected =
+            document.getElementById(
+                "deleteSelectedBenefits"
+            );
+
+
+        function updateDeleteButton() {
+
+            const selected =
+                document.querySelectorAll(
+                    ".benefit-checkbox:checked"
+                );
+
+            deleteSelected.disabled =
+                selected.length === 0;
+
+        }
+
+
+        if (selectAll) {
+
+            selectAll.addEventListener(
+                "change",
+                function () {
+
+                    checkboxes.forEach(
+                        function (checkbox) {
+
+                            checkbox.checked =
+                                selectAll.checked;
+
+                        }
+                    );
+
+                    updateDeleteButton();
+
+                }
+            );
+
+        }
+
+
+        checkboxes.forEach(
+            function (checkbox) {
+
+                checkbox.addEventListener(
+                    "change",
+                    updateDeleteButton
+                );
+
+            }
+        );
+
+
+        const searchInput =
+            document.getElementById(
+                "generalBenefitSearch"
+            );
+
+
+        if (searchInput) {
+
+            searchInput.addEventListener(
+                "input",
+                function () {
+
+                    const searchValue =
+                        searchInput.value
+                            .toLowerCase();
+
+                    const rows =
+                        document.querySelectorAll(
+                            "#generalBenefitsTable tbody tr"
+                        );
+
+                    rows.forEach(
+                        function (row) {
+
+                            const rowText =
+                                row.textContent
+                                    .toLowerCase();
+
+                            row.style.display =
+                                rowText.includes(
+                                    searchValue
+                                )
+                                ? ""
+                                : "none";
+
+                        }
+                    );
+
+                }
+            );
+
+        }
+
+    }
+);
+
+</script>
+
+{% endblock %}

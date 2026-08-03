@@ -1,0 +1,646 @@
+<div class="card border-0 shadow-sm">
+
+    <div class="card-header bg-white border-bottom">
+
+        <div class="d-flex flex-column flex-md-row
+                    justify-content-between align-items-md-center gap-3">
+
+            <div>
+
+                <h5 class="mb-1">
+                    Members
+                </h5>
+
+                <p class="text-muted mb-0">
+                    View and manage all approved individual and corporate members.
+                </p>
+
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+
+                <!-- Delete Selected Members -->
+
+                <button
+                    type="button"
+                    class="btn btn-outline-danger"
+                    id="deleteSelectedMembers"
+                    disabled
+                >
+
+                    <i class="bi bi-trash me-1"></i>
+
+                    Delete Selected
+
+                </button>
+
+
+                <!-- Add Member -->
+
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#addMemberModal"
+                >
+
+                    <i class="bi bi-person-plus me-1"></i>
+
+                    Add Member
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="card-body p-0">
+
+        <div class="table-responsive">
+
+            <table
+                class="table table-hover align-middle mb-0"
+                id="membersTable"
+            >
+
+                <thead class="table-light">
+
+                    <tr>
+
+                        <!-- Select All -->
+
+                        <th
+                            scope="col"
+                            style="width: 50px;"
+                        >
+
+                            <div class="form-check">
+
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    id="selectAllMembers"
+                                >
+
+                            </div>
+
+                        </th>
+
+
+                        <!-- Member -->
+
+                        <th scope="col">
+
+                            Member
+
+                        </th>
+
+
+                        <!-- Membership Type -->
+
+                        <th scope="col">
+
+                            Membership Type
+
+                        </th>
+
+
+                        <!-- Application Number -->
+
+                        <th scope="col">
+
+                            Application No.
+
+                        </th>
+
+
+                        <!-- Proposer -->
+
+                        <th scope="col">
+
+                            Proposed By
+
+                        </th>
+
+
+                        <!-- Associated Company -->
+
+                        <th scope="col">
+
+                            Associated Hungarian Company
+
+                        </th>
+
+
+                        <!-- Date Joined -->
+
+                        <th scope="col">
+
+                            Date Joined
+
+                        </th>
+
+
+                        <!-- Actions -->
+
+                        <th
+                            scope="col"
+                            class="text-end"
+                        >
+
+                            Actions
+
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for member in members %}
+
+                        <tr>
+
+                            <!-- Member Checkbox -->
+
+                            <td>
+
+                                <div class="form-check">
+
+                                    <input
+                                        class="form-check-input member-checkbox"
+                                        type="checkbox"
+                                        value="{{ member.id }}"
+                                        name="member_ids"
+                                    >
+
+                                </div>
+
+                            </td>
+
+
+                            <!-- Member Information -->
+
+                            <td>
+
+                                <div class="d-flex align-items-center gap-3">
+
+                                    <div
+                                        class="rounded-circle bg-light
+                                               d-flex align-items-center
+                                               justify-content-center"
+                                        style="
+                                            width: 42px;
+                                            height: 42px;
+                                        "
+                                    >
+
+                                        <i class="bi bi-person"></i>
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <div class="fw-semibold">
+
+                                            {{ member.profile.title|default:"" }}
+
+                                            {{ member.profile.first_name }}
+
+                                            {{ member.profile.last_name }}
+
+                                        </div>
+
+
+                                        <small class="text-muted">
+
+                                            {{ member.profile.email|default:"No email address" }}
+
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+
+                            <!-- Membership Type -->
+
+                            <td>
+
+                                {% if member.application.application_type == "individual" %}
+
+                                    <span class="badge text-bg-info">
+
+                                        Individual
+
+                                    </span>
+
+                                {% elif member.application.application_type == "corporate" %}
+
+                                    <span class="badge text-bg-primary">
+
+                                        Corporate
+
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge text-bg-secondary">
+
+                                        {{ member.application.get_application_type_display }}
+
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- Application Number -->
+
+                            <td>
+
+                                <span class="fw-semibold">
+
+                                    {{ member.application.application_number|default:"—" }}
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- Proposer -->
+
+                            <td>
+
+                                {% if member.application.general.proposer %}
+
+                                    {{ member.application.general.proposer }}
+
+                                {% elif member.application.general.proposer_name %}
+
+                                    {{ member.application.general.proposer_name }}
+
+                                {% else %}
+
+                                    <span class="text-muted">
+
+                                        —
+
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- Associated Hungarian Company -->
+
+                            <td>
+
+                                {% if member.application.associated_hungarian_company %}
+
+                                    {{ member.application.associated_hungarian_company.company_name }}
+
+                                {% else %}
+
+                                    <span class="text-muted">
+
+                                        None
+
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- Date Joined -->
+
+                            <td>
+
+                                {% if member.application.date_joined %}
+
+                                    {{ member.application.date_joined|date:"d M Y" }}
+
+                                {% else %}
+
+                                    <span class="text-muted">
+
+                                        —
+
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- Actions -->
+
+                            <td class="text-end">
+
+                                <div class="dropdown">
+
+                                    <button
+                                        class="btn btn-sm btn-light"
+                                        type="button"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false"
+                                    >
+
+                                        <i class="bi bi-three-dots-vertical"></i>
+
+                                    </button>
+
+
+                                    <ul class="dropdown-menu dropdown-menu-end">
+
+                                        <!-- View Member -->
+
+                                        <li>
+
+                                            <button
+                                                type="button"
+                                                class="dropdown-item view-member-btn"
+                                                data-member-id="{{ member.id }}"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#viewMemberModal"
+                                            >
+
+                                                <i class="bi bi-eye me-2"></i>
+
+                                                View
+
+                                            </button>
+
+                                        </li>
+
+
+                                        <!-- Edit Member -->
+
+                                        <li>
+
+                                            <button
+                                                type="button"
+                                                class="dropdown-item edit-member-btn"
+                                                data-member-id="{{ member.id }}"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editMemberModal"
+                                            >
+
+                                                <i class="bi bi-pencil-square me-2"></i>
+
+                                                Edit
+
+                                            </button>
+
+                                        </li>
+
+
+                                        <!-- View Application -->
+
+                                        <li>
+
+                                            <button
+                                                type="button"
+                                                class="dropdown-item view-member-application-btn"
+                                                data-application-id="{{ member.application.id }}"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#viewMembershipApplicationModal"
+                                            >
+
+                                                <i class="bi bi-file-earmark-text me-2"></i>
+
+                                                View Application
+
+                                            </button>
+
+                                        </li>
+
+
+                                        <li>
+
+                                            <hr class="dropdown-divider">
+
+                                        </li>
+
+
+                                        <!-- Delete Member -->
+
+                                        <li>
+
+                                            <button
+                                                type="button"
+                                                class="dropdown-item text-danger delete-member-btn"
+                                                data-member-id="{{ member.id }}"
+                                                data-member-name="{{ member.profile.first_name }} {{ member.profile.last_name }}"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteMemberModal"
+                                            >
+
+                                                <i class="bi bi-trash me-2"></i>
+
+                                                Delete
+
+                                            </button>
+
+                                        </li>
+
+                                    </ul>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+
+                    {% empty %}
+
+                        <tr>
+
+                            <td
+                                colspan="8"
+                                class="text-center py-5"
+                            >
+
+                                <div class="mb-3">
+
+                                    <i
+                                        class="bi bi-people"
+                                        style="font-size: 2.5rem;"
+                                    ></i>
+
+                                </div>
+
+
+                                <h6 class="mb-1">
+
+                                    No members found
+
+                                </h6>
+
+
+                                <p class="text-muted mb-3">
+
+                                    Approved membership applications that become members will appear here.
+
+                                </p>
+
+
+                                <button
+                                    type="button"
+                                    class="btn btn-primary"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#addMemberModal"
+                                >
+
+                                    <i class="bi bi-person-plus me-1"></i>
+
+                                    Add Member
+
+                                </button>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    {% if members.has_other_pages %}
+
+        <div class="card-footer bg-white">
+
+            <nav aria-label="Member pagination">
+
+                <ul class="pagination justify-content-end mb-0">
+
+                    <!-- Previous -->
+
+                    {% if members.has_previous %}
+
+                        <li class="page-item">
+
+                            <a
+                                class="page-link"
+                                href="?member_page={{ members.previous_page_number }}"
+                            >
+
+                                Previous
+
+                            </a>
+
+                        </li>
+
+                    {% else %}
+
+                        <li class="page-item disabled">
+
+                            <span class="page-link">
+
+                                Previous
+
+                            </span>
+
+                        </li>
+
+                    {% endif %}
+
+
+                    <!-- Page Numbers -->
+
+                    {% for page_number in members.paginator.page_range %}
+
+                        {% if members.number == page_number %}
+
+                            <li
+                                class="page-item active"
+                                aria-current="page"
+                            >
+
+                                <span class="page-link">
+
+                                    {{ page_number }}
+
+                                </span>
+
+                            </li>
+
+                        {% else %}
+
+                            <li class="page-item">
+
+                                <a
+                                    class="page-link"
+                                    href="?member_page={{ page_number }}"
+                                >
+
+                                    {{ page_number }}
+
+                                </a>
+
+                            </li>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+
+                    <!-- Next -->
+
+                    {% if members.has_next %}
+
+                        <li class="page-item">
+
+                            <a
+                                class="page-link"
+                                href="?member_page={{ members.next_page_number }}"
+                            >
+
+                                Next
+
+                            </a>
+
+                        </li>
+
+                    {% else %}
+
+                        <li class="page-item disabled">
+
+                            <span class="page-link">
+
+                                Next
+
+                            </span>
+
+                        </li>
+
+                    {% endif %}
+
+                </ul>
+
+            </nav>
+
+        </div>
+
+    {% endif %}
+
+</div>

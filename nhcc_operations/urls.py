@@ -11,7 +11,7 @@ urlpatterns = [
     path("dashboard/", include("report.urls")),
     path("template/", include("templating.urls")),
     path("directors/", include("directors.urls")),
-    path("members/", include("members.urls")),
+    path("membership/", include("membership.urls")),
      # Django Silk
     # path("silk/", include("silk.urls", namespace="silk")),
     path("", Dashboard.as_view(), name="dashboard")

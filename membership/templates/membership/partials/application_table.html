@@ -1,0 +1,659 @@
+<div class="card border-0 shadow-sm">
+
+    <div class="card-header bg-white border-bottom">
+
+        <div class="d-flex flex-column flex-md-row
+                    justify-content-between align-items-md-center gap-3">
+
+            <div>
+
+                <h5 class="mb-1">
+                    Membership Applications
+                </h5>
+
+                <p class="text-muted mb-0">
+                    View and manage all individual and corporate membership applications.
+                </p>
+
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+
+                <!-- Delete Selected -->
+                <button
+                    type="button"
+                    class="btn btn-outline-danger"
+                    id="deleteSelectedApplications"
+                    disabled
+                >
+
+                    <i class="bi bi-trash me-1"></i>
+
+                    Delete Selected
+
+                </button>
+
+                <!-- Add Application -->
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#addMembershipApplicationModal"
+                >
+
+                    <i class="bi bi-plus-lg me-1"></i>
+
+                    Add Application
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="card-body p-0">
+
+        <div class="table-responsive">
+
+            <table
+                class="table table-hover align-middle mb-0"
+                id="membershipApplicationsTable"
+            >
+
+                <thead class="table-light">
+
+                    <tr>
+
+                        <!-- Select All -->
+
+                        <th
+                            scope="col"
+                            style="width: 50px;"
+                        >
+
+                            <div class="form-check">
+
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    id="selectAllApplications"
+                                >
+
+                            </div>
+
+                        </th>
+
+
+                        <!-- Application Number -->
+
+                        <th scope="col">
+
+                            Application No.
+
+                        </th>
+
+
+                        <!-- Applicant -->
+
+                        <th scope="col">
+
+                            Applicant
+
+                        </th>
+
+
+                        <!-- Application Type -->
+
+                        <th scope="col">
+
+                            Type
+
+                        </th>
+
+
+                        <!-- Proposer -->
+
+                        <th scope="col">
+
+                            Proposer
+
+                        </th>
+
+
+                        <!-- Associated Company -->
+
+                        <th scope="col">
+
+                            Associated Hungarian Company
+
+                        </th>
+
+
+                        <!-- Status -->
+
+                        <th scope="col">
+
+                            Status
+
+                        </th>
+
+
+                        <!-- Date -->
+
+                        <th scope="col">
+
+                            Date Submitted
+
+                        </th>
+
+
+                        <!-- Actions -->
+
+                        <th
+                            scope="col"
+                            class="text-end"
+                        >
+
+                            Actions
+
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for application in applications %}
+
+                        <tr>
+
+                            <!-- Checkbox -->
+
+                            <td>
+
+                                <div class="form-check">
+
+                                    <input
+                                        class="form-check-input application-checkbox"
+                                        type="checkbox"
+                                        value="{{ application.id }}"
+                                        name="application_ids"
+                                    >
+
+                                </div>
+
+                            </td>
+
+
+                            <!-- Application Number -->
+
+                            <td>
+
+                                <span class="fw-semibold">
+
+                                    {{ application.application_number|default:"—" }}
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- Applicant -->
+
+                            <td>
+
+                                {% if application.members.exists %}
+
+                                    {% with member=application.members.first %}
+
+                                        {{ member.profile.first_name }}
+
+                                        {{ member.profile.last_name }}
+
+                                    {% endwith %}
+
+                                {% else %}
+
+                                    <span class="text-muted">
+
+                                        Not assigned
+
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- Application Type -->
+
+                            <td>
+
+                                {% if application.application_type == "individual" %}
+
+                                    <span class="badge text-bg-info">
+
+                                        Individual
+
+                                    </span>
+
+                                {% elif application.application_type == "corporate" %}
+
+                                    <span class="badge text-bg-primary">
+
+                                        Corporate
+
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge text-bg-secondary">
+
+                                        {{ application.get_application_type_display }}
+
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- Proposer -->
+
+                            <td>
+
+                                {% if application.general.proposer %}
+
+                                    {{ application.general.proposer }}
+
+                                {% elif application.general.proposer_name %}
+
+                                    {{ application.general.proposer_name }}
+
+                                {% else %}
+
+                                    <span class="text-muted">
+
+                                        —
+
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- Associated Hungarian Company -->
+
+                            <td>
+
+                                {% if application.associated_hungarian_company %}
+
+                                    {{ application.associated_hungarian_company.company_name }}
+
+                                {% else %}
+
+                                    <span class="text-muted">
+
+                                        None
+
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- Status -->
+
+                            <td>
+
+                                {% if application.status == "submitted" %}
+
+                                    <span class="badge text-bg-secondary">
+
+                                        Submitted
+
+                                    </span>
+
+                                {% elif application.status == "under_review" %}
+
+                                    <span class="badge text-bg-warning">
+
+                                        Under Review
+
+                                    </span>
+
+                                {% elif application.status == "approved" %}
+
+                                    <span class="badge text-bg-success">
+
+                                        Approved
+
+                                    </span>
+
+                                {% elif application.status == "rejected" %}
+
+                                    <span class="badge text-bg-danger">
+
+                                        Rejected
+
+                                    </span>
+
+                                {% elif application.status == "suspended" %}
+
+                                    <span class="badge text-bg-dark">
+
+                                        Suspended
+
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge text-bg-secondary">
+
+                                        {{ application.get_status_display }}
+
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- Date Submitted -->
+
+                            <td>
+
+                                {% if application.date_joined %}
+
+                                    {{ application.date_joined|date:"d M Y" }}
+
+                                {% else %}
+
+                                    <span class="text-muted">
+
+                                        —
+
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- Actions -->
+
+                            <td class="text-end">
+
+                                <div class="dropdown">
+
+                                    <button
+                                        class="btn btn-sm btn-light"
+                                        type="button"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false"
+                                    >
+
+                                        <i class="bi bi-three-dots-vertical"></i>
+
+                                    </button>
+
+
+                                    <ul class="dropdown-menu dropdown-menu-end">
+
+                                        <!-- View -->
+
+                                        <li>
+
+                                            <button
+                                                type="button"
+                                                class="dropdown-item view-application-btn"
+                                                data-application-id="{{ application.id }}"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#viewMembershipApplicationModal"
+                                            >
+
+                                                <i class="bi bi-eye me-2"></i>
+
+                                                View
+
+                                            </button>
+
+                                        </li>
+
+
+                                        <!-- Edit -->
+
+                                        <li>
+
+                                            <button
+                                                type="button"
+                                                class="dropdown-item edit-application-btn"
+                                                data-application-id="{{ application.id }}"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editMembershipApplicationModal"
+                                            >
+
+                                                <i class="bi bi-pencil-square me-2"></i>
+
+                                                Edit
+
+                                            </button>
+
+                                        </li>
+
+
+                                        <li>
+
+                                            <hr class="dropdown-divider">
+
+                                        </li>
+
+
+                                        <!-- Delete -->
+
+                                        <li>
+
+                                            <button
+                                                type="button"
+                                                class="dropdown-item text-danger delete-application-btn"
+                                                data-application-id="{{ application.id }}"
+                                                data-application-number="{{ application.application_number }}"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteMembershipApplicationModal"
+                                            >
+
+                                                <i class="bi bi-trash me-2"></i>
+
+                                                Delete
+
+                                            </button>
+
+                                        </li>
+
+                                    </ul>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+
+                    {% empty %}
+
+                        <tr>
+
+                            <td
+                                colspan="9"
+                                class="text-center py-5"
+                            >
+
+                                <div class="mb-3">
+
+                                    <i
+                                        class="bi bi-file-earmark-text"
+                                        style="font-size: 2.5rem;"
+                                    ></i>
+
+                                </div>
+
+                                <h6 class="mb-1">
+
+                                    No membership applications found
+
+                                </h6>
+
+                                <p class="text-muted mb-3">
+
+                                    Membership applications will appear here after they are created.
+
+                                </p>
+
+                                <button
+                                    type="button"
+                                    class="btn btn-primary"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#addMembershipApplicationModal"
+                                >
+
+                                    <i class="bi bi-plus-lg me-1"></i>
+
+                                    Add Membership Application
+
+                                </button>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    {% if applications.has_other_pages %}
+
+        <div class="card-footer bg-white">
+
+            <nav aria-label="Membership application pagination">
+
+                <ul class="pagination justify-content-end mb-0">
+
+                    {% if applications.has_previous %}
+
+                        <li class="page-item">
+
+                            <a
+                                class="page-link"
+                                href="?page={{ applications.previous_page_number }}"
+                            >
+
+                                Previous
+
+                            </a>
+
+                        </li>
+
+                    {% else %}
+
+                        <li class="page-item disabled">
+
+                            <span class="page-link">
+
+                                Previous
+
+                            </span>
+
+                        </li>
+
+                    {% endif %}
+
+
+                    {% for page_number in applications.paginator.page_range %}
+
+                        {% if applications.number == page_number %}
+
+                            <li
+                                class="page-item active"
+                                aria-current="page"
+                            >
+
+                                <span class="page-link">
+
+                                    {{ page_number }}
+
+                                </span>
+
+                            </li>
+
+                        {% else %}
+
+                            <li class="page-item">
+
+                                <a
+                                    class="page-link"
+                                    href="?page={{ page_number }}"
+                                >
+
+                                    {{ page_number }}
+
+                                </a>
+
+                            </li>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+
+                    {% if applications.has_next %}
+
+                        <li class="page-item">
+
+                            <a
+                                class="page-link"
+                                href="?page={{ applications.next_page_number }}"
+                            >
+
+                                Next
+
+                            </a>
+
+                        </li>
+
+                    {% else %}
+
+                        <li class="page-item disabled">
+
+                            <span class="page-link">
+
+                                Next
+
+                            </span>
+
+                        </li>
+
+                    {% endif %}
+
+                </ul>
+
+            </nav>
+
+        </div>
+
+    {% endif %}
+
+</div>

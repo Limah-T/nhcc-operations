@@ -1,0 +1,79 @@
+{% load widget_tweaks %}
+
+<div class="form-section" id="individualApplicationSection">
+
+    <div class="form-section-header">
+        <div>
+            <h5 class="mb-1">Individual Membership Details</h5>
+
+            <p class="text-muted mb-0">
+                Complete the information required for an individual membership application.
+            </p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Registered Business Name -->
+        <div class="col-md-6">
+
+            <label
+                for="{{ individual_application_form.registered_business_name.id_for_label }}"
+                class="form-label"
+            >
+                Registered Business Name
+            </label>
+
+            {{ individual_application_form.registered_business_name|add_class:"form-control"|attr:"placeholder:Enter registered business name" }}
+
+            {% if individual_application_form.registered_business_name.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ individual_application_form.registered_business_name.errors }}
+                </div>
+            {% endif %}
+
+        </div>
+
+        <!-- Office Telephone -->
+        <div class="col-md-6">
+
+            <label
+                for="{{ individual_application_form.office_telephone.id_for_label }}"
+                class="form-label"
+            >
+                Office Telephone
+            </label>
+
+            {{ individual_application_form.office_telephone|add_class:"form-control"|attr:"placeholder:Enter office telephone number" }}
+
+            {% if individual_application_form.office_telephone.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ individual_application_form.office_telephone.errors }}
+                </div>
+            {% endif %}
+
+        </div>
+
+        <!-- Type of Business -->
+        <div class="col-md-6">
+
+            <label
+                for="{{ individual_application_form.type_of_business.id_for_label }}"
+                class="form-label"
+            >
+                Type of Business
+            </label>
+
+            {{ individual_application_form.type_of_business|add_class:"form-control"|attr:"placeholder:Enter type of business" }}
+
+            {% if individual_application_form.type_of_business.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ individual_application_form.type_of_business.errors }}
+                </div>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>

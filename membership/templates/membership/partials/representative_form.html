@@ -1,0 +1,61 @@
+{% load widget_tweaks %}
+
+<div class="form-section" id="representativeSection">
+
+    <div class="form-section-header">
+        <div>
+            <h5 class="mb-1">Corporate Representative Information</h5>
+
+            <p class="text-muted mb-0">
+                Add the representative details for the corporate membership application.
+            </p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Representative Type -->
+        <div class="col-md-6">
+
+            <label
+                for="{{ representative_form.representative_type.id_for_label }}"
+                class="form-label"
+            >
+                Representative Type
+                <span class="text-danger">*</span>
+            </label>
+
+            {{ representative_form.representative_type|add_class:"form-select" }}
+
+            {% if representative_form.representative_type.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ representative_form.representative_type.errors }}
+                </div>
+            {% endif %}
+
+        </div>
+
+        <!-- Position -->
+        <div class="col-md-6">
+
+            <label
+                for="{{ representative_form.position.id_for_label }}"
+                class="form-label"
+            >
+                Position
+                <span class="text-danger">*</span>
+            </label>
+
+            {{ representative_form.position|add_class:"form-control"|attr:"placeholder:Enter representative's position" }}
+
+            {% if representative_form.position.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ representative_form.position.errors }}
+                </div>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>

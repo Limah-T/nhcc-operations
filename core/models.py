@@ -11,3 +11,6 @@ class Title(models.Model):
 
     class Meta:
         ordering = ["display_order", "name"]
+
+    def __str__(self):
+        return self.name

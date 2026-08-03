@@ -42,17 +42,17 @@ class ExpenseRecordCalculator:
         if start_date and end_date:
             return sum(
                 item.total for item in queryset 
-                if item.date_recorded and (
-                    item.date_recorded.month == start_date.month and 
-                    item.date_recorded.year == end_date.year
+                if item.created_at and (
+                    item.created_at.month == start_date.month and 
+                    item.created_at.year == end_date.year
                 ) 
             )
 
         return sum(
             item.total for item in queryset 
-            if item.date_recorded and (
-                item.date_recorded.month == self.current_month and 
-                item.date_recorded.year == self.current_year
+            if item.created_at and (
+                item.created_at.month == self.current_month and 
+                item.created_at.year == self.current_year
             ) 
         )
 
@@ -60,15 +60,15 @@ class ExpenseRecordCalculator:
             self, start_date=None, end_date=None) -> int:
         if start_date and end_date:
             return Expense.objects.filter(
-                    date_recorded__gte=start_date, 
-                    date_recorded__lte=end_date
+                    created_at__gte=start_date, 
+                    created_at__lte=end_date
             ).count()
         
         now = timezone.now()
         start_date, end_date = date_constructor(now.year, now.month)
         return Expense.objects.filter(
-                date_recorded__gte=start_date, 
-                date_recorded__lte=end_date
+                created_at__gte=start_date, 
+                created_at__lte=end_date
         ).count()
 
     def total_annual_records(
@@ -76,12 +76,12 @@ class ExpenseRecordCalculator:
         if year:
             return sum(
                 item.total for item in queryset
-                if item.date_recorded and (item.date_recorded.year == year)
+                if item.created_at and (item.created_at.year == year)
             )
         return sum(
                 item.total for item in queryset
-                if item.date_recorded and (
-                    item.date_recorded.year == self.current_year
+                if item.created_at and (
+                    item.created_at.year == self.current_year
                 )
         )
     
@@ -98,16 +98,16 @@ class ExpenseDataRetrieval:
         if start_date and end_date:
             return Expense.objects.select_related(
                 "category").filter(
-                    date_recorded__gte=start_date, 
-                    date_recorded__lt=end_date
+                    created_at__gte=start_date, 
+                    created_at__lt=end_date
                 ).order_by("category__name")
         
         now = timezone.now()
         start_date, end_date = date_constructor(now.year, now.month)
         return Expense.objects.select_related(
             "category").filter(
-                date_recorded__gte=start_date, 
-                date_recorded__lt=end_date
+                created_at__gte=start_date, 
+                created_at__lt=end_date
             ).order_by("category__name")
 
     @staticmethod
@@ -117,9 +117,9 @@ class ExpenseDataRetrieval:
             id__in=expense_ids
         )
 
-def expense_context_data(user):
+def expense_context_data(user, start_date=None, end_date=None):
     categories = CategoryDataRetrieval().retrieve_all()
-    expenses = ExpenseDataRetrieval().retrieve_all_with_category()
+    expenses = ExpenseDataRetrieval().retrieve_all_with_category(start_date, end_date)
     calculator = ExpenseRecordCalculator()
     total_expenses = calculator.total_monthly_records(expenses)
     
@@ -307,3 +307,5 @@ def delete_bulk(expense_ids) -> tuple[str, int] | None:
     except Exception:
         return (server_error, 500)
     return None
+
+

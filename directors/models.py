@@ -33,5 +33,6 @@ class Director(models.Model):
     updated_at = models.DateField(auto_now=True)
     created_by = models.CharField(max_length=255)
     
-
+    def __str__(self):
+        return f"{self.title.name}. {self.first_name} {self.last_name}"
 

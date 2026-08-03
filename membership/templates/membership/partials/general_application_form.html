@@ -1,0 +1,97 @@
+{% load widget_tweaks %}
+
+<div class="form-section">
+    <div class="form-section-header">
+        <div>
+            <h5 class="mb-1">Application Information</h5>
+            <p class="text-muted mb-0">
+                Provide the general information required for the membership application.
+            </p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Proposer -->
+        <div class="col-md-6">
+            <label for="{{ general_application_form.proposer.id_for_label }}"
+                   class="form-label">
+                Proposer
+                <span class="text-danger">*</span>
+            </label>
+
+            {{ general_application_form.proposer|add_class:"form-select" }}
+
+            {% if general_application_form.proposer.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ general_application_form.proposer.errors }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Other Business Interests -->
+        <div class="col-md-6">
+            <label for="{{ general_application_form.other_business_interests.id_for_label }}"
+                   class="form-label">
+                Other Business Interests
+            </label>
+
+            {{ general_application_form.other_business_interests|add_class:"form-control"|attr:"rows:4"|attr:"placeholder:Enter other business interests" }}
+
+            {% if general_application_form.other_business_interests.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ general_application_form.other_business_interests.errors }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Interest in Hungary -->
+        <div class="col-md-6">
+            <label for="{{ general_application_form.interest_in_hungary.id_for_label }}"
+                   class="form-label">
+                Interest in Hungary
+            </label>
+
+            {{ general_application_form.interest_in_hungary|add_class:"form-control"|attr:"rows:4"|attr:"placeholder:Explain the applicant's interest in Hungary" }}
+
+            {% if general_application_form.interest_in_hungary.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ general_application_form.interest_in_hungary.errors }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Main Challenges -->
+        <div class="col-md-6">
+            <label for="{{ general_application_form.main_challenges.id_for_label }}"
+                   class="form-label">
+                Main Challenges
+            </label>
+
+            {{ general_application_form.main_challenges|add_class:"form-control"|attr:"rows:4"|attr:"placeholder:Describe the main challenges" }}
+
+            {% if general_application_form.main_challenges.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ general_application_form.main_challenges.errors }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Areas the Chamber Can Assist -->
+        <div class="col-12">
+            <label for="{{ general_application_form.areas_chamber_can_assist.id_for_label }}"
+                   class="form-label">
+                Areas Where the Chamber Can Assist
+            </label>
+
+            {{ general_application_form.areas_chamber_can_assist|add_class:"form-control"|attr:"rows:4"|attr:"placeholder:Describe how the Chamber can assist the applicant" }}
+
+            {% if general_application_form.areas_chamber_can_assist.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ general_application_form.areas_chamber_can_assist.errors }}
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>

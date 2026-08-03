@@ -1,9 +1,6 @@
-from django.http import HttpResponse
 from django.utils import timezone
-from django.templatetags.static import static
-from django.conf import settings
 from pathlib import Path
-from weasyprint import HTML, CSS
+from django.conf import settings
 from account.services.profile_service import getFullName
 from finance.expense.services.expense_service import (
     ExpenseDataRetrieval, ExpenseRecordCalculator, expenseOrganizer
@@ -114,20 +111,3 @@ def get_template_context(
         }
     return ...
 
-def file_naming_constructor(type, month, year, start, end) -> str:
-    return f"{month}_{year}_{start.day}_to_{end.day}_{type.lower()}.pdf"
-
-
-def pdf_generator(html_string, request, file_name):
-    pdf = HTML(
-        string=html_string,
-        base_url=request.build_absolute_uri("/")
-    ).write_pdf(
-        # stylesheets=[
-        #     CSS(settings.STATIC_ROOT / css_path)
-        # ]
-    )
-
-    response = HttpResponse(pdf, content_type="application/pdf")
-    response["Content-Disposition"] = f'inline; filename="{file_name}"'
-    return response

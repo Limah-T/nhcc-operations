@@ -1,0 +1,502 @@
+<!-- Membership Documents -->
+
+<div
+    id="membershipDocumentsSection"
+    class="d-none"
+>
+
+
+<div class="card border mb-4">
+
+    <div class="card-body">
+
+        <div class="mb-4">
+
+            <h6 class="fw-bold mb-1">
+
+                Membership Documents
+
+            </h6>
+
+            <p class="text-muted small mb-0">
+
+                Upload the required documents for the selected
+                membership application type.
+
+            </p>
+
+        </div>
+
+
+        <!-- Individual Documents -->
+
+        <div
+            id="individualDocumentsSection"
+            class="d-none"
+        >
+
+            <div class="alert alert-info small">
+
+                <i class="bi bi-info-circle me-2"></i>
+
+                Individual membership requires a passport and
+                business registration document.
+
+            </div>
+
+
+            <!-- Individual Passport -->
+
+            <div class="mb-4">
+
+                <label
+                    for="individualPassport"
+                    class="form-label fw-semibold"
+                >
+
+                    Passport
+
+                    <span class="text-danger">
+
+                        *
+
+                    </span>
+
+                </label>
+
+
+                <input
+                    type="file"
+                    name="individual_passport"
+                    id="individualPassport"
+                    class="form-control"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    disabled
+                >
+
+
+                <div class="form-text">
+
+                    Upload a clear copy of the applicant's passport.
+
+                </div>
+
+            </div>
+
+
+            <!-- Business Registration Document -->
+
+            <div class="mb-3">
+
+                <label
+                    for="businessRegistrationDocument"
+                    class="form-label fw-semibold"
+                >
+
+                    Business Registration Document
+
+                    <span class="text-danger">
+
+                        *
+
+                    </span>
+
+                </label>
+
+
+                <input
+                    type="file"
+                    name="business_registration_document"
+                    id="businessRegistrationDocument"
+                    class="form-control"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    disabled
+                >
+
+
+                <div class="form-text">
+
+                    Upload the business registration certificate
+                    or registration document.
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Corporate Documents -->
+
+        <div
+            id="corporateDocumentsSection"
+            class="d-none"
+        >
+
+            <div class="alert alert-info small">
+
+                <i class="bi bi-info-circle me-2"></i>
+
+                Corporate membership requires a passport and
+                CAC document.
+
+            </div>
+
+
+            <!-- Corporate Passport -->
+
+            <div class="mb-4">
+
+                <label
+                    for="corporatePassport"
+                    class="form-label fw-semibold"
+                >
+
+                    Passport
+
+                    <span class="text-danger">
+
+                        *
+
+                    </span>
+
+                </label>
+
+
+                <input
+                    type="file"
+                    name="corporate_passport"
+                    id="corporatePassport"
+                    class="form-control"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    disabled
+                >
+
+
+                <div class="form-text">
+
+                    Upload a clear copy of the authorised
+                    representative's passport.
+
+                </div>
+
+            </div>
+
+
+            <!-- CAC Document -->
+
+            <div class="mb-3">
+
+                <label
+                    for="cacDocument"
+                    class="form-label fw-semibold"
+                >
+
+                    CAC Document
+
+                    <span class="text-danger">
+
+                        *
+
+                    </span>
+
+                </label>
+
+
+                <input
+                    type="file"
+                    name="cac_document"
+                    id="cacDocument"
+                    class="form-control"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    disabled
+                >
+
+
+                <div class="form-text">
+
+                    Upload the company's CAC registration
+                    certificate or incorporation document.
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+</div>
+
+<script>
+
+(function () {
+
+    const applicationType =
+        document.getElementById(
+            "applicationType"
+        );
+
+
+    const membershipDocumentsSection =
+        document.getElementById(
+            "membershipDocumentsSection"
+        );
+
+
+    const individualDocumentsSection =
+        document.getElementById(
+            "individualDocumentsSection"
+        );
+
+
+    const corporateDocumentsSection =
+        document.getElementById(
+            "corporateDocumentsSection"
+        );
+
+
+    const individualPassport =
+        document.getElementById(
+            "individualPassport"
+        );
+
+
+    const businessRegistrationDocument =
+        document.getElementById(
+            "businessRegistrationDocument"
+        );
+
+
+    const corporatePassport =
+        document.getElementById(
+            "corporatePassport"
+        );
+
+
+    const cacDocument =
+        document.getElementById(
+            "cacDocument"
+        );
+
+
+    /*
+    Stop if the required elements
+    are not available.
+    */
+
+    if (
+        !applicationType ||
+        !membershipDocumentsSection ||
+        !individualDocumentsSection ||
+        !corporateDocumentsSection
+    ) {
+
+        console.error(
+            "Membership document elements were not found."
+        );
+
+        return;
+
+    }
+
+
+    /*
+    Hide all document sections
+    and disable all file inputs.
+    */
+
+    function resetDocuments() {
+
+        membershipDocumentsSection
+            .classList
+            .add("d-none");
+
+
+        individualDocumentsSection
+            .classList
+            .add("d-none");
+
+
+        corporateDocumentsSection
+            .classList
+            .add("d-none");
+
+
+        if (individualPassport) {
+
+            individualPassport.disabled = true;
+
+            individualPassport.required = false;
+
+            individualPassport.value = "";
+
+        }
+
+
+        if (businessRegistrationDocument) {
+
+            businessRegistrationDocument.disabled = true;
+
+            businessRegistrationDocument.required = false;
+
+            businessRegistrationDocument.value = "";
+
+        }
+
+
+        if (corporatePassport) {
+
+            corporatePassport.disabled = true;
+
+            corporatePassport.required = false;
+
+            corporatePassport.value = "";
+
+        }
+
+
+        if (cacDocument) {
+
+            cacDocument.disabled = true;
+
+            cacDocument.required = false;
+
+            cacDocument.value = "";
+
+        }
+
+    }
+
+
+    /*
+    Display the correct documents
+    based on membership type.
+    */
+
+    function updateMembershipDocuments() {
+
+        const selectedApplicationType =
+            applicationType.value;
+
+
+        /*
+        Reset every document section.
+        */
+
+        resetDocuments();
+
+
+        /*
+        Individual documents.
+        */
+
+        if (
+            selectedApplicationType ===
+            "individual"
+        ) {
+
+            membershipDocumentsSection
+                .classList
+                .remove("d-none");
+
+
+            individualDocumentsSection
+                .classList
+                .remove("d-none");
+
+
+            if (individualPassport) {
+
+                individualPassport.disabled =
+                    false;
+
+                individualPassport.required =
+                    true;
+
+            }
+
+
+            if (
+                businessRegistrationDocument
+            ) {
+
+                businessRegistrationDocument
+                    .disabled = false;
+
+
+                businessRegistrationDocument
+                    .required = true;
+
+            }
+
+        }
+
+
+        /*
+        Corporate documents.
+        */
+
+        if (
+            selectedApplicationType ===
+            "corporate"
+        ) {
+
+            membershipDocumentsSection
+                .classList
+                .remove("d-none");
+
+
+            corporateDocumentsSection
+                .classList
+                .remove("d-none");
+
+
+            if (corporatePassport) {
+
+                corporatePassport.disabled =
+                    false;
+
+                corporatePassport.required =
+                    true;
+
+            }
+
+
+            if (cacDocument) {
+
+                cacDocument.disabled =
+                    false;
+
+                cacDocument.required =
+                    true;
+
+            }
+
+        }
+
+    }
+
+
+    /*
+    Listen for membership type changes.
+    */
+
+    applicationType.addEventListener(
+        "change",
+        updateMembershipDocuments
+    );
+
+
+    /*
+    Handle an already selected value.
+    */
+
+    updateMembershipDocuments();
+
+})();
+
+</script>

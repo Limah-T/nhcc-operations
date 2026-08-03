@@ -1,0 +1,526 @@
+{% extends "dashboard/dashboard_base.html" %}
+
+{% block title %}
+    {% if application %}
+        Edit Membership Application
+    {% else %}
+        New Membership Application
+    {% endif %}
+{% endblock title %}
+
+
+{% block content %}
+
+<div class="container-fluid py-4">
+
+    <!-- Page Header -->
+    <div
+        class="d-flex flex-column flex-lg-row
+               justify-content-between
+               align-items-lg-center
+               gap-3 mb-4"
+    >
+
+        <div>
+
+            <h1 class="h3 fw-bold mb-1">
+
+                {% if application %}
+                    Edit Membership Application
+                {% else %}
+                    New Membership Application
+                {% endif %}
+
+            </h1>
+
+            <p class="text-muted mb-0">
+
+                {% if application %}
+                    Update the membership application information.
+                {% else %}
+                    Complete the required information to create a
+                    membership application.
+                {% endif %}
+
+            </p>
+
+        </div>
+
+
+        <a
+            href="{% url 'membership:application_list' %}"
+            class="btn btn-outline-secondary"
+        >
+
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Applications
+
+        </a>
+
+    </div>
+
+
+    <!-- Application Form -->
+    <form
+        method="post"
+        enctype="multipart/form-data"
+        id="membershipApplicationForm"
+    >
+
+        {% csrf_token %}
+
+
+        <!-- Form-wide Errors -->
+        {% if form_errors %}
+
+            <div class="alert alert-danger">
+
+                <h6 class="fw-bold mb-2">
+                    Please correct the following errors:
+                </h6>
+
+                {{ form_errors }}
+
+            </div>
+
+        {% endif %}
+
+
+        <!-- Application Type -->
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-header bg-white">
+
+                <h5 class="fw-bold mb-1">
+
+                    <i class="bi bi-diagram-3 me-2"></i>
+                    Application Type
+
+                </h5>
+
+                <p class="text-muted small mb-0">
+
+                    Select whether this is an individual or corporate
+                    membership application.
+
+                </p>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+
+                        <label
+                            for="{{ membership_form.application_type.id_for_label }}"
+                            class="form-label fw-semibold"
+                        >
+
+                            Membership Type
+
+                            <span class="text-danger">
+                                *
+                            </span>
+
+                        </label>
+
+
+                        {{ membership_form.application_type }}
+
+                        {% if membership_form.application_type.errors %}
+
+                            <div class="text-danger small mt-1">
+
+                                {% for error in membership_form.application_type.errors %}
+
+                                    {{ error }}
+
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        <label
+                            for="{{ membership_form.associated_hungarian_company.id_for_label }}"
+                            class="form-label fw-semibold"
+                        >
+
+                            Associated Hungarian Company
+
+                        </label>
+
+
+                        {{ membership_form.associated_hungarian_company }}
+
+                        {% if membership_form.associated_hungarian_company.errors %}
+
+                            <div class="text-danger small mt-1">
+
+                                {% for error in membership_form.associated_hungarian_company.errors %}
+
+                                    {{ error }}
+
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Applicant Profile -->
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-body">
+
+                {% include "membership/partials/profile_form.html" %}
+
+            </div>
+
+        </div>
+
+
+        <!-- General Application Information -->
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-body">
+
+                {% include "membership/partials/general_application_form.html" %}
+
+            </div>
+
+        </div>
+
+
+        <!-- Individual Application -->
+        <div
+            class="card border-0 shadow-sm mb-4"
+            id="individualApplicationSection"
+            style="display: none;"
+        >
+
+            <div class="card-body">
+
+                {% include "membership/partials/individual_application_form.html" %}
+
+            </div>
+
+        </div>
+
+
+        <!-- Corporate Application -->
+        <div
+            class="card border-0 shadow-sm mb-4"
+            id="corporateApplicationSection"
+            style="display: none;"
+        >
+
+            <div class="card-body">
+
+                {% include "membership/partials/corporate_application_form.html" %}
+
+            </div>
+
+        </div>
+
+
+        <!-- Corporate Representative -->
+        <div
+            class="card border-0 shadow-sm mb-4"
+            id="representativeSection"
+            style="display: none;"
+        >
+
+            <div class="card-body">
+
+                {% include "membership/partials/representative_form.html" %}
+
+            </div>
+
+        </div>
+
+
+        <!-- Required Documents -->
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-header bg-white">
+
+                <h5 class="fw-bold mb-1">
+
+                    <i class="bi bi-file-earmark-arrow-up me-2"></i>
+                    Required Documents
+
+                </h5>
+
+                <p class="text-muted small mb-0">
+
+                    Upload the documents required for the selected
+                    membership application type.
+
+                </p>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <div id="requiredDocumentsContainer">
+
+                    {% for document in required_documents %}
+
+                        <div
+                            class="border rounded p-3 mb-3
+                                   required-document"
+                            data-category="{{ document.category.application_type }}"
+                        >
+
+                            <div
+                                class="d-flex flex-column
+                                       flex-md-row
+                                       justify-content-between
+                                       gap-3"
+                            >
+
+                                <div>
+
+                                    <h6 class="fw-semibold mb-1">
+
+                                        {{ document.title }}
+
+                                        {% if document.is_required %}
+
+                                            <span class="text-danger">
+                                                *
+                                            </span>
+
+                                        {% endif %}
+
+                                    </h6>
+
+
+                                    {% if document.description %}
+
+                                        <p
+                                            class="text-muted
+                                                   small mb-0"
+                                        >
+
+                                            {{ document.description }}
+
+                                        </p>
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <div class="flex-shrink-0">
+
+                                    <input
+                                        type="file"
+                                        name="document_{{ document.id }}"
+                                        class="form-control"
+                                        {% if document.is_required %}
+                                            required
+                                        {% endif %}
+                                    >
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    {% empty %}
+
+                        <div
+                            class="text-center
+                                   text-muted py-4"
+                        >
+
+                            <i
+                                class="bi bi-file-earmark
+                                       fs-2 d-block mb-2"
+                            ></i>
+
+                            No required documents have been configured.
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Form Actions -->
+        <div
+            class="d-flex flex-column flex-sm-row
+                   justify-content-between
+                   align-items-sm-center
+                   gap-3 mb-4"
+        >
+
+            <a
+                href="{% url 'membership:application_list' %}"
+                class="btn btn-outline-secondary"
+            >
+
+                <i class="bi bi-x-circle me-1"></i>
+                Cancel
+
+            </a>
+
+
+            <div class="d-flex flex-wrap gap-2">
+
+                <button
+                    type="submit"
+                    name="action"
+                    value="save_draft"
+                    class="btn btn-outline-primary"
+                >
+
+                    <i class="bi bi-save me-1"></i>
+                    Save Draft
+
+                </button>
+
+
+                <button
+                    type="submit"
+                    name="action"
+                    value="submit"
+                    class="btn btn-primary"
+                >
+
+                    <i class="bi bi-send me-1"></i>
+
+                    {% if application %}
+                        Update Application
+                    {% else %}
+                        Submit Application
+                    {% endif %}
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const applicationTypeField =
+            document.getElementById(
+                "{{ membership_form.application_type.id_for_label }}"
+            );
+
+        const individualSection =
+            document.getElementById(
+                "individualApplicationSection"
+            );
+
+        const corporateSection =
+            document.getElementById(
+                "corporateApplicationSection"
+            );
+
+        const representativeSection =
+            document.getElementById(
+                "representativeSection"
+            );
+
+
+        function updateApplicationSections() {
+
+            const applicationType =
+                applicationTypeField.value;
+
+
+            individualSection.style.display =
+                applicationType === "individual"
+                    ? "block"
+                    : "none";
+
+
+            corporateSection.style.display =
+                applicationType === "corporate"
+                    ? "block"
+                    : "none";
+
+
+            representativeSection.style.display =
+                applicationType === "corporate"
+                    ? "block"
+                    : "none";
+
+
+            const requiredDocuments =
+                document.querySelectorAll(
+                    ".required-document"
+                );
+
+
+            requiredDocuments.forEach(
+                function (documentItem) {
+
+                    const documentCategory =
+                        documentItem.dataset.category;
+
+
+                    documentItem.style.display =
+                        documentCategory === applicationType
+                            ? "block"
+                            : "none";
+
+                }
+            );
+
+        }
+
+
+        if (applicationTypeField) {
+
+            applicationTypeField.addEventListener(
+                "change",
+                updateApplicationSections
+            );
+
+            updateApplicationSections();
+
+        }
+
+    }
+);
+
+</script>
+
+{% endblock content %}

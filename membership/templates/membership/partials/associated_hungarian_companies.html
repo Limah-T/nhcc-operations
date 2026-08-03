@@ -1,0 +1,258 @@
+{% load widget_tweaks %}
+
+<!-- Associated Hungarian Company -->
+
+<div class="card border mb-4">
+
+
+<div class="card-body">
+
+    <div class="mb-4">
+
+        <h6 class="fw-bold mb-1">
+
+            Associated Hungarian Company
+
+        </h6>
+
+        <p class="text-muted small mb-0">
+
+            Select an existing Hungarian company or add a new company.
+
+        </p>
+
+    </div>
+
+
+    <!-- Company Option -->
+
+    <div class="mb-3">
+
+        <label
+            for="hungarianCompanyOption"
+            class="form-label fw-semibold"
+        >
+
+            Company Option
+
+        </label>
+
+        <select
+            id="hungarianCompanyOption"
+            class="form-select"
+        >
+
+            <option value="">
+
+                Select an option
+
+            </option>
+
+            <option value="existing">
+
+                Select Existing Company
+
+            </option>
+
+            <option value="new">
+
+                Add New Company
+
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <!-- Existing Company -->
+
+    <div
+        id="existingHungarianCompanySection"
+        class="d-none"
+    >
+
+        <div class="mb-3">
+
+            <label
+                for="{{ membership_application_form.associated_hungarian_company.id_for_label }}"
+                class="form-label fw-semibold"
+            >
+
+                Select Associated Hungarian Company
+
+            </label>
+
+
+            {{ membership_application_form.associated_hungarian_company|add_class:"form-select" }}
+
+
+            {% if membership_application_form.associated_hungarian_company.errors %}
+
+                <div class="invalid-feedback d-block">
+
+                    {{ membership_application_form.associated_hungarian_company.errors }}
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- New Company -->
+
+    <div
+        id="newHungarianCompanySection"
+        class="d-none"
+    >
+
+        <div class="row g-3">
+
+            <div class="col-12">
+
+                <label
+                    for="newHungarianCompanyName"
+                    class="form-label fw-semibold"
+                >
+
+                    Company Name
+
+                    <span class="text-danger">
+
+                        *
+
+                    </span>
+
+                </label>
+
+
+                <input
+                    type="text"
+                    name="new_company_name"
+                    id="newHungarianCompanyName"
+                    class="form-control"
+                    placeholder="Enter company name"
+                >
+
+            </div>
+
+
+            <div class="col-12">
+
+                <label
+                    for="newHungarianCompanyAddress"
+                    class="form-label fw-semibold"
+                >
+
+                    Company Address
+
+                </label>
+
+
+                <textarea
+                    name="new_company_address"
+                    id="newHungarianCompanyAddress"
+                    class="form-control"
+                    rows="3"
+                    placeholder="Enter company address"
+                ></textarea>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+</div>
+
+<script>
+
+(function () {
+
+    const companyOption =
+        document.getElementById(
+            "hungarianCompanyOption"
+        );
+
+    const existingCompanySection =
+        document.getElementById(
+            "existingHungarianCompanySection"
+        );
+
+    const newCompanySection =
+        document.getElementById(
+            "newHungarianCompanySection"
+        );
+
+
+    if (
+        !companyOption ||
+        !existingCompanySection ||
+        !newCompanySection
+    ) {
+
+        console.error(
+            "Hungarian company elements were not found."
+        );
+
+        return;
+
+    }
+
+
+    companyOption.addEventListener(
+        "change",
+        function () {
+
+            const selectedOption =
+                this.value;
+
+
+            // Hide both sections
+
+            existingCompanySection
+                .classList
+                .add("d-none");
+
+            newCompanySection
+                .classList
+                .add("d-none");
+
+
+            // Show existing company selector
+
+            if (
+                selectedOption === "existing"
+            ) {
+
+                existingCompanySection
+                    .classList
+                    .remove("d-none");
+
+            }
+
+
+            // Show new company fields
+
+            if (
+                selectedOption === "new"
+            ) {
+
+                newCompanySection
+                    .classList
+                    .remove("d-none");
+
+            }
+
+        }
+    );
+
+})();
+
+</script>

@@ -24,5 +24,8 @@ django-silk==5.5.0
 # Countries list
 django-countries==9.0.0
 
+# Widget tweak for HTML
+django-widget-tweaks==1.5.1
+
 # PDF Generator
 weasyprint==69.0

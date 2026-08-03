@@ -1,19 +1,20 @@
 from django.urls import path
-from .category_views import (
+from .views.category_views import (
     categoryOverview, CategoryManagementView,
     CategoryUpdateView, CategoryDeleteView
 )
-from .diesel_views import (
+from .views.diesel_views import (
     dieselOverView, DieselManagementView,
     DieselUpdateView, DieselDeleteView
 )
-from .electricity_views import (
+from .views.electricity_views import (
     ekedcOverview, EkedcManagementView, 
     EkedcUpdateView, EkedcDeleteView,
 )
-from .expenses_views import (
+from .views.expenses_views import (
     ExpenseManagementView, expenseOverview, 
-    ExpenseUpdateView, ExpenseDeleteView
+    ExpenseUpdateView, ExpenseDeleteView, 
+    expenseFilter
 )
 
 
@@ -37,6 +38,7 @@ urlpatterns = [
     path("delete/ekedc/", EkedcDeleteView.as_view(), name="delete_ekedcs"),
 
     path("overview/", expenseOverview, name="expense_overview"),
+    path("filter/records/", expenseFilter, name="expense_filter"),
     path("records/",  ExpenseManagementView.as_view(), name="expenses"),
     path("<int:pk>/edit/", ExpenseUpdateView.as_view(), name="edit_expense"),
     path("<int:pk>/delete/", ExpenseDeleteView.as_view(), name="delete_expense"),
