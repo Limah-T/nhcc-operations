@@ -9,6 +9,7 @@ def date_constructor(year:int, month:int) -> tuple[datetime.date, datetime.date]
     end_date = datetime(year, month, last_day).date()
     return (start_date, end_date)
 
+
 def email_is_valid(value) -> str | None:
     try:
         email = email_validator.validate_email(

@@ -121,7 +121,7 @@ def expense_context_data(user, start_date=None, end_date=None):
     categories = CategoryDataRetrieval().retrieve_all()
     expenses = ExpenseDataRetrieval().retrieve_all_with_category(start_date, end_date)
     calculator = ExpenseRecordCalculator()
-    total_expenses = calculator.total_monthly_records(expenses)
+    total_expenses = calculator.total_monthly_records(expenses, start_date, end_date)
     
     return {
         "categories":categories,

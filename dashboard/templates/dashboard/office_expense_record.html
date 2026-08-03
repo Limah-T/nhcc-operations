@@ -125,10 +125,39 @@
         <div class="card-body p-4">
             <div class="d-flex justify-content-between align-items-center">
                 <div id="monthlySummary" class="card border-0 shadow-sm rounded-4 mb-4">
-                    <div class="text-muted small text-uppercase fw-semibold">This Month</div>
-                        <div class="fw-bold fs-4 mb-0">{{ monthly_total_display }}</div>
+                    <div class="text-muted small text-uppercase fw-semibold">
+                        {% if request.GET.start_date and request.GET.end_date %} 
+                            Filtered Expense Records 
+                        {% else %} 
+                            This Month 
+                        {% endif %} 
+                    </div>
+                        <div class="fw-bold fs-4 mb-0">
+                            {% if request.GET.start_date and request.GET.end_date %} 
+                                {{ monthly_total_display }}
+                            {% else %} 
+                                {{ monthly_total_display }}
+                            {% endif %} 
+                        <div>
                 </div>
-                <div class="text-primary"> <i class="bi bi-fuel-pump fs-4"></i></div>
+                    <!-- <div class="text-primary"> 
+                        <i class="bi bi-fuel-pump fs-4"></i>
+                    </div>
+                    <p class="text-muted small mb-1"> 
+                        {% if request.GET.start_date and request.GET.end_date %} 
+                            Filtered Expense Records 
+                        {% else %} 
+                            This Month 
+                        {% endif %} 
+                    </p> 
+                    <h4 class="fw-bold mb-0"> 
+                        {% if request.GET.start_date and request.GET.end_date %} 
+                            {{ total_expenses }} 
+                        {% else %} 
+                            {{ total_expenses }} 
+                        {% endif %} 
+                    </h4> -->
+                </div>
             </div>
         </div>
     </div>

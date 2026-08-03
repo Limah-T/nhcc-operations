@@ -45,8 +45,7 @@ class ReportManagementView(View):
             report_type = form.cleaned_data["report_type"]
             start = form.cleaned_data["start_date"]
             end = form.cleaned_data["end_date"]
-            now = timezone.now()
-            month, year = now.strftime("%B"), now.strftime("%Y")
+            month, year = start.strftime("%B"), start.strftime("%Y")
             file_name = file_naming_constructor(
                 report_type, month, year, start, end)
             details = get_template_context(

@@ -8,13 +8,14 @@ from nhcc_operations.services.generic_service import empty_fields_error
 from nhcc_operations.services.http_response_services import (
     error_response, success_response
 )
+from core.forms import DateForm
 from dashboard.views import expense_record_temp_name, expense_temp_name
 from ..services.expense_service import (
     ExpensePayloadParser,
     expense_context_data, 
     create_single, create_bulk,
     update_single, delete_single, 
-    delete_bulk
+    delete_bulk, date_constructor
 )
 from ..forms import ExpenseForm
 
@@ -43,6 +44,11 @@ class ExpenseManagementView(View):
         start_date = request.GET.get("start_date")
         end_date = request.GET.get("end_date")
         print(start_date, end_date)
+        form = DateForm(data={"start_date":start_date, "end_date":end_date})
+        if form.is_valid():
+            start_date = form.cleaned_data["start_date"]
+            end_date = form.cleaned_data["end_date"]
+            
         return render(
             request=request, 
             template_name=expense_record_temp_name,
