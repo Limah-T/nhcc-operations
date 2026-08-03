@@ -23,7 +23,7 @@ def monthly_expenses_cxt_data(user, start_date, end_date, month, year)-> dict:
     queryset = ExpenseDataRetrieval().retrieve_all_with_category(start_date, end_date)
     expenses = ExpenseRecordCalculator()
     total_expenses = expenses.total_monthly_records(queryset)
-    total_records = expenses.count()
+    total_records = queryset.count()
     prepared_by = getFullName(user)
     generated_at = timezone.now()
     return {
