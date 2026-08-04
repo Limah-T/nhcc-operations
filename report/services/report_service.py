@@ -77,20 +77,21 @@ def monthly_expenses_cxt_data(user, start_date, end_date, month, year)-> dict:
 
 def monthly_expenses_ekedc_cxt_data(user, start_date, end_date, month, year)-> dict:
     queryset = ExpenseDataRetrieval().retrieve_all_with_category(start_date, end_date)
-    expenses = ExpenseRecordCalculator()
-    total_expenses = expenses.total_monthly_records(queryset)
+    total_expenses = ExpenseRecordCalculator().total_monthly_records(queryset)
+
     ekedc_queryset = EKedcDataRetrieval().retrieve_by_month(start_date, end_date)
     total_ekedc = EkedcRecordCalculator().total_monthly_records(ekedc_queryset)
+
     total_records = queryset.count()
-    
     grand_total = total_ekedc + total_expenses
     prepared_by = getFullName(user)
     generated_at = timezone.now()
+    
     return {
         "expenses":expenseOrganizer(queryset),
-        "total_expenses":total_expenses,
-        "total_records":total_records,
-        "total_ekedc": total_ekedc,
+        "total_expenses":grand_total,
+        "total_records":total_records + total_ekedc,
+        "total_ekedc": ekedc_queryset.count(),
         "prepared_by":prepared_by,
         "grand_total": grand_total,
         "generated_at":generated_at,
