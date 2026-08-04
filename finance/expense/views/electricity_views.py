@@ -21,10 +21,16 @@ ekedc_url_name = "ekedc"
 
 @login_required
 def ekedcOverview(request):
+    start_date = request.GET.get("start_date")
+    end_date = request.GET.get("end_date")
+    form = DateForm(data={"start_date":start_date, "end_date":end_date})
+    if form.is_valid():
+        start_date = form.cleaned_data["start_date"]
+        end_date = form.cleaned_data["end_date"]
     return render(
         request=request, 
         template_name=electricity_temp_name,
-        context=ekedc_context_data(request.user)
+        context=ekedc_context_data(request.user, start_date, end_date)
     ) 
 
 @method_decorator(login_required, name="dispatch")

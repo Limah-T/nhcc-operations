@@ -30,7 +30,7 @@ urlpatterns = [
     path("diesel/<int:pk>/delete/", DieselDeleteView.as_view(), name="delete_diesel"),
     path("delete/diesels/", DieselDeleteView.as_view(), name="delete_diesels"),
     
-    path("ekedc", ekedcOverview, name="ekedc_overview"),
+    path("ekedc/overview/", ekedcOverview, name="ekedc_overview"),
     path("add/ekedc/", EkedcManagementView.as_view(), name="ekedc"),
     path("ekedc/<int:pk>/edit/", EkedcUpdateView.as_view(), name="edit_ekedc"),
     path("ekedc/<int:pk>/delete/", EkedcDeleteView.as_view(), name="delete_ekedc"),

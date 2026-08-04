@@ -48,11 +48,11 @@ class Dashboard(View):
         ekedc_calculator = EkedcRecordCalculator()
         diesel_calculator = DieselRecordCalculator()
 
-        total_ekedc = ekedc_calculator.total_monthly_records(ekedc)
-        total_diesel = diesel_calculator.total_monthly_records(diesel)
+        total_ekedc = ekedc_calculator.total_monthly_amount(ekedc)
+        total_diesel = diesel_calculator.monthly_total(diesel)
         total_expenses = expense_calculator.total_monthly_records(expenses)
 
-        yearly_ekdc = ekedc_calculator.total_annual_records(ekedc)
+        yearly_ekdc = ekedc_calculator.total_annual_amount(ekedc)
         yearly_diesel = diesel_calculator.total_annual_records(diesel)
         yearly_expenses = expense_calculator.total_annual_records(expenses)
 
