@@ -16,7 +16,7 @@ url_name = "reports"
 expense_report_temp = "report/expenses.html"
 expense_ekedc_report_temp = "report/expenses_and_ekedc.html"
 diesel_report_temp = "report/diesel.html"
-ekedc_report_temp = "report/diesel.html"
+ekedc_report_temp = "report/ekedc.html"
 monthly_expenditure_report_temp = "report/monthly_expenditure.html"
 
 def build_image_url():
