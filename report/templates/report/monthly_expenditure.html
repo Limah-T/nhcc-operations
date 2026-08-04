@@ -110,7 +110,7 @@ Monthly Expenditure Report
                     </td>
 
                     <td class="text-end nowrap">
-                        {{ expense.date_recorded|date:"d M, Y" }}
+                        {{ expense.created_at|date:"d M, Y" }}
                     </td>
 
                 </tr>
@@ -195,7 +195,7 @@ Monthly Expenditure Report
                     ₦{{ diesel.total|floatformat:2|intcomma }}
                 </td>
                 <td class="nowrap">
-                    {{ diesel.date_recorded|date:"d M, Y" }}
+                    {{ diesel.created_at|date:"d M, Y" }}
                 </td>
             </tr>
 
@@ -272,7 +272,7 @@ Monthly Expenditure Report
                     ₦{{ payment.amount|floatformat:2|intcomma }}
                 </td>
                 <td class="nowrap text-end">
-                    {{ payment.date_recorded|date:"d M, Y" }}
+                    {{ payment.created_at_recorded|date:"d M, Y" }}
                 </td>
             </tr>
 

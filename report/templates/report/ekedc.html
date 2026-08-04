@@ -1,0 +1,140 @@
+{% extends "report/base_report.html" %}
+{% load humanize %}
+
+{% block title %}
+EKEDC Electricity Report
+{% endblock %}
+
+{% block report_title %}
+{{ month }} {{ year }} EKEDC Electricity Report
+{% endblock %}
+
+{% block content %}
+
+<!-- ===========================
+     REPORT SUMMARY
+=========================== -->
+
+<section class="summary-section">
+
+
+<h3 class="section-title">
+    Report Summary
+</h3>
+
+<table class="summary-table">
+
+    <tbody>
+
+        <tr>
+            <th>Total Records</th>
+            <td>{{ total_records }}</td>
+        </tr>
+
+        <tr>
+            <th>Total EKEDC Expenses</th>
+            <td>
+                ₦{{ total_ekedc|floatformat:2|intcomma }}
+            </td>
+        </tr>
+
+    </tbody>
+
+</table>
+
+
+</section>
+
+<!-- ===========================
+     EKEDC DETAILS
+=========================== -->
+
+<section class="table-section">
+
+
+<h3 class="section-title">
+    EKEDC Details
+</h3>
+
+<table class="report-table">
+
+    <thead>
+
+        <!-- Column Header -->
+        <tr class="sub-header">
+
+            <th style="width:25%;">
+                kWh
+            </th>
+
+            <th style="width:35%;" class="text-center">
+                Amount
+            </th>
+
+            <th style="width:40%;" class="text-end">
+                Purchased Date
+            </th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        {% for electricity in ekedc_records %}
+
+        <tr>
+
+            <td>
+                {{ electricity.kwh }}
+            </td>
+
+            <td class="text-center">
+                ₦{{ electricity.amount|floatformat:2|intcomma }}
+            </td>
+
+            <td class="text-end text-nowrap">
+                {{ electricity.created_at|date:"d M, Y" }}
+            </td>
+
+        </tr>
+
+        {% empty %}
+
+        <tr>
+
+            <td colspan="3" class="empty-state">
+
+                No EKEDC records available for this reporting period.
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+
+<!-- ===========================
+     GRAND TOTAL
+=========================== -->
+
+<div class="grand-total">
+
+    <span class="grand-total-label">
+        GRAND TOTAL
+    </span>
+
+    <span class="grand-total-value">
+        ₦{{ total_ekedc|floatformat:2|intcomma }}
+    </span>
+
+</div>
+
+
+</section>
+
+{% endblock %}

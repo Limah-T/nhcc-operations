@@ -74,7 +74,7 @@ Expense Report
                         Expense
                     </th>
 
-                    <th style="width:16%;" class="text-end">
+                    <th style="width:16%;">
                         Unit Price
                     </th>
 
@@ -100,7 +100,7 @@ Expense Report
                         {{ expense.name }}
                     </td>
 
-                    <td class="text-end">
+                    <td class="text-nowrap">
                         ₦{{ expense.amount|floatformat:2|intcomma }}
                     </td>
 
@@ -112,8 +112,8 @@ Expense Report
                         ₦{{ expense.total|floatformat:2|intcomma }}
                     </td>
 
-                    <td class="nowrap">
-                        {{ expense.date_recorded|date:"d M, Y" }}
+                    <td class="text-end text-nowrap">
+                        {{ expense.created_at|date:"d M, Y" }}
                     </td>
 
                 </tr>

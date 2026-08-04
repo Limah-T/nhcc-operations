@@ -10,6 +10,7 @@ from dashboard.views import diesel_temp_name
 from nhcc_operations.services.http_response_services import (
     error_response, success_response
 )
+from core.forms import DateForm
 from ..services.diesel_service import (
     DieselPayloadParser, diesel_context_data,
     create_single, create_bulk, update_single, 
@@ -32,10 +33,17 @@ def dieselOverView(request):
 class DieselManagementView(View):
 
     def get(self, request):
+        start_date = request.GET.get("start_date")
+        end_date = request.GET.get("end_date")
+        form = DateForm(data={"start_date":start_date, "end_date":end_date})
+        if form.is_valid():
+            start_date = form.cleaned_data["start_date"]
+            end_date = form.cleaned_data["end_date"]
+        
         return render(
             request=request, 
             template_name=diesel_temp_name,
-            context=diesel_context_data(request.user),
+            context=diesel_context_data(request.user, start_date, end_date),
             status=200
         )
 
