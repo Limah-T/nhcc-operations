@@ -82,6 +82,7 @@ def monthly_expenses_ekedc_cxt_data(user, start_date, end_date, month, year)-> d
     ekedc_queryset = EKedcDataRetrieval().retrieve_by_month(start_date, end_date)
     total_ekedc = EkedcRecordCalculator().total_monthly_records(ekedc_queryset)
     total_records = queryset.count()
+    
     grand_total = total_ekedc + total_expenses
     prepared_by = getFullName(user)
     generated_at = timezone.now()
