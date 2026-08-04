@@ -82,13 +82,16 @@ def monthly_expenses_ekedc_cxt_data(user, start_date, end_date, month, year)-> d
     ekedc_queryset = EKedcDataRetrieval().retrieve_by_month(start_date, end_date)
     total_ekedc = EkedcRecordCalculator().total_monthly_records(ekedc_queryset)
     total_records = queryset.count()
+    grand_total = total_ekedc + total_expenses
     prepared_by = getFullName(user)
     generated_at = timezone.now()
     return {
         "expenses":expenseOrganizer(queryset),
         "total_expenses":total_expenses,
         "total_records":total_records,
+        "total_ekedc": total_ekedc,
         "prepared_by":prepared_by,
+        "grand_total": grand_total,
         "generated_at":generated_at,
         "month": month, "year": year,
         "report_period": f"{start_date:%d %b %Y} - {end_date:%d %b %Y}", 
@@ -159,7 +162,7 @@ def get_template_context(
     if report_type == "expense_ekedc":
         return {
             "template":expense_ekedc_report_temp, 
-            "context":monthly_expenses_cxt_data(
+            "context":monthly_expenses_ekedc_cxt_data(
                 user, start, end, month, year
             )
         }
