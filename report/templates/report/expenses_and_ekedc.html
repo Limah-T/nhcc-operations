@@ -6,7 +6,7 @@ Expense Report
 {% endblock %}
 
 {% block report_title %}
- {{month}} {{year}} Office Expense Report
+ {{month}} {{year}} Office Expense Report + Ekedc
 {% endblock %}
 
 {% block content %}
@@ -32,7 +32,7 @@ Expense Report
                     Total Records
                 </th>
 
-                <td>
+                <td class="text-end">
                     {{ total_records }}
                 </td>
 
@@ -44,44 +44,10 @@ Expense Report
             <tr>
 
                 <th>
-                    Total Office Expenses
+                    Total Expenses
                 </th>
 
-                <td>
-
-                    ₦{{ total_expenses|floatformat:2|intcomma }}
-
-                </td>
-
-            </tr>
-
-
-            <!-- EKEDC -->
-
-            <tr>
-
-                <th>
-                    Total EKEDC
-                </th>
-
-                <td>
-
-                    ₦{{ total_ekedc|floatformat:2|intcomma }}
-
-                </td>
-
-            </tr>
-
-
-            <!-- Combined Total -->
-
-            <tr class="summary-grand-total">
-
-                <th>
-                    Total Expenses + EKEDC
-                </th>
-
-                <td>
+                <td class="text-end">
 
                     ₦{{ grand_total|floatformat:2|intcomma }}
 
@@ -111,7 +77,7 @@ Expense Report
 
         <tbody>
 
-            {% for category, data in expenses.items %}
+            {% for category, data in expense_records.items %}
 
                 <!-- Category Header -->
                 <tr class="category-row">
@@ -123,11 +89,11 @@ Expense Report
                 <!-- Column Header -->
                 <tr class="sub-header">
 
-                    <th style="width:36%;">
+                    <th>
                         Expense
                     </th>
 
-                    <th style="width:16%;">
+                    <th style="width:16%;" class="text-center">
                         Unit Price
                     </th>
 
@@ -135,11 +101,11 @@ Expense Report
                         Qty
                     </th>
 
-                    <th style="width:18%;" class="text-end">
+                    <th style="width:18%;" class="text-center">
                         Total
                     </th>
 
-                    <th style="width:20%;">
+                    <th style="width:20%;" class="text-end">
                         Date
                     </th>
 
@@ -153,19 +119,19 @@ Expense Report
                         {{ expense.name }}
                     </td>
 
-                    <td class="text-nowrap">
+                    <td class="text-nowrap text-center">
                         ₦{{ expense.amount|floatformat:2|intcomma }}
                     </td>
 
-                    <td class="text-center">
+                    <td class="text-nowrap text-center">
                         {{ expense.quantity }}
                     </td>
 
-                    <td class="text-end">
+                    <td class="text-nowrap text-center">
                         ₦{{ expense.total|floatformat:2|intcomma }}
                     </td>
 
-                    <td class="text-end text-nowrap">
+                    <td class="text-nowrap text-end">
                         {{ expense.created_at|date:"d M, Y" }}
                     </td>
 
@@ -186,8 +152,71 @@ Expense Report
             </tr>
 
             {% endfor %}
+            <!-- Ekedc Header -->
+            <tr class="category-row">
+                <th colspan="5">
+                    Electricity (Prepaid Meter)
+                </th>
+            </tr>
+            <tr class="sub-header">
 
-            </tbody>
+                <th>
+                    kWh
+                </th>
+                <th class="text-center">
+                    ---------
+                </th>
+                <th class="text-center">
+                    ---------
+                </th>
+
+                <th class="text-center">
+                    Amount
+                </th>
+
+                <th class="text-end">
+                    Purchased Date
+                </th>
+
+            </tr>
+            {% for electricity in ekedc_records %}
+
+            <tr>
+
+                <td>
+                    {{ electricity.kwh }}
+                </td>
+                <td class="text-center">
+                    ---------
+                </td>
+                <td class="text-center">
+                    ---------
+                </td>
+                <td class="text-center">
+                    ₦{{ electricity.amount|floatformat:2|intcomma }}
+                </td>
+
+                <td class="text-end text-nowrap">
+                    {{ electricity.created_at|date:"d M, Y" }}
+                </td>
+
+            </tr>
+
+            {% empty %}
+
+            <tr>
+
+                <td colspan="3" class="empty-state">
+
+                    No EKEDC records available for this reporting period.
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
 
     </table>
     <div class="grand-total">
@@ -197,7 +226,7 @@ Expense Report
         </span>
 
         <span class="grand-total-value">
-            ₦{{ total_expenses|floatformat:2|intcomma }}
+            ₦{{ grand_total|floatformat:2|intcomma }}
         </span>
 
     </div>

@@ -25,15 +25,20 @@ def build_image_url():
 def monthly_diesel_cxt_data(user, start_date, end_date, month, year)-> dict:
     queryset = DieselDataRetrieval().retrieve_by_month(start_date, end_date)
     diesel = DieselRecordCalculator()
-    total_diesel = diesel.total_monthly_records(queryset)
-    total_records = queryset.count()
+    total_diesel = diesel.monthly_total(queryset)
+    total_litres = diesel.total_monthly_litres(queryset)
+    total_transport = diesel.total_monthly_transport(queryset)
+    total_amount = diesel.total_monthly_amount(queryset)
     prepared_by = getFullName(user)
     generated_at = timezone.now()
 
     return {
-        "diesel_records":diesel,
-        "total_diesel":total_diesel,
-        "total_records":total_records,
+        "diesel_records":queryset,
+        "grand_total":total_diesel,
+        "total_litres": total_litres,
+        "total_transport": total_transport,
+        "total_amount": total_amount,
+        "total_records":queryset.count(),
         "prepared_by":prepared_by,
         "generated_at":generated_at,
         "month": month, "year": year,
@@ -43,15 +48,14 @@ def monthly_diesel_cxt_data(user, start_date, end_date, month, year)-> dict:
 def monthly_ekedc_cxt_data(user, start_date, end_date, month, year)-> dict:
     queryset = EKedcDataRetrieval().retrieve_by_month(start_date, end_date)
     ekedc = EkedcRecordCalculator()
-    total_ekedc = ekedc.total_monthly_records(queryset)
-    total_records = queryset.count()
+    total_ekedc = ekedc.total_monthly_amount(queryset)
     prepared_by = getFullName(user)
     generated_at = timezone.now()
 
     return {
-        "ekedc_records":ekedc,
+        "ekedc_records":queryset,
         "total_ekedc":total_ekedc,
-        "total_records":total_records,
+        "total_records":queryset.count(),
         "prepared_by":prepared_by,
         "generated_at":generated_at,
         "month": month, "year": year,
@@ -80,18 +84,18 @@ def monthly_expenses_ekedc_cxt_data(user, start_date, end_date, month, year)-> d
     total_expenses = ExpenseRecordCalculator().total_monthly_records(queryset)
 
     ekedc_queryset = EKedcDataRetrieval().retrieve_by_month(start_date, end_date)
-    total_ekedc = EkedcRecordCalculator().total_monthly_records(ekedc_queryset)
-
+    ekedc = EkedcRecordCalculator()
+    total_ekedc = ekedc.total_monthly_amount(ekedc_queryset)
     total_records = queryset.count()
     grand_total = total_ekedc + total_expenses
     prepared_by = getFullName(user)
     generated_at = timezone.now()
-    
+
     return {
-        "expenses":expenseOrganizer(queryset),
-        "total_expenses":grand_total,
-        "total_records":total_records + total_ekedc,
-        "total_ekedc": ekedc_queryset.count(),
+        "expense_records":expenseOrganizer(queryset),
+        "total_records":total_records + ekedc_queryset.count(),
+        "total_ekedc": total_ekedc,
+        "ekedc_records": ekedc_queryset,
         "prepared_by":prepared_by,
         "grand_total": grand_total,
         "generated_at":generated_at,
@@ -107,16 +111,18 @@ def monthly_expenditure_cxt_data(user, start_date, end_date, month, year):
 
     total_expenses = ExpenseRecordCalculator().total_monthly_records(
         expense_queryset)
-    total_diesel = DieselRecordCalculator().total_monthly_records(
-        diesel_queryset, start_date, end_date)
-    total_ekedc = EkedcRecordCalculator().total_monthly_records(
-        ekedc_queryset, start_date, end_date)
+    diesel = DieselRecordCalculator()
+    total_diesel = diesel.monthly_total(diesel_queryset)
+    total_litres = diesel.total_monthly_litres(diesel_queryset)
+    total_transport = diesel.total_monthly_transport(diesel_queryset)
+    ekedc = EkedcRecordCalculator()
+    total_ekedc = ekedc.total_monthly_amount(ekedc_queryset)
+    total_kwhs = ekedc.total_monthly_kwh(ekedc_queryset)
 
     expense_records = expense_queryset.count()
     diesel_records = diesel_queryset.count()
     ekedc_records = ekedc_queryset.count()
 
-    expenses =  expenseOrganizer(expense_queryset)
     grand_total = total_expenses+total_diesel+total_ekedc
     salaries = {}
     salary_records = 0
@@ -133,22 +139,24 @@ def monthly_expenditure_cxt_data(user, start_date, end_date, month, year):
         "salary_records": salary_records,
 
         # Office Expenses
-        "expenses":expenses, "total_expenses": total_expenses,
+        "total_expenses": total_expenses,
 
         # Diesel
-        "diesel": diesel_queryset, "diesel_total": total_diesel,
+        "total_diesel": total_diesel, "total_litres": total_litres,
+        "total_transport": total_transport,
 
         # EKEDC
-        "ekedc": ekedc_queryset, "ekedc_total": total_ekedc,
+        "total_ekedc": total_ekedc, "total_kwhs": total_kwhs,
 
         # Staff Salaries
-        "salaries": salaries, "salary_total": total_salaries,
+        "salaries": salaries, "total_salaries": total_salaries,
 
         # Overall
         "grand_total": grand_total,
 
         # Report information
-        "generated_by": prepared_by, "generated_at": generated_at,
+        "prepared_by": prepared_by, "generated_at": generated_at,
+        "report_period": f"{start_date:%d %b %Y} - {end_date:%d %b %Y}", 
     }
 
 def get_template_context(

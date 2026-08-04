@@ -12,393 +12,188 @@ Monthly Expenditure Report
 {% block content %}
 
 <!-- ===========================
-     REPORT SUMMARY
+     MONTHLY EXPENDITURE SUMMARY
 =========================== -->
 
 <section class="summary-section">
 
-    <h3 class="section-title">
-        Report Summary
-    </h3>
 
-    <table class="summary-table">
+<h3 class="section-title">
+    Monthly Expenditure Summary
+</h3>
 
-        <tbody>
+<table class="summary-table">
 
-            <tr>
-                <th>Expense Records</th>
-                <td>{{ expense_records }}</td>
-            </tr>
+    <tbody>
 
-            <tr>
-                <th>Diesel Records</th>
-                <td>{{ diesel_records }}</td>
-            </tr>
+        <tr>
+            <th>Office Expense Records</th>
+            <td class="text-end">{{ expense_records }}</td>
+        </tr>
 
-            <tr>
-                <th>EKEDC Records</th>
-                <td>{{ ekedc_records }}</td>
-            </tr>
+        <tr>
+            <th>Diesel Purchase Records</th>
+            <td class="text-end">{{ diesel_records }}</td>
+        </tr>
 
-            <tr>
-                <th>Salary Records</th>
-                <td>{{ salary_records }}</td>
-            </tr>
+        <tr>
+            <th>EKEDC Purchase Records</th>
+            <td class="text-end">{{ ekedc_records }}</td>
+        </tr>
 
-            <tr>
-                <th>Total Expenditure</th>
-                <td>
-                    ₦{{ grand_total|floatformat:2|intcomma }}
-                </td>
-            </tr>
+        <tr>
+            <th>Salary Records</th>
+            <td class="text-end">{{ salary_records }}</td>
+        </tr>
 
-        </tbody>
+        <tr>
+            <th>Total Expenditure</th>
+            <td class="text-end">
+                ₦{{ grand_total|floatformat:2|intcomma }}
+            </td>
+        </tr>
 
-    </table>
+    </tbody>
+
+</table>
+
 
 </section>
 
-
 <!-- ===========================
-     OFFICE EXPENSES
+     CATEGORY EXPENDITURE SUMMARY
 =========================== -->
 
 <section class="table-section">
 
-    <h3 class="section-title">
-        Office Expenses
-    </h3>
 
-    <table class="report-table">
+<h3 class="section-title">
+    Expenditure Category Summary
+</h3>
 
-        <tbody>
+<table class="report-table">
 
-            {% for category, data in expenses.items %}
+    <thead>
+        <tr class="sub-header">
 
-                <tr class="category-row">
-                    <th colspan="5">
-                        {{ category }}
-                    </th>
-                </tr>
+            <th style="background-color: #2F4858; color: #ffffff;">
+                Expenditure Category
+            </th>
 
-                <tr class="sub-header">
+            <th class="text-center" style="background-color: #2F4858; color: #ffffff;">
+                Records
+            </th>
 
-                    <th style="width:36%;">Expense</th>
-                    <th style="width:16%;" class="text-center">Unit Price</th>
-                    <th style="width:10%;" class="text-center">Qty</th>
-                    <th style="width:18%;" class="text-end">Total</th>
-                    <th style="width:20%;" class="text-end">Date</th>
+            <th class="text-center" style="background-color: #2F4858; color: #ffffff;">
+                Additional Information
+            </th>
 
-                </tr>
+            <th class="text-nowrap text-end" style="background-color: #2F4858; color: #ffffff;">
+                Total Amount
+            </th>
 
-                {% for expense in data.expenses %}
+        </tr>
+    </thead>
 
-                <tr>
+    <tbody>
 
-                    <td>{{ expense.name }}</td>
+        <!-- Office Expenses -->
 
-                    <td class="text-center">
-                        ₦{{ expense.amount|floatformat:2|intcomma }}
-                    </td>
+        <tr>
 
-                    <td class="text-center">
-                        {{ expense.quantity }}
-                    </td>
+            <td>
+                Office Expenses
+            </td>
 
-                    <td class="text-end">
-                        ₦{{ expense.total|floatformat:2|intcomma }}
-                    </td>
+            <td class="text-center">
+                {{ expense_records }}
+            </td>
 
-                    <td class="text-end nowrap">
-                        {{ expense.created_at|date:"d M, Y" }}
-                    </td>
+            <td class="text-center">
+                —
+            </td>
 
-                </tr>
+            <td class="text-end text-nowrap">
+                ₦{{ total_expenses|floatformat:2|intcomma }}
+            </td>
 
-                {% endfor %}
+        </tr>
 
-            {% endfor %}
 
-        </tbody>
+        <!-- Diesel -->
 
-    </table>
+        <tr>
 
-    <div class="section-total">
+            <td>
+                Diesel
+            </td>
 
-        <span class="grand-total-label">
-            OFFICE EXPENSE TOTAL
-        </span>
+            <td class="text-center">
+                {{ diesel_records }}
+            </td>
 
-        <span class="grand-total-value">
-            ₦{{ total_expenses|floatformat:2|intcomma }}
-        </span>
+            <td class="text-center">
+                {{ total_litres|floatformat:2|intcomma }} Litres
+            </td>
 
-    </div>
+            <td class="text-end text-nowrap">
+                ₦{{ total_diesel|floatformat:2|intcomma }}
+            </td>
+
+        </tr>
+
+
+        <!-- EKEDC -->
+
+        <tr>
+
+            <td>
+                Electricity (Prepaid Meter)
+            </td>
+
+            <td class="text-center">
+                {{ ekedc_records }}
+            </td>
+
+            <td class="text-center">
+                {{ total_kwhs|floatformat:2|intcomma }} kWh
+            </td>
+
+            <td class="text-end text-nowrap">
+                ₦{{ total_ekedc|floatformat:2|intcomma }}
+            </td>
+
+        </tr>
+
+
+        <!-- Staff Salaries -->
+
+        <tr>
+
+            <td>
+                Staff Salaries
+            </td>
+
+            <td class="text-center">
+                {{ salary_records }}
+            </td>
+
+            <td class="text-center">
+                —
+            </td>
+
+            <td class="text-end text-nowrap">
+                ₦{{ total_salaries|floatformat:2|intcomma }}
+            </td>
+
+        </tr>
+
+    </tbody>
+
+</table>
+
 
 </section>
-
-
-<!-- ===========================
-     DIESEL
-=========================== -->
-
-<section class="table-section">
-
-    <h3 class="section-title">
-        Diesel Purchases
-    </h3>
-
-    <table class="report-table">
-
-        <thead>
-
-            <tr>
-                <th class="text-center">
-                    Litres
-                </th>
-
-                <th class="text-center">
-                    Price
-                </th>
-                <th class="text-center">
-                    Transport
-                </th>
-
-                <th class="text-end">
-                    Total
-                </th>
-                <th style="width:25%;" class="text-end">
-                    Date
-                </th>
-
-            </tr>
-
-        </thead>
-
-        <tbody>
-
-            {% for diesel in diesel %}
-
-            <tr>
-
-                <td class="text-center">
-                    {{ diesel.litres }}
-                </td>
-
-                <td class="text-center">
-                    ₦{{ diesel.price|floatformat:2|intcomma }}
-                </td>
-                <td class="text-center">
-                    ₦{{ diesel.transport|floatformat:2|intcomma }}
-                </td>
-                <td class="text-end">
-                    ₦{{ diesel.total|floatformat:2|intcomma }}
-                </td>
-                <td class="nowrap">
-                    {{ diesel.created_at|date:"d M, Y" }}
-                </td>
-            </tr>
-
-            {% empty %}
-
-            <tr>
-
-                <td colspan="4" class="empty-state">
-                    No diesel records available.
-                </td>
-
-            </tr>
-
-            {% endfor %}
-
-        </tbody>
-
-    </table>
-
-    <div class="section-total">
-
-        <span class="grand-total-label">
-            DIESEL TOTAL
-        </span>
-
-        <span class="grand-total-value">
-            ₦{{ diesel_total|floatformat:2|intcomma }}
-        </span>
-
-    </div>
-
-</section>
-
-
-<!-- ===========================
-     EKEDC
-=========================== -->
-
-<section class="table-section">
-
-    <h3 class="section-title">
-        EKEDC Payments
-    </h3>
-
-    <table class="report-table">
-
-        <thead>
-
-            <tr>
-
-                <th>kWH</th>
-
-                <th class="text-center">
-                    Amount
-                </th>
-
-                <th class="text-end">Date</th>
-
-            </tr>
-
-        </thead>
-
-        <tbody>
-
-            {% for payment in ekedc %}
-
-            <tr>
-
-                <td>
-                    {{ payment.kwh }}
-                </td>
-
-                <td class="text-center">
-                    ₦{{ payment.amount|floatformat:2|intcomma }}
-                </td>
-                <td class="nowrap text-end">
-                    {{ payment.created_at_recorded|date:"d M, Y" }}
-                </td>
-            </tr>
-
-            {% empty %}
-
-            <tr>
-
-                <td colspan="3" class="empty-state">
-                    No EKEDC payments available.
-                </td>
-
-            </tr>
-
-            {% endfor %}
-
-        </tbody>
-
-    </table>
-
-    <div class="section-total">
-
-        <span class="grand-total-label">
-            EKEDC TOTAL
-        </span>
-
-        <span class="grand-total-value">
-            ₦{{ ekedc_total|floatformat:2|intcomma }}
-        </span>
-
-    </div>
-
-</section>
-
-
-<!-- ===========================
-     STAFF SALARIES
-=========================== -->
-
-<section class="table-section">
-
-    <h3 class="section-title">
-        Staff Salaries
-    </h3>
-
-    <table class="report-table">
-
-        <thead>
-
-            <tr>
-
-                <th>
-                    Staff Name
-                </th>
-
-                <th class="text-center">
-                    Salary
-                </th>
-
-                <th class="text-center">
-                    Bonus
-                </th>
-
-                <th class="text-end">
-                    Total
-                </th>
-
-            </tr>
-
-        </thead>
-
-        <tbody>
-
-            {% for salary in salaries %}
-
-            <tr>
-
-                <td>
-                    {{ salary.first_name }}
-                </td>
-                <td>
-                    {{ salary.last_name }}
-                </td>
-                <td class="text-center">
-                    ₦{{ salary.salary|floatformat:2|intcomma }}
-                </td>
-
-                <td class="text-center">
-                    ₦{{ salary.bonus|floatformat:2|intcomma }}
-                </td>
-
-                <td class="text-end">
-                    ₦{{ salary.total|floatformat:2|intcomma }}
-                </td>
-
-            </tr>
-
-            {% empty %}
-
-            <tr>
-
-                <td colspan="4" class="empty-state">
-                    No salary records available.
-                </td>
-
-            </tr>
-
-            {% endfor %}
-
-        </tbody>
-
-    </table>
-
-    <div class="section-total">
-
-        <span class="grand-total-label">
-            SALARY TOTAL
-        </span>
-
-        <span class="grand-total-value">
-            ₦{{ salary_total|floatformat:2|intcomma }}
-        </span>
-
-    </div>
-
-</section>
-
 
 <!-- ===========================
      GRAND TOTAL
@@ -406,13 +201,15 @@ Monthly Expenditure Report
 
 <div class="grand-total">
 
-    <span class="grand-total-label">
-        GRAND TOTAL EXPENDITURE
-    </span>
 
-    <span class="grand-total-value">
-        ₦{{ grand_total|floatformat:2|intcomma }}
-    </span>
+<span class="grand-total-label">
+    GRAND TOTAL EXPENDITURE
+</span>
+
+<span class="grand-total-value">
+    ₦{{ grand_total|floatformat:2|intcomma }}
+</span>
+
 
 </div>
 

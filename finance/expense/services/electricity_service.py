@@ -47,14 +47,14 @@ class EKedcDataRetrieval:
             return EKEDC.objects.filter(
                 created_at__gte=start_date,
                 created_at__lte=end_date
-            ).order_by('-created_at')
+            ).order_by('created_at')
                 
         now = timezone.now()
         start_date, end_date = date_constructor(now.year, now.month)
         return EKEDC.objects.filter(
             created_at__gte=start_date,
             created_at__lte=end_date
-        ).order_by('-created_at')
+        ).order_by('created_at')
         
 
 class EkedcRecordCalculator:
@@ -62,10 +62,13 @@ class EkedcRecordCalculator:
         self.current_month = timezone.now().month
         self.current_year = timezone.now().year
 
-    def total_monthly_records(self, queryset:EKEDC) -> Decimal:
+    def total_monthly_amount(self, queryset:EKEDC) -> Decimal:
         return sum(item.amount for item in queryset)
+
+    def total_monthly_kwh(self, queryset:EKEDC) -> Decimal:
+        return sum(item.kwh for item in queryset)
     
-    def total_annual_records(
+    def total_annual_amount(
             self, queryset:EKEDC, year:int=None) -> Decimal:
         if year:
             return sum(
@@ -79,9 +82,23 @@ class EkedcRecordCalculator:
                 (item.created_at.year == self.current_year)
         ))
 
+    def total_annual_kwh(
+            self, queryset:EKEDC, year:int=None) -> Decimal:
+        if year:
+            return sum(
+                item.kwh for item in queryset
+                if item.created_at and (
+                    (item.created_at.year == year)
+            ))
+        return sum(
+            item.kwh for item in queryset
+            if item.created_at and (
+                (item.created_at.year == self.current_year)
+        ))
+
 def ekedc_context_data(user, start_date=None, end_date=None) -> dict:
     queryset = EKedcDataRetrieval().retrieve_by_month(start_date, end_date)
-    total = EkedcRecordCalculator().total_monthly_records(queryset)
+    total = EkedcRecordCalculator().total_monthly_amount(queryset)
     return {
         "electricity_records": queryset,
         "count": queryset.count(),

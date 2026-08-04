@@ -27,27 +27,27 @@ Diesel Purchase Report
     <tbody>
 
         <tr>
-            <th>Total Purchases</th>
-            <td>{{ total_records }}</td>
+            <th>Total Records</th>
+            <td class="text-end">{{ total_records }}</td>
         </tr>
 
         <tr>
-            <th>Total Diesel Purchased</th>
-            <td>
+            <th>Total Litres</th>
+            <td class="text-end">
                 {{ total_litres|floatformat:2|intcomma }} Litres
             </td>
         </tr>
 
         <tr>
-            <th>Total Amount Spent</th>
-            <td>
+            <th>Total Diesel Purchased</th>
+            <td class="text-end">
                 ₦{{ total_amount|floatformat:2|intcomma }}
             </td>
         </tr>
 
         <tr>
             <th>Total Transport Fare</th>
-            <td>
+            <td class="text-end">
                 ₦{{ total_transport|floatformat:2|intcomma }}
             </td>
         </tr>
@@ -76,27 +76,27 @@ Diesel Purchase Report
 
         <tr class="sub-header">
 
-            <th style="width:18%;">
+            <th>
                 Supplier
             </th>
 
-            <th style="width:10%;" class="text-center">
+            <th class="text-center">
                 Litres
             </th>
 
-            <th style="width:14%;" class="text-end">
+            <th class="text-center">
                 Price
             </th>
 
-            <th style="width:14%;" class="text-end">
+            <th class="text-center">
                 Amount
             </th>
 
-            <th style="width:14%;" class="text-end">
+            <th class="text-center">
                 Transport
             </th>
 
-            <th style="width:15%;" class="text-end">
+            <th class="text-center">
                 Total
             </th>
 
@@ -122,15 +122,15 @@ Diesel Purchase Report
                 {{ diesel.litres|floatformat:2|intcomma }}
             </td>
 
-            <td class="text-end text-nowrap">
+            <td class="text-nowrap">
                 ₦{{ diesel.price|floatformat:2|intcomma }}
             </td>
 
-            <td class="text-end text-nowrap">
+            <td class="text-nowrap">
                 ₦{{ diesel.amount|floatformat:2|intcomma }}
             </td>
 
-            <td class="text-end text-nowrap">
+            <td class="text-nowrap text-center">
                 ₦{{ diesel.transport|floatformat:2|intcomma }}
             </td>
 
@@ -174,7 +174,7 @@ Diesel Purchase Report
     </span>
 
     <span class="grand-total-value">
-        ₦{{ total_diesel|floatformat:2|intcomma }}
+        ₦{{ grand_total |floatformat:2|intcomma }}
     </span>
 
 </div>

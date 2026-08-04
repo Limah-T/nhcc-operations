@@ -51,14 +51,14 @@ class DieselDataRetrieval:
             return Diesel.objects.filter(
                 created_at__gte=start_date,
                 created_at__lt=end_date
-            ).order_by('-created_at')
+            ).order_by('created_at')
                 
         now = timezone.now()
         start_date, end_date = date_constructor(now.year, now.month)
         return Diesel.objects.filter(
             created_at__gte=start_date,
             created_at__lt=end_date
-        ).order_by('-created_at')
+        ).order_by('created_at')
 
 
 class DieselRecordCalculator:
@@ -66,9 +66,18 @@ class DieselRecordCalculator:
         self.current_month = timezone.now().month
         self.current_year = timezone.now().year
 
-    def total_monthly_records(self, queryset:Diesel) -> Decimal:
-            return sum(item.total for item in queryset)
-            
+    def total_monthly_litres(self, queryset:Diesel) -> Decimal:
+        return sum(item.litres for item in queryset)
+
+    def total_monthly_transport(self, queryset:Diesel) -> Decimal:
+        return sum(item.transport for item in queryset)
+
+    def total_monthly_amount(self, queryset:Diesel) -> Decimal:
+        return sum(item.amount for item in queryset)
+
+    def monthly_total(self, queryset:Diesel) -> Decimal:
+        return sum(item.total for item in queryset)
+    
     def total_annual_records(
             self, queryset:Diesel, year:int=None) -> Decimal:
         if year:
@@ -85,7 +94,7 @@ class DieselRecordCalculator:
 
 def diesel_context_data(user, start_date=None, end_date=None) -> dict:
     queryset = DieselDataRetrieval().retrieve_by_month(start_date, end_date)
-    total = DieselRecordCalculator().total_monthly_records(queryset)
+    total = DieselRecordCalculator().monthly_total(queryset)
     return {
         "diesel_records": queryset,
         "count": queryset.count(),

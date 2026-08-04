@@ -3,6 +3,7 @@ from nhcc_operations.services.generic_service import set_date, future_date
 
 REPORT_TYPES = (
         ("expense", "Expense Report"),
+        ("expense_ekedc", "Expense + Ekedc Report"),
         ("diesel", "Diesel Report"),
         ("electricity", "Electricity Report"),
         ("monthly", "Monthly Expenditure"),

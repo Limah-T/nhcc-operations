@@ -36,7 +36,6 @@ class ReportManagementView(View):
         report_type = request.POST.get("report_type")
         start = request.POST.get("start_date")
         end = request.POST.get("end_date")
-
         form = ReportForm(data={
             "report_type":report_type, 
             "start_date":start, "end_date":end

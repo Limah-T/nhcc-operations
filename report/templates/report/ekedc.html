@@ -28,12 +28,12 @@ EKEDC Electricity Report
 
         <tr>
             <th>Total Records</th>
-            <td>{{ total_records }}</td>
+            <td class="text-end">{{ total_records }}</td>
         </tr>
 
         <tr>
             <th>Total EKEDC Expenses</th>
-            <td>
+            <td class="text-end">
                 ₦{{ total_ekedc|floatformat:2|intcomma }}
             </td>
         </tr>
@@ -63,15 +63,15 @@ EKEDC Electricity Report
         <!-- Column Header -->
         <tr class="sub-header">
 
-            <th style="width:25%;">
+            <th>
                 kWh
             </th>
 
-            <th style="width:35%;" class="text-center">
+            <th class="text-center">
                 Amount
             </th>
 
-            <th style="width:40%;" class="text-end">
+            <th class="text-end">
                 Purchased Date
             </th>
 

@@ -70,7 +70,7 @@ class ExpenseDataRetrieval:
                 "category").filter(
                     created_at__gte=start_date, 
                     created_at__lte=end_date
-                ).order_by("category__name")
+                ).order_by("category__name", "created_at")
 
         now = timezone.now()
         start_date, end_date = date_constructor(now.year, now.month)
@@ -78,7 +78,7 @@ class ExpenseDataRetrieval:
             "category").filter(
                 created_at__gte=start_date, 
                 created_at__lte=end_date
-            ).order_by("category__name")
+            ).order_by("category__name", "created_at")
 
 
     @staticmethod
