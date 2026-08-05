@@ -13,7 +13,7 @@ urlpatterns = [
     path("directors/", include("directors.urls")),
     path("membership/", include("membership.urls")),
      # Django Silk
-    path("silk/", include("silk.urls", namespace="silk")),
+    # path("silk/", include("silk.urls", namespace="silk")),
     path("", Dashboard.as_view(), name="dashboard")
 
 ]
