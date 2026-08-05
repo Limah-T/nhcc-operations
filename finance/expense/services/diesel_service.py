@@ -1,10 +1,7 @@
 from django.utils import timezone
 from django.http.request import HttpRequest
 from django.db import transaction, DatabaseError
-from nhcc_operations.services.generic_service import (
-    server_error, queue_error, diesel_404, 
-    no_changes, date_constructor
-)
+from core.utils.custom_exceptions import NothingToUpdateError
 from account.services.profile_service import getFullName, getNameAvatar
 from decimal import Decimal
 from ..models import Diesel
@@ -46,55 +43,37 @@ class DieselDataRetrieval:
         return Diesel.objects.filter(id__in=ids)
 
     @staticmethod
-    def retrieve_by_month(start_date=None, end_date=None) -> Diesel:
-        if start_date and end_date:
-            return Diesel.objects.filter(
-                created_at__gte=start_date,
-                created_at__lt=end_date
-            ).order_by('created_at')
-                
-        now = timezone.now()
-        start_date, end_date = date_constructor(now.year, now.month)
+    def retrieve_by_month(start_date, end_date) -> Diesel:
         return Diesel.objects.filter(
             created_at__gte=start_date,
             created_at__lt=end_date
         ).order_by('created_at')
 
+    @staticmethod
+    def retrieve_by_year(year:int) -> Diesel:
+        return Diesel.objects.filter(created_at__year=year)
 
 class DieselRecordCalculator:
-    def __init__(self):
-        self.current_month = timezone.now().month
-        self.current_year = timezone.now().year
-
-    def total_monthly_litres(self, queryset:Diesel) -> Decimal:
+        
+    @staticmethod
+    def total_litre_records(queryset:Diesel) -> Decimal:
         return sum(item.litres for item in queryset)
 
-    def total_monthly_transport(self, queryset:Diesel) -> Decimal:
+    @staticmethod
+    def total_transport_records(queryset:Diesel) -> Decimal:
         return sum(item.transport for item in queryset)
 
-    def total_monthly_amount(self, queryset:Diesel) -> Decimal:
+    @staticmethod
+    def total_amount_records(queryset:Diesel) -> Decimal:
         return sum(item.amount for item in queryset)
 
-    def monthly_total(self, queryset:Diesel) -> Decimal:
+    @staticmethod
+    def total_records(queryset:Diesel) -> Decimal:
         return sum(item.total for item in queryset)
     
-    def total_annual_records(
-            self, queryset:Diesel, year:int=None) -> Decimal:
-        if year:
-            return sum(
-                item.total for item in queryset
-                if item.created_at and (
-                    (item.created_at.year == year)
-            ))
-        return sum(
-            item.total for item in queryset
-            if item.created_at and (
-                (item.created_at.year == self.current_year)
-        ))
-
-def diesel_context_data(user, start_date=None, end_date=None) -> dict:
+def diesel_context_data(user, start_date, end_date) -> dict:
     queryset = DieselDataRetrieval().retrieve_by_month(start_date, end_date)
-    total = DieselRecordCalculator().monthly_total(queryset)
+    total = DieselRecordCalculator().total_records(queryset)
     return {
         "diesel_records": queryset,
         "count": queryset.count(),
@@ -109,12 +88,24 @@ class DieselDataInserter:
         self.user = user
         self.full_name = getFullName(user)
 
-    def insert_one(self):
+    def create_single(self) -> None:
+        try:
+            self._insert_one()
+        except Exception:
+            raise
+
+    def create_bulk(self) -> None:
+        try:
+            self._insert_many()
+        except Exception:
+            raise
+
+    def _insert_one(self) -> None:
         transport = self.data.get("transport")
         transport_value = transport if transport else Decimal(0)
         amount = self.data["litres"]*self.data["price"]
         total = amount + transport_value
-        diesel = Diesel.objects.create(
+        Diesel.objects.create(
             litres=self.data["litres"],
             price=self.data["price"],
             amount=amount,
@@ -128,7 +119,7 @@ class DieselDataInserter:
             created_by=self.full_name,
         )
         
-    def insert_many(self) -> None:
+    def _insert_many(self) -> None:
         diesel_list = []
         for diesel in self.data:
             amount = diesel["litres"]*diesel["price"]
@@ -151,10 +142,26 @@ class DieselDataInserter:
         Diesel.objects.bulk_create(diesel_list)
 
 class DieselDataUpdater:
+    def __init__(self, data:dict, user):
+        self.data = data
+        self.user = user
 
-    @staticmethod
-    def can_update(diesel:Diesel, data:dict) -> bool:
-        for key,value in data.items():
+    def update_single(self, id) -> None:
+        try:
+            diesel = DieselDataRetrieval().retrieve_one(id)
+            if diesel is None:
+                raise Diesel.DoesNotExist
+            if not self._can_update(diesel):
+                raise NothingToUpdateError
+            with transaction.atomic():
+                self._update_one(diesel.id)
+        except DatabaseError:
+            raise
+        except Exception:
+            raise
+
+    def _can_update(self, diesel:Diesel) -> bool:
+        for key,value in self.data.items():
             if key == "date":
                 if diesel.created_at != value:
                     return True
@@ -163,90 +170,53 @@ class DieselDataUpdater:
                     return True
         return False
 
-    @staticmethod
-    def update_one(diesel_id, data:dict, user) -> None:
-        amount = data["litres"]*data["price"]
-        total = amount + data["transport"]
-        Diesel.objects.filter(
+    def _update_one(self, diesel_id) -> None:
+        amount = self.data["litres"]*self.data["price"]
+        total = amount + self.data["transport"]
+        Diesel.objects.select_for_update(nowait=True).filter(
             id=diesel_id
             ).update(
-                litres=data["litres"],
-                price=data["price"],
-                amount=amount,
-                transport=data["transport"],
-                supplier_name=data["supplier_name"],
-                total=total,
-                created_at=data["date"],
+                litres=self.data["litres"], price=self.data["price"],
+                amount=amount, transport=self.data["transport"],
+                supplier_name=self.data["supplier_name"],
+                total=total, created_at=self.data["date"],
                 updated_at=timezone.now().date(),
-                updated_by_user=user,
-                updated_by=getFullName(user)
+                updated_by_user=self.user,
+                updated_by=getFullName(self.user)
             )
 
 class DieselDataDeleter:
 
-    @staticmethod
-    def delete_one(id) -> None:
+    def delete_single(self, diesel_id) -> None:
+        try:
+            with transaction.atomic():
+                self._delete_one(diesel_id)
+        except Diesel.DoesNotExist:
+            raise
+        except DatabaseError:
+            raise
+        except Exception:
+            raise
+
+    def delete_bulk(self, diesel_ids) -> None:
+        try:
+            with transaction.atomic():
+                diesel = self._lock_diesel_list(diesel_ids)
+                if not diesel.exists():
+                    raise Diesel.DoesNotExist
+                diesel.delete()
+        except DatabaseError:
+            raise
+        except Exception:
+            raise
+
+    def _delete_one(self, id) -> None:
         Diesel.objects.select_for_update(
             nowait=True).get(
             id=id
         ).delete()
-
-    @staticmethod
-    def delete_many(diesel:Diesel) -> None:
-        diesel.delete()
-
-"""################# HELPER FUNCTIONS ##############"""
-
-def create_single(data:dict, user) -> tuple[str, int] | None:
-    try:
-        DieselDataInserter(data, user).insert_one()
-    except Exception:
-        return (server_error, 500)
-    return None
-
-def create_bulk(data:list[dict], user) -> tuple[str, int] | None:
-    try:
-        DieselDataInserter(data, user).insert_many()
-    except Exception:
-        return (server_error, 500)
-    return None
-
-def update_single(id, data:dict, user) -> tuple[str, int] | None:
-    try:
-        diesel = DieselDataRetrieval().retrieve_one(id)
-        if diesel is None:
-            return (diesel_404, 404)
-        updater = DieselDataUpdater()
-        if not updater.can_update(diesel, data):
-            return (no_changes, 400)
-        with transaction.atomic():
-            updater.update_one(diesel.id, data, user)
-    except Exception:
-        return (server_error, 500)
-    return None
-
-def delete_single(diesel_id) -> tuple[str, int] | None:
-    try:
-        with transaction.atomic():
-            DieselDataDeleter().delete_one(diesel_id)
-    except Diesel.DoesNotExist:
-        return (diesel_404, 404)
-    except DatabaseError:
-        return (queue_error, 400)
-    except Exception:
-        return (server_error, 500)
-    return None
-
-def delete_bulk(diesel_ids) -> tuple[str, int] | None:
-    try:
-        with transaction.atomic():
-            diesel = DieselDataRetrieval(
-                ).retrieve_bulk(diesel_ids)
-            if not diesel.exists():
-                return (diesel_404, 404)
-            DieselDataDeleter().delete_many(diesel)
-    except DatabaseError:
-        return (queue_error, 400)
-    except Exception:
-        return (server_error, 500)
-    return None
+    
+    def _lock_diesel_list(self, diesel_ids) -> Diesel:
+        return Diesel.objects.select_for_update(
+            nowait=True).filter(
+        id__in=diesel_ids)

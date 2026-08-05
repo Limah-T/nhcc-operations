@@ -1,6 +1,7 @@
 from django.utils import timezone
 from django.http.request import HttpRequest
 from django.db import transaction, DatabaseError, IntegrityError
+from django.db.models import ProtectedError
 from core.utils.custom_exceptions import NothingToUpdateError
 from account.services.profile_service import getFullName
 from ..models import Position
@@ -59,7 +60,7 @@ class PositionDataCreate:
     def create_bulk(self) -> None:
         try:
             self._insert_many()
-        except IntegrityError as e:
+        except IntegrityError:
             raise
         except Exception:
             raise
@@ -104,7 +105,6 @@ class PositionDataUpdate:
             raise
         except Exception:
             raise
-        return None
 
     def _can_update(self, position:Position) -> bool:
         for key,value in self.data.items():
@@ -122,37 +122,37 @@ class PositionDataUpdate:
 
 class PositionDataDelete:
 
-    def _delete_one(self, id) -> None:
-        Position.objects.select_for_update(
-            nowait=True).get(
-            id=id
-        ).delete()
-
-    def _delete_many(self, position:Position) -> None:
-        position.delete()
-
     def delete_single(self, position_id) -> None:
         try:
             with transaction.atomic():
                 self._delete_one(position_id)
         except Position.DoesNotExist:
             raise
-        except DatabaseError:
+        except ProtectedError:
             raise
         except Exception:
             raise
-        return None
 
     def delete_bulk(self, position_ids) -> None:
         try:
             with transaction.atomic():
-                positions = PositionDataRetrieval(
-                    ).retrieve_bulk(position_ids)
+                positions = self._lock_position_list(position_ids)
                 if not positions.exists():
                     raise Position.DoesNotExist
-                self._delete_many(positions)
-        except DatabaseError:
+                positions.delete()
+        except ProtectedError:
             raise
         except Exception:
             raise
-        return None
+
+    def _delete_one(self, id) -> None:
+            Position.objects.select_for_update(
+                nowait=True).get(
+                id=id
+            ).delete()
+    
+    def _lock_position_list(self, position_ids) -> Position:
+        return Position.objects.select_for_update(
+            nowait=True).filter(
+            id__in=position_ids
+        )

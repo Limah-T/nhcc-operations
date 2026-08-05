@@ -1,8 +1,7 @@
 from django import forms
 from django.utils import timezone
-from nhcc_operations.services.generic_service import (
-    email_is_valid, invalid_name_error
-)
+from core.utils.helper_functions import email_is_valid
+from core.utils.error_responses import NAME_ERROR
 from phonenumber_field.formfields import PhoneNumberField
 from .models import Role
 import re
@@ -13,7 +12,7 @@ class RoleForm(forms.Form):
     def clean(self):
         name = self.cleaned_data["name"].strip()
         if not re.match(r"^[a-zA-Z0-9\s&,'.-]+$", name):
-            raise forms.ValidationError(invalid_name_error)
+            raise forms.ValidationError(NAME_ERROR)
         self.cleaned_data["name"] = name.title()
         return self.cleaned_data
     
@@ -39,7 +38,7 @@ class StaffForm(forms.Form):
         account_name = self.cleaned_data["account_name"]
         for value in [first_name, last_name, bank_name, account_name]:
             if not re.match(r"^[a-zA-Z0-9\s&,'.-]+$", value):
-                raise forms.ValidationError(invalid_name_error)
+                raise forms.ValidationError(NAME_ERROR)
 
         valid_email = email_is_valid(email)
         if not valid_email:

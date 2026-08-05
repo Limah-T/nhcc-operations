@@ -76,7 +76,7 @@ class DirectorDataCreate:
     def create_bulk(self) -> None:
         try:
             self._insert_many()
-        except IntegrityError as e:
+        except IntegrityError:
             raise
         except Exception:
             raise
@@ -133,7 +133,6 @@ class DirectorDataUpdate:
             raise
         except Exception:
             raise
-        return None
 
     def _can_update(self, director:Director) -> bool:
         for key,value in self.data.items():
@@ -158,15 +157,6 @@ class DirectorDataUpdate:
 
 class DirectorDataDelete:
 
-    def _delete_one(self, id) -> None:
-        Director.objects.select_for_update(
-            nowait=True).get(
-            id=id
-        ).delete()
-
-    def _delete_many(self, director:Director) -> None:
-        director.delete()
-
     def delete_single(self, director_id) -> None:
         try:
             with transaction.atomic():
@@ -177,21 +167,31 @@ class DirectorDataDelete:
             raise
         except Exception:
             raise
-        return None
 
-    def delete_bulk(self, director_ids) -> None:
+    def delete_bulk(self, director_ids:list) -> None:
         try:
             with transaction.atomic():
-                directors = DirectorDataRetrieval(
-                    ).retrieve_bulk(director_ids)
+                directors = self._lock_director_list(director_ids)
                 if not directors.exists():
                     raise Director.DoesNotExist
-                self._delete_many(directors)
+                directors.delete()
         except DatabaseError:
             raise
         except Exception:
             raise
         return None
+
+    def _delete_one(self, id) -> None:
+        Director.objects.select_for_update(
+            nowait=True).get(
+            id=id
+        ).delete()
+    
+    def _lock_director_list(self, director_ids) -> Director:
+        return Director.objects.select_for_update(
+            nowait=True).filter(
+                id__in=director_ids
+            )
 
 def director_context_data() -> dict:
     titles = Title.objects.all()

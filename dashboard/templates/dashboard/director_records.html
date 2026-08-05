@@ -1720,7 +1720,7 @@ Director Management | NHCC Operations
 
             <form
                 method="post"
-                action="{% url 'director'%}">
+                action="{% url 'directors'%}">
 
                 {% csrf_token %}
 
@@ -1994,7 +1994,7 @@ Director Management | NHCC Operations
 
         <div class="modal-content rounded-4 border-0">
 
-            <form method="post" action="{% url 'director'%}">
+            <form method="post" action="{% url 'directors'%}">
                 {% csrf_token %}
 
                 <input type="hidden" name="action" value="bulk">
@@ -3018,7 +3018,6 @@ Director Management | NHCC Operations
     <div class="modal-dialog">
 
         <div class="modal-content rounded-4 border-0">
-            <input type="hidden" name="action" value="bulk">
 
             <form
                 method="post"
@@ -3026,6 +3025,7 @@ Director Management | NHCC Operations
 
                 {% csrf_token %}
 
+                <input type="hidden" name="action" value="bulk">
                 <div id="selectedDirectorInputs"></div>
 
 

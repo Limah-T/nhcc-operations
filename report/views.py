@@ -2,14 +2,12 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.template.loader import render_to_string
 from django.http.response import HttpResponse
-from django.utils import timezone
 from django.shortcuts import render
 from django.shortcuts import redirect
 from dotenv import load_dotenv
 from django.views import View
 from account.services.profile_service import getNameAvatar
 from dashboard.views import report_temp_name
-from nhcc_operations.services.http_response_services import error_response
 from core.utils.pdf_generator import pdf_generator, file_naming_constructor
 from .forms import ReportForm
 from .services.report_service import (
@@ -18,6 +16,13 @@ from .services.report_service import (
 import os
 load_dotenv()
 
+def error_response(request, code):
+    return render(
+        request,
+        template_name=report_temp_name,
+        context={"user_name":getNameAvatar(request.user)},
+        status=code
+    )
 @login_required
 def reportOverview(request):  
     return render(
@@ -61,8 +66,8 @@ class ReportManagementView(View):
             css_path = "css/report/report.css"
             response = pdf_generator(html_string, request, file_name, css_path)
             return response
-        else: message = form.errors
-        return error_response(request, report_temp_name, None, message, 400)
+        
+        return error_response(request, code=400)
 
     def post(self, request) -> HttpResponse:
 

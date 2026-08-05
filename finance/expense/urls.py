@@ -1,44 +1,38 @@
 from django.urls import path
 from .views.category_views import (
-    categoryOverview, CategoryManagementView,
-    CategoryUpdateView, CategoryDeleteView
+    CategoryGetCreateView, CategoryUpdateView, CategoryDeleteView
 )
 from .views.diesel_views import (
-    dieselOverView, DieselManagementView,
-    DieselUpdateView, DieselDeleteView
+    DieselGetCreateView, DieselUpdateView, DieselDeleteView
 )
 from .views.electricity_views import (
-    ekedcOverview, EkedcManagementView, 
-    EkedcUpdateView, EkedcDeleteView,
+    EkedcGetCreateView, EkedcUpdateView, EkedcDeleteView,
 )
 from .views.expenses_views import (
-    ExpenseManagementView, expenseOverview, 
+    ExpenseGetCreateView, expenseOverview, 
     ExpenseUpdateView, ExpenseDeleteView, 
 )
 
 
 urlpatterns = [
-    path("category/overview/", categoryOverview, name="category_overview"),
-    path("add/category/", CategoryManagementView.as_view(), name="category"),
-    path("category/<int:pk>/edit/", CategoryUpdateView.as_view(), name="edit_category"),
-    path("category/<int:pk>/delete/", CategoryDeleteView.as_view(), name="delete_category"),
+    path("category/", CategoryGetCreateView.as_view(), name="category"),
+    path("category/<int:id>/edit/", CategoryUpdateView.as_view(), name="edit_category"),
+    path("category/<int:id>/delete/", CategoryDeleteView.as_view(), name="delete_category"),
     path("delete/categories/", CategoryDeleteView.as_view(), name="delete_categories"),
 
-    path("diesel/overview/", dieselOverView, name="diesel_overview"),
-    path("add/diesel/", DieselManagementView.as_view(), name="diesel"),
-    path("diesel/<int:pk>/edit/", DieselUpdateView.as_view(), name="edit_diesel"),
-    path("diesel/<int:pk>/delete/", DieselDeleteView.as_view(), name="delete_diesel"),
+    path("diesel/", DieselGetCreateView.as_view(), name="diesel"),
+    path("diesel/<int:id>/edit/", DieselUpdateView.as_view(), name="edit_diesel"),
+    path("diesel/<int:id>/delete/", DieselDeleteView.as_view(), name="delete_diesel"),
     path("delete/diesels/", DieselDeleteView.as_view(), name="delete_diesels"),
     
-    path("ekedc/overview/", ekedcOverview, name="ekedc_overview"),
-    path("add/ekedc/", EkedcManagementView.as_view(), name="ekedc"),
-    path("ekedc/<int:pk>/edit/", EkedcUpdateView.as_view(), name="edit_ekedc"),
-    path("ekedc/<int:pk>/delete/", EkedcDeleteView.as_view(), name="delete_ekedc"),
+    path("ekedc/", EkedcGetCreateView.as_view(), name="ekedc"),
+    path("ekedc/<int:id>/edit/", EkedcUpdateView.as_view(), name="edit_ekedc"),
+    path("ekedc/<int:id>/delete/", EkedcDeleteView.as_view(), name="delete_ekedc"),
     path("delete/ekedc/", EkedcDeleteView.as_view(), name="delete_ekedcs"),
 
     path("overview/", expenseOverview, name="expense_overview"),
-    path("records/",  ExpenseManagementView.as_view(), name="expenses"),
-    path("<int:pk>/edit/", ExpenseUpdateView.as_view(), name="edit_expense"),
-    path("<int:pk>/delete/", ExpenseDeleteView.as_view(), name="delete_expense"),
+    path("records/",  ExpenseGetCreateView.as_view(), name="expenses"),
+    path("<int:id>/edit/", ExpenseUpdateView.as_view(), name="edit_expense"),
+    path("<int:id>/delete/", ExpenseDeleteView.as_view(), name="delete_expense"),
     path("delete/expenses/", ExpenseDeleteView.as_view(), name="delete_expenses"),
 ]

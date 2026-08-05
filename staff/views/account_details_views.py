@@ -8,7 +8,7 @@ from ..services.account_details_service import (
 )
 from ..services.staff_service import staffContextData
 from account.services.profile_service import getFullName
-from nhcc_operations.services.generic_service import (
+from core.utils.generic_service import (
     emptyFields, intId, role_404, empty_fields_error
 )
 from ..services.staff_service import url_name
@@ -22,9 +22,7 @@ def bankAccountView(request):
     account_numbers = request.POST.getlist("", [])
     bank_names = request.POST.getlist("", [])
     bank_full_names = request.POST.getlist("", [])
-    print(account_numbers)
-    print(bank_names)
-    print(bank_full_names)
+
 
     formset = AccountDetailFormset()
     if not emptyFields([account_numbers, bank_names, bank_full_names]):

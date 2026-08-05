@@ -1,7 +1,5 @@
 from django.urls import path
-from .views.director_views import (
-    directorRecordView
-)
+
 from .views.position_views import(
     PositionGetCreateView, PositionUpdateView,
     PositionDeleteView
@@ -12,14 +10,13 @@ from .views.director_views import (
 )
 
 urlpatterns = [
-    path("overview/", directorRecordView, name="director_records"),
     path("position/", PositionGetCreateView.as_view(), name="position"),
     path(
-        "position/<int:pk>/edit/", 
+        "position/<int:id>/edit/", 
         PositionUpdateView.as_view(), name="edit_position"
     ),
     path(
-        "position/<int:pk>/delete/", 
+        "position/<int:id>/delete/", 
         PositionDeleteView.as_view(), name="delete_position"
         ),
     path(
@@ -27,13 +24,13 @@ urlpatterns = [
         PositionDeleteView.as_view(), name="delete_positions"
         ),
 
-    path("records", DirectorGetCreateView.as_view(), name="director"),
+    path("", DirectorGetCreateView.as_view(), name="directors"),
     path(
-        "<int:pk>/edit/", 
+        "<int:id>/edit/", 
         DirectorUpdateView.as_view(), name="edit_director"
     ),
     path(
-        "<int:pk>/delete/", 
+        "<int:id>/delete/", 
         DirectorDeleteView.as_view(), name="delete_director"
         ),
     path(

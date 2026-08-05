@@ -180,17 +180,13 @@ Staff Accounts | NHCC Operations
 
                     <div>
 
-                        <h5 class="mb-1 fw-bold">
-                            Role Management
-                        </h5>
-
                         <div class="fs-5 fw-semibold text-primary">
-                            {{ total_roles }} role{{ total_roles|pluralize }} available
+                            {{ total_roles }} role{{ total_roles|pluralize }}
                         </div>
 
-                        <small class="text-muted d-block">
-                            Create, edit and delete staff roles.
-                        </small>
+                        <div class="fs-5 fw-semibold text-primary">
+                            {{ total_staff }} staff member{{ total_staff|pluralize }}
+                        </div>
 
                     </div>
 
@@ -292,15 +288,15 @@ Staff Accounts | NHCC Operations
                                     Last Name
                                 </th>
 
-                                <th class="py-3">
+                                <th class="py-3 text-center">
                                     Role
                                 </th>
 
-                                <th class="py-3">
+                                <th class="py-3 text-center">
                                     Salary
                                 </th>
 
-                                <th class="py-3">
+                                <th class="py-3 text-center">
                                     Employment Date
                                 </th>
 
@@ -347,19 +343,19 @@ Staff Accounts | NHCC Operations
                                     </div>
 
                                 </td>
-                                <td class="py-3">
+                                <td class="py-3 text-center">
 
                                     {{ staff.role.name }}
 
                                 </td>
 
-                                <td class="py-3">
+                                <td class="py-3 text-center">
 
                                     ₦{{ staff.salary|floatformat:2|intcomma }}
 
                                 </td>
 
-                                <td class="py-3">
+                                <td class="py-3 text-center">
 
                                     {{ staff.employment_date|date:"d M Y" }}
 
@@ -469,7 +465,8 @@ Staff Accounts | NHCC Operations
                                                     data-account-name="{{ staff.account_detail.account_name }}"
                                                     data-account-number="{{ staff.account_detail.account_number }}">
 
-                                                    <i class="bi bi-eye"></i>View
+                                                    <i class="bi bi-eye"></i>
+                                                    View
                                                 </button>
 
                                             </li>
@@ -578,7 +575,7 @@ Staff Accounts | NHCC Operations
 
             <form
                 method="post"
-                action="{% url 'add_staff' %}">
+                action="{% url 'staff' %}">
 
                 {% csrf_token %}
                 <input type="hidden" name="action" value="single">
@@ -871,7 +868,7 @@ Staff Accounts | NHCC Operations
 
             </div>
 
-            <form method="post" action="{% url 'add_staff' %}">
+            <form method="post" action="{% url 'staff' %}">
 
                 {% csrf_token %}
                 <input type="hidden" name="action" value="bulk">
@@ -1694,7 +1691,7 @@ Staff Accounts | NHCC Operations
                 <input
                     type="hidden"
                     name="action"
-                    value="#">
+                    value="bulk">
 
                 <!-- Hidden staff IDs go here -->
                 <div id="selectedStaffInputs"></div>

@@ -14,9 +14,7 @@ class Position(models.Model):
     updated_at = models.DateField(auto_now=True)
 
 class Director(models.Model):
-    position = models.OneToOneField(
-        Position, on_delete=models.SET_NULL, null=True, blank=True,
-    )
+    position = models.OneToOneField(Position, on_delete=models.PROTECT)
     title = models.ForeignKey(
         Title, on_delete=models.SET_NULL, null=True, blank=True
     ) 

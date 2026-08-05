@@ -1,5 +1,5 @@
 from django import forms
-from nhcc_operations.services.generic_service import set_date, future_date
+from core.utils.helper_functions import set_date, future_date
 
 REPORT_TYPES = (
         ("expense", "Expense Report"),

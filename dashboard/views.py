@@ -3,6 +3,7 @@ from django.views import View
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.utils import timezone
+from core.utils.helper_functions import set_date
 from finance.expense.services.diesel_service import (
     DieselDataRetrieval, DieselRecordCalculator, 
 )
@@ -10,7 +11,7 @@ from finance.expense.services.electricity_service import (
     EKedcDataRetrieval, EkedcRecordCalculator
 )
 from finance.expense.services.expense_service import (
-    ExpenseDataRetrieval, ExpenseRecordCalculator
+    ExpenseDataRetrieval, total_expense_records
 )
 from account.services.profile_service import getNameAvatar
 
@@ -40,21 +41,31 @@ def get_greeting():
 class Dashboard(View):
 
     def get(self, request):
-        expenses = ExpenseDataRetrieval().retrieve_all_with_category()
-        ekedc = EKedcDataRetrieval().retrieve_by_month()
-        diesel = DieselDataRetrieval().retrieve_by_month()
+        start_date, end_date = set_date()
+        year = timezone.now().year
 
-        expense_calculator = ExpenseRecordCalculator()
+        expense_qs = ExpenseDataRetrieval()
+        monthly_expenses = expense_qs.retrieve_all_with_category(start_date, end_date)
+        yearly_expense_records = expense_qs.retrieve_yearly_expenses(year)
+
+        ekedc_qs = EKedcDataRetrieval()
+        monthly_ekedc = ekedc_qs.retrieve_by_month(start_date, end_date)
+        yearly_ekedc_records = ekedc_qs.retrieve_by_year(year)
+
+        diesel_qs = DieselDataRetrieval()
+        monthly_diesel = diesel_qs.retrieve_by_month(start_date, end_date)
+        yearly_diesel_records = diesel_qs.retrieve_by_year(year)
+
         ekedc_calculator = EkedcRecordCalculator()
         diesel_calculator = DieselRecordCalculator()
 
-        total_ekedc = ekedc_calculator.total_monthly_amount(ekedc)
-        total_diesel = diesel_calculator.monthly_total(diesel)
-        total_expenses = expense_calculator.total_monthly_records(expenses)
+        total_ekedc = ekedc_calculator.total_ekedc_records(monthly_ekedc)
+        total_diesel = diesel_calculator.total_records(monthly_diesel)
+        total_expenses = total_expense_records(monthly_expenses)
 
-        yearly_ekdc = ekedc_calculator.total_annual_amount(ekedc)
-        yearly_diesel = diesel_calculator.total_annual_records(diesel)
-        yearly_expenses = expense_calculator.total_annual_records(expenses)
+        yearly_ekdc = ekedc_calculator.total_ekedc_records(yearly_ekedc_records)
+        yearly_diesel = diesel_calculator.total_records(yearly_diesel_records)
+        yearly_expenses = total_expense_records(yearly_expense_records)
 
         monthly_expenditure = total_ekedc+total_diesel+total_expenses
         yearly_expenditure = yearly_ekdc+yearly_diesel+yearly_expenses

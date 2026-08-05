@@ -1,8 +1,6 @@
 from django.http.request import HttpRequest
 from django.db import transaction, IntegrityError, DatabaseError
-from nhcc_operations.services.generic_service import (
-    server_error, queue_error, category_404, no_changes
-)
+from core.utils.custom_exceptions import NothingToUpdateError
 from account.services.profile_service import getFullName
 from ..models import Category
 
@@ -11,14 +9,10 @@ class CategoryPayloadParser:
         self.request = request
 
     def parse_single(self) -> dict:
-        return {
-            "name": self.request.POST.get("name")
-        }
+        return {"name": self.request.POST.get("name")}
 
     def parse_bulk(self) -> dict:
-        return {
-            "name": self.request.POST.getlist("name")
-        }
+        return {"name": self.request.POST.getlist("name")}
 
 class CategoryDataRetrieval:
 
@@ -37,7 +31,6 @@ class CategoryDataRetrieval:
 
 def category_context_data() -> dict:
     categories = CategoryDataRetrieval().retrieve_all()
-    
     return {
         "categories":categories,
         "count":categories.count(),
@@ -50,14 +43,31 @@ class CategoryDataInserter:
         self.user = user
         self.full_name = getFullName(user)
 
-    def insert_one(self):
+    def create_single(self) -> None:
+        try:
+            self._insert_one()
+        except IntegrityError:
+            raise
+        except Exception:
+            raise
+
+    def create_bulk(self) -> None:
+        try:
+            self._insert_many()
+        except IntegrityError:
+            raise
+        except Exception:
+            raise
+        return None
+
+    def _insert_one(self):
         Category.objects.create(
             name=self.data["name"], 
             created_by_user=self.user,
             created_by=self.full_name
         )
         
-    def insert_many(self) -> None:
+    def _insert_many(self) -> None:
         categories = []
         for category in self.data:
             categories.append(
@@ -69,92 +79,71 @@ class CategoryDataInserter:
         Category.objects.bulk_create(categories)
 
 class CategoryDataUpdater:
+    def __init__(self, data:dict, user):
+        self.data = data
+        self.user = user
 
-    @staticmethod
-    def can_update(category:Category, data:dict) -> bool:
-        for key,value in data.items():
+    def update_single(self, id) -> None:
+        try:
+            category = CategoryDataRetrieval().retrieve_one(id)
+            if category is None:
+                raise Category.DoesNotExist
+            if not self._can_update(category):
+                raise NothingToUpdateError
+            with transaction.atomic():
+               self._update_one(category.id)
+        except IntegrityError:
+            raise
+        except Exception:
+            raise
+
+    def _can_update(self, category:Category) -> bool:
+        for key,value in self.data.items():
             if getattr(category, key) != value:
                 return True
         return False
 
-    @staticmethod
-    def update_one(category_id, data:dict, user) -> None:
-        Category.objects.filter(
+    def _update_one(self, category_id) -> None:
+        Category.objects.select_for_update(
+            nowait=True).filter(
             id=category_id).update(
-                name=data["name"],
-                updated_by_user=user,
-            )
+                name=self.data["name"],
+                updated_by_user=self.user,
+        )
 
 class CategoryDataDeleter:
 
-    @staticmethod
-    def delete_one(id) -> None:
+    def delete_single(self, category_id) -> None:
+        try:
+            with transaction.atomic():
+               self._delete_one(category_id)
+        except Category.DoesNotExist:
+            raise
+        except DatabaseError:
+            raise
+        except Exception:
+            raise
+
+    def delete_bulk(self, category_ids) -> None:
+        try:
+            with transaction.atomic():
+                categories = self._lock_category_list(category_ids)
+                if not categories.exists():
+                    raise Category.DoesNotExist
+                categories.delete()
+        except DatabaseError:
+            raise
+        except Exception:
+            raise
+
+    def _delete_one(self, id) -> None:
         Category.objects.select_for_update(
             nowait=True).get(
             id=id
         ).delete()
 
-    @staticmethod
-    def delete_many(categories:Category) -> None:
-        categories.delete()
-
-"""################# HELPER FUNCTIONS ##############"""
-
-def create_single(data:dict, user) -> tuple[str, int] | None:
-    try:
-        CategoryDataInserter(data, user).insert_one()
-    except Exception:
-        return (server_error, 500)
-    return None
-
-def create_bulk(data:list[dict], user) -> tuple[str, int] | None:
-    try:
-        CategoryDataInserter(data, user).insert_many()
-    except IntegrityError:
-        return ("A few or more category names already exist.", 400)
-    except Exception:
-        return (server_error, 500)
-    return None
-
-def update_single(id, data:dict, user) -> tuple[str, int] | None:
-    try:
-        category = CategoryDataRetrieval().retrieve_one(id)
-        if category is None:
-            return (category_404, 404)
-        updater = CategoryDataUpdater()
-        if not updater.can_update(category, data):
-            return (no_changes, 400)
-        with transaction.atomic():
-            updater.update_one(category.id, data, user)
-    except IntegrityError:
-        return ("Category name already exist.", 400)
-    except Exception:
-        return (server_error, 500)
-    return None
-
-def delete_single(category_id) -> tuple[str, int] | None:
-    try:
-        with transaction.atomic():
-            CategoryDataDeleter().delete_one(category_id)
-    except Category.DoesNotExist:
-        return (category_404, 404)
-    except DatabaseError:
-        return (queue_error, 400)
-    except Exception:
-        return (server_error, 500)
-    return None
-
-def delete_bulk(category_ids) -> tuple[str, int] | None:
-    try:
-        with transaction.atomic():
-            categories = CategoryDataRetrieval(
-                ).retrieve_bulk(category_ids)
-            if not categories.exists():
-                return (category_404, 404)
-            CategoryDataDeleter().delete_many(categories)
-
-    except DatabaseError:
-        return (queue_error, 400)
-    except Exception:
-        return (server_error, 500)
-    return None
+    def _lock_category_list(self, category_ids) -> Category:
+        return Category.objects.select_for_update(
+            nowait=True).filter(
+            id__in=category_ids
+    )

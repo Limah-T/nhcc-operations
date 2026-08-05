@@ -4,81 +4,81 @@ from django.utils.decorators import method_decorator
 from django.shortcuts import render
 from django.views import View
 from django.shortcuts import redirect
+from django.db import DatabaseError
+from django import forms
 from decimal import Decimal
-from nhcc_operations.services.generic_service import diesel_404
+from django.contrib import messages
 from dashboard.views import diesel_temp_name
-from nhcc_operations.services.http_response_services import (
-    error_response, success_response
-)
-from core.forms import DateForm
+from core.utils.helper_functions import set_date
+from core.utils.error_responses import (
+    DIESEL_404, DIESELS_404, SERVER_ERROR, NOTHING_TO_UPDATE, QUEUE_ERROR)
+from core.utils.custom_exceptions import NothingToUpdateError
+from core.utils.success_responses import (
+    DIESEL_CREATED, DIESELS_CREATED, DIESEL_UPDATED, DIESEL_DELETED, DIESELS_DELETED)
+from core.forms import FilterDateForm
 from ..services.diesel_service import (
     DieselPayloadParser, diesel_context_data,
-    create_single, create_bulk, update_single, 
-    delete_single, delete_bulk
-)
+    DieselDataInserter, DieselDataUpdater, DieselDataDeleter)
 from ..forms import DieselForm
+from ..models import Diesel
 
 diesel_url_name = "diesel"
 
-@login_required
-def dieselOverView(request):
-    start_date = request.GET.get("start_date")
-    end_date = request.GET.get("end_date")
-    form = DateForm(data={"start_date":start_date, "end_date":end_date})
-    if form.is_valid():
-        start_date = form.cleaned_data["start_date"]
-        end_date = form.cleaned_data["end_date"]
-
+def error_response(request, code:int):
+    start_date, end_date = set_date()
     return render(
-        request=request, 
-        template_name=diesel_temp_name,
+        request=request, template_name=diesel_temp_name,
         context=diesel_context_data(request.user, start_date, end_date),
-        status=200
+        status=code
     )
 
 @method_decorator(login_required, "dispatch")
-class DieselManagementView(View):
+class DieselGetCreateView(View):
 
-    def get(self, request):
+    def get(self, request, id=None):
         start_date = request.GET.get("start_date")
         end_date = request.GET.get("end_date")
-        form = DateForm(data={"start_date":start_date, "end_date":end_date})
-        if form.is_valid():
+        try:
+            form = FilterDateForm(data={
+                "start_date":start_date, "end_date":end_date
+            })
+            if not form.is_valid():
+                raise forms.ValidationError
             start_date = form.cleaned_data["start_date"]
             end_date = form.cleaned_data["end_date"]
-        
+            code = 200
+        except forms.ValidationError:
+            code = 400
+            messages.error(request, form.errors)
+        except Exception:
+            code = 500
+            messages.error(request, SERVER_ERROR)
         return render(
-            request=request, 
-            template_name=diesel_temp_name,
+            request=request, template_name=diesel_temp_name,
             context=diesel_context_data(request.user, start_date, end_date),
-            status=200
+            status=code
         )
 
-    def _handle_single_action(self, request):
-        """Orchestrates single workflow"""
+    def _single_handler(self, request):
         field_data = DieselPayloadParser(request).parse_single()
         form = DieselForm(data=field_data)
         if form.is_valid():
-            error = create_single(form.cleaned_data, request.user)
-            if error is None:
-                message = "Diesel record created successfully."
-                return success_response(request, diesel_url_name, message)
-            
-            message, code = error[0], error[1]
-        else: message, code = form.errors, 400
-        return error_response(
-            request=request, 
-            template=diesel_temp_name, 
-            context=diesel_context_data(request.user),
-            message=message,
-            status_code=code
-        )
+            try:
+                diesel = DieselDataInserter(form.cleaned_data, request.user)
+                diesel.create_single()
+                messages.success(request, DIESEL_CREATED)
+                return redirect(diesel_url_name)
+            except Exception:
+                code = 500
+                messages.error(request, SERVER_ERROR)
+        else:
+            code = 400
+            messages.error(request, form.errors)    
+        return error_response(request, code)
     
-    def _handle_bulk_action(self, request):
-        """Orchestrates bulk workflow"""
+    def _bulk_handler(self, request):
         field_data = DieselPayloadParser(request).parse_bulk()
         diesel_list = []
-        can_proceed = True
         for litres, price, supplier_name, transport, date in zip(
             field_data["litres"], field_data["price"], 
             field_data["supplier_name"],
@@ -91,107 +91,117 @@ class DieselManagementView(View):
                     "transport": transport, "date": date
                 })
             if not form.is_valid():
-                message, code = form.errors, 400
-                can_proceed = False
-                break
+                messages.error(request, form.errors)
+                return error_response(request, code=400)
             diesel_list.append(form.cleaned_data)
 
-        if can_proceed:
-            error = create_bulk(diesel_list, request.user)
-            if error is None:
-                message = "Diesel records created successfully."
-                return success_response(request, diesel_url_name, message)
-            else: 
-                message, code = error[0], error[1]
-        
-        return error_response(
-            request, diesel_temp_name, 
-            diesel_context_data(request.user), 
-            message, code
-        )
+        try:
+            diesel = DieselDataInserter(diesel_list, request.user)
+            diesel.create_bulk()
+            messages.success(request, DIESELS_CREATED)
+        except Exception:
+            messages.error(request, SERVER_ERROR)   
+            return error_response(request, code=500)
+        return redirect(diesel_url_name)
     
     def post(self, request) -> HttpResponse:
         action = request.POST.get("action")
 
         if action == "single":
-            return self._handle_single_action(request)
+            return self._single_handler(request)
+        elif action == "bulk":
+            return self._bulk_handler(request)
         
-        return self._handle_bulk_action(request)
+        return redirect(diesel_url_name)
         
 @method_decorator(login_required, "dispatch")
 class DieselUpdateView(View):
-    def get(self, request, pk=None):
+    def get(self, request, id=None):
         return redirect(diesel_url_name)
 
-    def _handle_single_action(self, request, id):
-        """Orchestrates a single workflow"""
-
+    def _single_handler(self, request, id):
         field_data = DieselPayloadParser(request).parse_single()
         transport = field_data["transport"] 
         field_data["transport"] = Decimal(transport.replace(",", ""))
         form = DieselForm(data=field_data)
         if form.is_valid():
-            error = update_single(id, form.cleaned_data, request.user)
-            if error is None:
-                message = "Diesel record updated successfully."
-                return success_response(request, diesel_url_name, message)
-            
-            message, code = error[0], error[1]
-        else: message, code = form.errors, 400
-        return error_response(
-            request, diesel_temp_name, 
-            diesel_context_data(request.user), 
-            message, code
-        )
+            try:
+                diesel = DieselDataUpdater(form.cleaned_data, request.user)
+                diesel.update_single(id)
+                messages.success(request, DIESEL_UPDATED)
+                return redirect(diesel_url_name)
+            except Diesel.DoesNotExist:
+                code = 404
+                messages.error(request, DIESEL_404)
+            except NothingToUpdateError:
+                code = 400
+                messages.error(request, NOTHING_TO_UPDATE)
+            except DatabaseError:
+                code = 400
+                messages.error(request, QUEUE_ERROR)
+            except Exception:
+                code = 500
+                messages.error(request, SERVER_ERROR)
+        else:
+            code = 400
+            messages.error(request, form.errors)
+        return error_response(request, code)
 
-    def post(self, request, pk=None):
+    def post(self, request, id=None) -> HttpResponse:
         action = request.POST.get("action")
-        if action == "single":
-           
-           return self._handle_single_action(request, pk)
 
-        return success_response(request, diesel_url_name, None)
+        if action == "single":
+           return self._single_handler(request, id)
+
+        return redirect(diesel_url_name)
     
 class DieselDeleteView(View):
-    def get(self, request):
-       return success_response(request, diesel_url_name, None)
+    def get(self, request, id=None):
+       return redirect(diesel_url_name)
 
-    def _handle_single_action(self, request, pk:int):
-        """Orchestrates a single workflow"""
+    def _single_handler(self, request, id:int):        
+        try:
+            DieselDataDeleter().delete_single(id)
+            messages.success(request, DIESEL_DELETED)
+            return redirect(diesel_url_name)
+        except Diesel.DoesNotExist:
+            code = 404
+            messages.error(request, DIESEL_404)
+        except DatabaseError:
+            code = 400
+            messages.error(request, QUEUE_ERROR)
+        except Exception:
+            code = 500
+            messages.error(request, SERVER_ERROR) 
+
+        return error_response(request, code)
+
+    def _bulk_handler(self, request, diesel_ids:list):
+        try:
+            if diesel_ids:
+                DieselDataDeleter().delete_bulk(diesel_ids)
+                messages.success(request, DIESELS_DELETED)
+            return redirect(diesel_url_name)
+        except Diesel.DoesNotExist:
+            code = 400
+            messages.error(request, DIESELS_404)
+        except DatabaseError:
+            code = 400
+            messages.error(request, QUEUE_ERROR)
+        except Exception:
+            code = 500
+            messages.error(request, SERVER_ERROR)
         
-        error = delete_single(pk)
-        if error is None:
-            message = "Diesel record deleted successfully."
-            return success_response(request, diesel_url_name, message)
-        
-        message, code = error[0], error[1]
-        return error_response(
-            request, diesel_temp_name, 
-            diesel_context_data(request.user), 
-            message, code
-        )
+        return error_response(request, code)
 
-    def _handle_bulk_action(self, request, diesel_ids:list):
-        """Orchestrates bulk workflow"""
-        if diesel_ids:
-            error = delete_bulk(diesel_ids)
-            if error is None:
-                message = "Diesel records deleted successfully"
-                return success_response(request, diesel_url_name, message)
-            
-            message, code = error[0], error[1]
-        else: message, code = diesel_404, 400
-        return error_response(
-            request, diesel_temp_name, 
-            diesel_context_data(request.user), 
-            message, code
-        )
-
-    def post(self, request, pk=None) -> HttpResponse:
+    def post(self, request, id=None) -> HttpResponse:
         action = request.POST.get("action")
+
         if action == "single":
-            return self._handle_single_action(request, pk)
-        
-        diesel_ids = request.POST.getlist("diesel_ids")
-        return self._handle_bulk_action(request, diesel_ids)
+            return self._single_handler(request, id)
+        elif action == "bulk":
+            diesel_ids = request.POST.getlist("diesel_ids")
+            return self._bulk_handler(request, diesel_ids)
+
+        return redirect(diesel_url_name)
 

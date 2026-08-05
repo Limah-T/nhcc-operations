@@ -1216,7 +1216,7 @@
                     action="{% url 'expenses'%}">
 
                     {% csrf_token %}
-
+                    <input type="hidden" name="action" value="single">
                     <div class="modal-header border-0 pb-0">
 
                         <h5 class="modal-title fw-bold">
@@ -1386,7 +1386,7 @@
                     action="#">
 
                     {% csrf_token %}
-
+                    <input type="hidden" name="action" value="bulk">
                     <div class="modal-header border-0 pb-0">
 
                         <h5 class="modal-title fw-bold">
@@ -1711,6 +1711,7 @@
                 <form method="post"
                     id="editExpenseForm">
 
+                <input type="hidden" name="action" value="single">
                     {% csrf_token %}
 
                     <div class="modal-header border-0 pb-0">
@@ -1875,6 +1876,7 @@
 
                 <form method="post"
                     id="deleteExpenseForm">
+
                     <input type="hidden" name="action" value="single">
                     {% csrf_token %}
 
@@ -2278,105 +2280,172 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 
-    /* ------------------------------
-       ADD MULTIPLE EXPENSES
-    ------------------------------ */
+ /* ------------------------------
+   ADD MULTIPLE EXPENSES
+------------------------------ */
 
-    const addAnotherExpense = document.getElementById("addAnotherExpense");
-    const expenseRows = document.getElementById("expenseRows");
+const addAnotherExpense = document.getElementById("addAnotherExpense");
+const expenseRows = document.getElementById("expenseRows");
 
-    if (addAnotherExpense && expenseRows) {
+if (addAnotherExpense && expenseRows) {
 
-        addAnotherExpense.addEventListener("click", function () {
-            const count = expenseRows.querySelectorAll(".expense-row").length;
-
-        if (count >= MAX_EXPENSE_ROWS) {
-            alert(`You can only add ${MAX_EXPENSE_ROWS} expenses at a time.`);
-            return;
-}
-            const firstRow = expenseRows.querySelector(".expense-row");
-
-            if (!firstRow) return;
-
-            const clone = firstRow.cloneNode(true);
-
-            clone.querySelectorAll("input").forEach(function (input) {
-
-                if (input.classList.contains("expense-quantity")) {
-                    input.value = 1;
-                } else {
-                    input.value = "";
-                }
-
-            });
-
-            clone.querySelectorAll("select").forEach(function (select) {
-                select.selectedIndex = 0;
-            });
-
-            if (!clone.querySelector(".remove-expense-row")) {
-
-                const removeButton = document.createElement("button");
-
-                removeButton.type = "button";
-                removeButton.className = "btn btn-outline-danger btn-sm rounded-4 mt-3 remove-expense-row";
-                removeButton.innerHTML = '<i class="bi bi-trash"></i> Remove';
-                removeButton.addEventListener("click", function () {
-
-                    if (expenseRows.querySelectorAll(".expense-row").length > 1) {
-                        clone.remove();
-                        updateExpenseButtonState();
-                    }
-
-                });
-
-                clone.appendChild(removeButton);
-
-            }
-
-            expenseRows.appendChild(clone);
-
-            attachRowCalculation(clone);
-            updateExpenseButtonState();
-
-            });
-
-        }
-    function updateExpenseButtonState() {
-
-        if (!expenseRows || !addAnotherExpense) return;
+    addAnotherExpense.addEventListener("click", function () {
 
         const count = expenseRows.querySelectorAll(".expense-row").length;
 
         if (count >= MAX_EXPENSE_ROWS) {
-
-            addAnotherExpense.disabled = true;
-            addAnotherExpense.textContent = `Maximum ${MAX_EXPENSE_ROWS} records reached`;
-
-        } else {
-
-            addAnotherExpense.disabled = false;
-            addAnotherExpense.textContent = "+ Add another";
-
+            alert(`You can only add ${MAX_EXPENSE_ROWS} expenses at a time.`);
+            return;
         }
 
-    }
-    updateExpenseButtonState();
-    updateBulkDelete();
-    const swipeHint = document.getElementById("swipeHint");
-    const tableContainer = document.querySelector(".expense-table-container");
+        const firstRow = expenseRows.querySelector(".expense-row");
 
-    if (swipeHint && tableContainer) {
+        if (!firstRow) return;
 
-        tableContainer.addEventListener("scroll", function () {
+        const clone = firstRow.cloneNode(true);
 
-            if (tableContainer.scrollLeft > 20) {
-                swipeHint.style.display = "none";
+        clone.querySelectorAll("input").forEach(function (input) {
+
+            /*
+             * Do not clear hidden inputs.
+             * This preserves:
+             *
+             * <input type="hidden" name="action" value="bulk">
+             */
+            if (input.type === "hidden") {
+                return;
+            }
+
+            /*
+             * Reset quantity to 1.
+             */
+            if (input.classList.contains("expense-quantity")) {
+                input.value = 1;
+            } else {
+                /*
+                 * Clear all other visible inputs.
+                 */
+                input.value = "";
             }
 
         });
 
+        /*
+         * Reset all select fields in the newly created row.
+         */
+        clone.querySelectorAll("select").forEach(function (select) {
+            select.selectedIndex = 0;
+        });
+
+        /*
+         * Add the Remove button only if it does not already exist.
+         */
+        if (!clone.querySelector(".remove-expense-row")) {
+
+            const removeButton = document.createElement("button");
+
+            removeButton.type = "button";
+            removeButton.className =
+                "btn btn-outline-danger btn-sm rounded-4 mt-3 remove-expense-row";
+
+            removeButton.innerHTML =
+                '<i class="bi bi-trash"></i> Remove';
+
+            removeButton.addEventListener("click", function () {
+
+                const currentRowCount =
+                    expenseRows.querySelectorAll(".expense-row").length;
+
+                if (currentRowCount > 1) {
+                    clone.remove();
+                    updateExpenseButtonState();
+                }
+
+            });
+
+            clone.appendChild(removeButton);
+
+        }
+
+        /*
+         * Add the new expense row.
+         */
+        expenseRows.appendChild(clone);
+
+        /*
+         * Reattach the amount calculation to the new row.
+         */
+        attachRowCalculation(clone);
+
+        /*
+         * Update the Add Another button.
+         */
+        updateExpenseButtonState();
+
+    });
+
+}
+
+
+/* ------------------------------
+   UPDATE ADD BUTTON STATE
+------------------------------ */
+
+function updateExpenseButtonState() {
+
+    if (!expenseRows || !addAnotherExpense) return;
+
+    const count =
+        expenseRows.querySelectorAll(".expense-row").length;
+
+    if (count >= MAX_EXPENSE_ROWS) {
+
+        addAnotherExpense.disabled = true;
+
+        addAnotherExpense.textContent =
+            `Maximum ${MAX_EXPENSE_ROWS} records reached`;
+
+    } else {
+
+        addAnotherExpense.disabled = false;
+
+        addAnotherExpense.textContent =
+            "+ Add another";
+
     }
+
+}
+
+
+/* ------------------------------
+   INITIAL PAGE STATE
+------------------------------ */
+
+updateExpenseButtonState();
+
+updateBulkDelete();
+
+
+/* ------------------------------
+   MOBILE SWIPE HINT
+------------------------------ */
+
+const swipeHint = document.getElementById("swipeHint");
+
+const tableContainer =
+    document.querySelector(".expense-table-container");
+
+if (swipeHint && tableContainer) {
+
+    tableContainer.addEventListener("scroll", function () {
+
+        if (tableContainer.scrollLeft > 20) {
+            swipeHint.style.display = "none";
+        }
+
+    });
+
+}
 
 
 });

@@ -1,10 +1,7 @@
 from django.utils import timezone
 from django.http.request import HttpRequest
 from django.db import transaction, DatabaseError
-from nhcc_operations.services.generic_service import (
-    server_error, queue_error, ekedc_404, 
-    no_changes, date_constructor
-)
+from core.utils.custom_exceptions import NothingToUpdateError
 from account.services.profile_service import getFullName, getNameAvatar
 from decimal import Decimal
 from ..models import EKEDC
@@ -42,63 +39,31 @@ class EKedcDataRetrieval:
         return EKEDC.objects.filter(id__in=ids)
 
     @staticmethod
-    def retrieve_by_month(start_date=None, end_date=None) -> EKEDC:
-        if start_date and end_date:
-            return EKEDC.objects.filter(
-                created_at__gte=start_date,
-                created_at__lte=end_date
-            ).order_by('created_at')
-                
-        now = timezone.now()
-        start_date, end_date = date_constructor(now.year, now.month)
+    def retrieve_by_month(start_date, end_date) -> EKEDC:
         return EKEDC.objects.filter(
             created_at__gte=start_date,
             created_at__lte=end_date
         ).order_by('created_at')
-        
+                
+    @staticmethod
+    def retrieve_by_year(year:int) -> EKEDC:
+        return EKEDC.objects.filter(created_at__year=year)
+    
 
 class EkedcRecordCalculator:
-    def __init__(self):
-        self.current_month = timezone.now().month
-        self.current_year = timezone.now().year
-
-    def total_monthly_amount(self, queryset:EKEDC) -> Decimal:
+ 
+    @staticmethod
+    def total_ekedc_records(queryset:EKEDC) -> Decimal:
         return sum(item.amount for item in queryset)
 
-    def total_monthly_kwh(self, queryset:EKEDC) -> Decimal:
+    @staticmethod
+    def total_kwh_records(queryset:EKEDC) -> Decimal:
         return sum(item.kwh for item in queryset)
     
-    def total_annual_amount(
-            self, queryset:EKEDC, year:int=None) -> Decimal:
-        if year:
-            return sum(
-                item.amount for item in queryset
-                if item.created_at and (
-                    (item.created_at.year == year)
-            ))
-        return sum(
-            item.amount for item in queryset
-            if item.created_at and (
-                (item.created_at.year == self.current_year)
-        ))
 
-    def total_annual_kwh(
-            self, queryset:EKEDC, year:int=None) -> Decimal:
-        if year:
-            return sum(
-                item.kwh for item in queryset
-                if item.created_at and (
-                    (item.created_at.year == year)
-            ))
-        return sum(
-            item.kwh for item in queryset
-            if item.created_at and (
-                (item.created_at.year == self.current_year)
-        ))
-
-def ekedc_context_data(user, start_date=None, end_date=None) -> dict:
+def ekedc_context_data(user, start_date, end_date) -> dict:
     queryset = EKedcDataRetrieval().retrieve_by_month(start_date, end_date)
-    total = EkedcRecordCalculator().total_monthly_amount(queryset)
+    total = EkedcRecordCalculator().total_ekedc_records(queryset)
     return {
         "electricity_records": queryset,
         "count": queryset.count(),
@@ -114,7 +79,19 @@ class EkedcDataInserter:
         self.full_name = getFullName(user)
         self.now = timezone.now()
 
-    def insert_one(self):
+    def create_single(self) -> None:
+        try:
+            self._insert_one()
+        except Exception:
+            raise 
+        
+    def create_bulk(self) -> None:
+        try:
+            self._insert_many()
+        except Exception:
+            raise 
+
+    def _insert_one(self):
         EKEDC.objects.create(
             kwh=self.data["kwh"],
             amount=self.data["amount"],
@@ -125,7 +102,7 @@ class EkedcDataInserter:
             created_by=self.full_name,
         )
         
-    def insert_many(self) -> None:
+    def _insert_many(self) -> None:
         ekedc_list = []
         for ekedc in self.data:
             ekedc_list.append(
@@ -141,96 +118,79 @@ class EkedcDataInserter:
         EKEDC.objects.bulk_create(ekedc_list)
 
 class EkedcDataUpdater:
+    def __init__(self, data:dict, user):
+        self.data = data
+        self.user = user
 
-    @staticmethod
-    def can_update(ekedc:EKEDC, data:dict) -> bool:
-        for key,value in data.items():
+    def update_single(self, id) ->  None:
+        try:
+            ekedc = EKedcDataRetrieval().retrieve_one(id)
+            if ekedc is None:
+                raise EKEDC.DoesNotExist
+            if not self._can_update(ekedc):
+                raise NothingToUpdateError
+            with transaction.atomic():
+                self._update_one(ekedc.id)
+        except DatabaseError:
+            raise
+        except Exception:
+            raise
+        return None
+
+    def _can_update(self, ekedc) -> bool:
+        for key,value in self.data.items():
             if key == "date":
-                if ekedc.created_at != value:
+                if self.ekedc.created_at != value:
                     return True
             else:
                 if getattr(ekedc, key) != value:
                     return True
         return False
 
-    @staticmethod
-    def update_one(ekedc_id, data:dict, user) -> None:
-        EKEDC.objects.filter(
+    def _update_one(self, ekedc_id) -> None:
+        EKEDC.objects.select_for_update(nowait=True).filter(
             id=ekedc_id
             ).update(
-                kwh=data["kwh"],
-                amount=data["amount"],
-                created_at=data["date"],
+                kwh=self.data["kwh"],
+                amount=self.data["amount"],
+                created_at=self.data["date"],
                 updated_at=timezone.now().date(),
-                updated_by_user=user,
-                updated_by=getFullName(user)
+                updated_by_user=self.user,
+                updated_by=getFullName(self.user)
             )
 
 class EkedcDataDeleter:
 
-    @staticmethod
-    def delete_one(id) -> None:
+    def delete_single(self, ekedc_id) -> None:
+        try:
+            with transaction.atomic():
+                self._delete_one(ekedc_id)
+        except EKEDC.DoesNotExist:
+            raise
+        except DatabaseError:
+            raise
+        except Exception:
+            raise
+
+    def delete_bulk(self, ekedc_ids) -> None:
+        try:
+            with transaction.atomic():
+                ekedc = self._lock_ekedc_list(ekedc_ids)
+                if not ekedc.exists():
+                    raise EKEDC.DoesNotExist
+                ekedc.delete()
+        except DatabaseError:
+            raise
+        except Exception:
+            raise
+
+    def _delete_one(self, id) -> None:
         EKEDC.objects.select_for_update(
-            nowait=True).get(
-            id=id
+            nowait=True).get(id=id
         ).delete()
 
-    @staticmethod
-    def delete_many(ekedc:EKEDC) -> None:
-        ekedc.delete()
-
-"""################# HELPER FUNCTIONS ##############"""
-
-def create_single(data:dict, user) -> tuple[str, int] | None:
-    try:
-        EkedcDataInserter(data, user).insert_one()
-    except Exception:
-        return (server_error, 500)
-    return None
-
-def create_bulk(data:list[dict], user) -> tuple[str, int] | None:
-    try:
-        EkedcDataInserter(data, user).insert_many()
-    except Exception:
-        return (server_error, 500)
-    return None
-
-def update_single(id, data:dict, user) -> tuple[str, int] | None:
-    try:
-        ekedc = EKedcDataRetrieval().retrieve_one(id)
-        if ekedc is None:
-            return (ekedc_404, 404)
-        updater = EkedcDataUpdater()
-        if not updater.can_update(ekedc, data):
-            return (no_changes, 400)
-        with transaction.atomic():
-            updater.update_one(ekedc.id, data, user)
-    except Exception:
-        return (server_error, 500)
-    return None
-
-def delete_single(ekedc_id) -> tuple[str, int] | None:
-    try:
-        with transaction.atomic():
-            EkedcDataDeleter().delete_one(ekedc_id)
-    except EKEDC.DoesNotExist:
-        return (ekedc_404, 404)
-    except DatabaseError:
-        return (queue_error, 400)
-    except Exception:
-        return (server_error, 500)
-    return None
-
-def delete_bulk(ekedc_ids) -> tuple[str, int] | None:
-    try:
-        with transaction.atomic():
-            ekedc = EKedcDataRetrieval(
-                ).retrieve_bulk(ekedc_ids)
-            if not ekedc.exists():
-                return (ekedc_404, 404)
-            EkedcDataDeleter().delete_many(ekedc)
-    except DatabaseError:
-        return (queue_error, 400)
-    except Exception:
-        return (server_error, 500)
-    return None
+    def _lock_ekedc_list(self, ekedc_ids) -> EKEDC:
+        return EKEDC.objects.select_for_update(
+            nowait=True).filter(
+            id__in=ekedc_ids
+        )

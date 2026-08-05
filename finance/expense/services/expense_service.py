@@ -1,11 +1,9 @@
-from django.db import transaction, IntegrityError, DatabaseError
+from django.db import transaction, DatabaseError
 from django.utils import timezone
 from django.http.request import HttpRequest
-from nhcc_operations.services.generic_service import (
-    server_error, queue_error, expense_404, no_changes, date_constructor
-)
 from decimal import Decimal
 from account.services.profile_service import getFullName, getNameAvatar
+from core.utils.custom_exceptions import NothingToUpdateError
 from ..services.category_service import CategoryDataRetrieval
 from ..models import Expense
 
@@ -31,30 +29,10 @@ class ExpensePayloadParser:
             "date": self.request.POST.getlist("date")
         }
 
-class ExpenseRecordCalculator:
-    def __init__(self):
-        self.current_month = timezone.now().month
-        self.current_year = timezone.now().year
-
-    def total_monthly_records(self, queryset:Expense) -> Decimal:
-        return sum(
-            item.total for item in queryset
-        ) 
-
-    def total_annual_records(
-            self, queryset:Expense, year:int=None) -> Decimal:
-        if year:
-            return sum(
-                item.total for item in queryset
-                if item.created_at and (item.created_at.year == year)
-            )
-        return sum(
-                item.total for item in queryset
-                if item.created_at and (
-                    item.created_at.year == self.current_year
-                )
-        )
-    
+def total_expense_records(queryset:Expense) -> Decimal:
+    return sum(
+        item.total for item in queryset
+    )           
 
 class ExpenseDataRetrieval:
 
@@ -64,22 +42,16 @@ class ExpenseDataRetrieval:
             "category").filter(id=pk).first()
 
     @staticmethod
-    def retrieve_all_with_category(start_date=None, end_date=None) -> Expense:
-        if start_date and end_date:
-            return Expense.objects.select_related(
-                "category").filter(
-                    created_at__gte=start_date, 
-                    created_at__lte=end_date
-                ).order_by("category__name", "created_at")
-
-        now = timezone.now()
-        start_date, end_date = date_constructor(now.year, now.month)
+    def retrieve_all_with_category(start_date, end_date) -> Expense:
         return Expense.objects.select_related(
             "category").filter(
                 created_at__gte=start_date, 
                 created_at__lte=end_date
             ).order_by("category__name", "created_at")
 
+    @staticmethod
+    def retrieve_yearly_expenses(year:int) -> Expense:
+        return Expense.objects.filter(created_at__year=year)
 
     @staticmethod
     def retrieve_locked_bulk_expenses(expense_ids) -> Expense:
@@ -88,11 +60,11 @@ class ExpenseDataRetrieval:
             id__in=expense_ids
         )
 
-def expense_context_data(user, start_date=None, end_date=None):
+def expense_context_data(user, start_date, end_date):
     categories = CategoryDataRetrieval().retrieve_all()
-    expenses = ExpenseDataRetrieval().retrieve_all_with_category(start_date, end_date)
-    calculator = ExpenseRecordCalculator()
-    total_expenses = calculator.total_monthly_records(expenses)
+    expenses = ExpenseDataRetrieval().retrieve_all_with_category(
+        start_date, end_date)
+    total_expenses = total_expense_records(expenses)
     
     return {
         "categories":categories,
@@ -145,7 +117,19 @@ class ExpenseDataInserter:
         self.user = user
         self.full_name = getFullName(user)
 
-    def insert_one(self):
+    def create_single(self) -> None:
+        try:
+           self._insert_one()
+        except Exception:
+            raise
+
+    def create_bulk(self) -> None:
+        try:
+            self._insert_many()
+        except Exception:
+            raise
+
+    def _insert_one(self):
         Expense.objects.create(
             category=self.data["category"],
             category_name=self.data["category"].name,
@@ -159,7 +143,7 @@ class ExpenseDataInserter:
             date_recorded=timezone.now().date()
     )
 
-    def insert_many(self) -> None:
+    def _insert_many(self) -> None:
         expenses = []
         for expense in self.data:
             expenses.append(
@@ -179,9 +163,26 @@ class ExpenseDataInserter:
 
 class ExpenseDataUpdater:
 
-    @staticmethod
-    def can_update(expense:Expense, data:dict) -> bool:
-        for key,value in data.items():
+    def __init__(self, data:dict, user):
+        self.data = data
+        self.user = user
+
+    def update_single(self, id) -> None:
+        try:
+            expense = ExpenseDataRetrieval().retrieve_one(id)
+            if expense is None:
+                raise Expense.DoesNotExist
+            if not self._can_update(expense):
+                raise NothingToUpdateError
+            with transaction.atomic():
+                self._update_one(expense.id)
+        except DatabaseError:
+            raise 
+        except Exception:
+            raise
+
+    def _can_update(self, expense:Expense) -> bool:
+        for key,value in self.data.items():
             if key == "date":
                 if expense.created_at != value:
                     return True
@@ -190,93 +191,52 @@ class ExpenseDataUpdater:
                     return True
         return False
 
-    @staticmethod
-    def update_one(expense_id, data:dict, user) -> None:
-        qty = data["quantity"]
-        amt = data["amount"]
+    def _update_one(self, expense_id) -> None:
+        qty, amt  = self.data["quantity"], self.data["amount"]
         Expense.objects.filter(
             id=expense_id).update(
-                category=data["category"],
-                category_name=data["category"].name,
-                name=data["name"], quantity=qty,
+                category=self.data["category"],
+                category_name=self.data["category"].name,
+                name=self.data["name"], quantity=qty,
                 amount=amt, total=qty*amt,
-                created_at=data["date"],
-                updated_by_user=user,
-                updated_by=getFullName(user)
+                created_at=self.data["date"],
+                updated_by_user=self.user,
+                updated_by=getFullName(self.user)
             )
 
-class ExpenseDeleteData:
+class ExpenseDataDeleter:
 
-    @staticmethod
-    def delete_one(id) -> None:
+    def delete_single(self, expense_id) -> None:
+        try:
+            with transaction.atomic():
+                self._delete_one(expense_id)
+        except Expense.DoesNotExist:
+            raise
+        except DatabaseError:
+            raise
+        except Exception:
+            raise
+
+    def delete_bulk(self, expense_ids) -> None:
+        try:
+            with transaction.atomic():
+                expenses = self._lock_expense_list(expense_ids)
+                if not expenses.exists():
+                    raise Expense.DoesNotExist
+                expenses.delete()
+        except DatabaseError:
+            raise
+        except Exception:
+            raise
+
+    def _delete_one(self, id) -> None:
         Expense.objects.select_for_update(
             nowait=True).get(
             id=id
         ).delete()
 
-    @staticmethod
-    def delete_many(expenses:Expense) -> None:
-        expenses.delete()
-
-
-
-"""################# HELPER FUNCTIONS##############"""
-
-def create_single(data:dict, user) -> tuple[str, int] | None:
-    try:
-        ExpenseDataInserter(data, user).insert_one()
-    except Exception:
-        return (server_error, 500)
-    return None
-
-def create_bulk(data:list[dict], user) -> tuple[str, int] | None:
-    try:
-        ExpenseDataInserter(data, user).insert_many()
-    except Exception:
-        return (server_error, 500)
-    return None
-
-def update_single(id, data:dict, user) -> tuple[str, int] | None:
-    try:
-        expense = ExpenseDataRetrieval().retrieve_one(id)
-        if expense is None:
-            return (expense_404, 404)
-        updater = ExpenseDataUpdater()
-        if not updater.can_update(expense, data):
-            return (no_changes, 400)
-        with transaction.atomic():
-            updater.update_one(expense.id, data, user)
-    except IntegrityError:
-        return (queue_error, 400)
-    except Exception:
-        return (server_error, 500)
-    return None
-
-
-def delete_single(expense_id) -> tuple[str, int] | None:
-    try:
-        with transaction.atomic():
-            ExpenseDeleteData().delete_one(expense_id)
-    except Expense.DoesNotExist:
-        return (expense_404, 404)
-    except DatabaseError:
-        return (queue_error, 400)
-    except Exception:
-        return (server_error, 500)
-    return None
-
-def delete_bulk(expense_ids) -> tuple[str, int] | None:
-    try:
-        with transaction.atomic():
-            expenses = ExpenseDataRetrieval(
-                ).retrieve_locked_bulk_expenses(expense_ids)
-            if not expenses.exists():
-                return (expense_404, 404)
-            ExpenseDeleteData().delete_many(expenses)
-    except DatabaseError:
-        return (queue_error, 400)
-    except Exception:
-        return (server_error, 500)
-    return None
-
-
+    def _lock_expense_list(self, expense_ids:list) -> Expense:
+        return Expense.objects.select_for_update(
+        nowait=True).filter(
+            id__in=expense_ids
+        )
