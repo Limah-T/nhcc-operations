@@ -168,39 +168,38 @@ def expense_yearly_expenditure(year) -> dict:
         .annotate(total=Sum("total"))
     )
 
-    expense_months = {
+    return {
         row["report_month"].strftime("%B"): row["total"]
         for row in expense_queryset
     }
-    return expense_months
 
 def diesel_yearly_expenditure(year):
     diesel_queryset = (
         Diesel.objects
         .filter(created_at__year=year)
-        .values("month")
+        .annotate(report_month=TruncMonth("created_at"))
+        .values("report_month")
         .annotate(total=Sum("total"))
     )
 
-    diesel_months = {
-        row["month"]: row["total"]
+    return {
+        row["report_month"].strftime("%B"): row["total"]
         for row in diesel_queryset
     }
-    return diesel_months
 
 def ekedc_yearly_expenditure(year):
     ekedc_queryset = (
-    EKEDC.objects
-    .filter(created_at__year=year)
-    .values("month")
-    .annotate(total=Sum("amount"))
+        EKEDC.objects
+        .filter(created_at__year=year)
+        .annotate(report_month=TruncMonth("created_at"))
+        .values("report_month")
+        .annotate(total=Sum("amount"))
     )
 
-    ekedc_months = {
-        row["month"]: row["total"]
+    return {
+        row["report_month"].strftime("%B"): row["total"]
         for row in ekedc_queryset
     }
-    return ekedc_months
 
 # def salary_yearly_expenditure(year):
 #     salary_queryset = (
