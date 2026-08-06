@@ -42,16 +42,21 @@ class StaffForm(forms.Form):
         if email:
             valid_email = email_is_valid(email)
             if not valid_email:
-                raise forms.ValidationError("Invalid email")  
+                raise forms.ValidationError("Invalid email") 
+            self.cleaned_data["email"] = valid_email 
+        if first_name:
+            self.cleaned_data["first_name"] = first_name.title()
+        if last_name:
+            self.cleaned_data["last_name"] = last_name.title()
+        if bank_name:
+            self.cleaned_data["bank_name"] = bank_name.title()
+        if account_name:
+            self.cleaned_data["account_name"] = account_name.title()            
         date = self.cleaned_data.get("employment_date")
         if date:
             if date > timezone.now().date():
                 raise forms.ValidationError("Date is in the future")
         else:
             self.cleaned_data["employment_date"] = timezone.now().date()
-        self.cleaned_data["first_name"] = first_name.title()
-        self.cleaned_data["last_name"] = last_name.title()
-        self.cleaned_data["email"] = valid_email
-        self.cleaned_data["bank_name"] = bank_name.title()
-        self.cleaned_data["account_name"] = account_name.title()
+        
         return self.cleaned_data
