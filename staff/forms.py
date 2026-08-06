@@ -31,11 +31,11 @@ class StaffForm(forms.Form):
     employment_date = forms.DateField(required=False)
 
     def clean(self):
-        first_name = self.cleaned_data["first_name"]
-        last_name = self.cleaned_data["last_name"]
-        email = self.cleaned_data["email"].replace(" ", "")
-        bank_name = self.cleaned_data["bank_name"]
-        account_name = self.cleaned_data["account_name"]
+        first_name = self.cleaned_data.get("first_name")
+        last_name = self.cleaned_data.get("last_name")
+        email = self.cleaned_data.get("email")
+        bank_name = self.cleaned_data.get("bank_name")
+        account_name = self.cleaned_data.get("account_name")
         for value in [first_name, last_name, bank_name, account_name]:
             if not re.match(r"^[a-zA-Z0-9\s&,'.-]+$", value):
                 raise forms.ValidationError(NAME_ERROR)
@@ -55,4 +55,3 @@ class StaffForm(forms.Form):
         self.cleaned_data["bank_name"] = bank_name.title()
         self.cleaned_data["account_name"] = account_name.title()
         return self.cleaned_data
-
