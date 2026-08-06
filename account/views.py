@@ -16,13 +16,13 @@ from .models import CustomUser
 from .services.email_service import send_mail
 from .services.generic_service import (
     OtpService, set_password, authenticate_user, 
-    EMAIL_EXIST, allow_email, save_user, find_user,
-    WELCOME_MESSAGE, PASSWORD_RESET, SERVER_ERROR, 
-    INVALID_TOKEN, RESET_TOKEN_KEY, SUCCESSFUL_RESET,
-    WRONG_CREDENTIALS
+    allow_email, save_user, find_user,
+    WELCOME_MESSAGE, PASSWORD_RESET, 
+    INVALID_TOKEN, RESET_TOKEN_KEY, SUCCESSFUL_RESET
 )
 from .utils.custom_errors import (
-    InvalidCredentialsError, TokenError, OtpError
+    InvalidCredentialsError, TokenError, OtpError, 
+    EMAIL_EXIST, SERVER_ERROR, WRONG_CREDENTIALS, 
 )
 
 login_temp_name = "account/login.html"
@@ -62,25 +62,27 @@ class SignUpView(View):
                 login_url = request.build_absolute_uri(reverse("login"))
                 context = {"user": user, "login_url":login_url}
             except IntegrityError:
+                code = 400
                 form.add_error("email", EMAIL_EXIST)
             except PermissionDenied as error:
+                code = 403
                 form.add_error("email", str(error))
             except Exception:
+                code = 500
                 messages.error(request, SERVER_ERROR)
             else:
                 send_mail(
                     WELCOME_MESSAGE, user.email, context, 
-                    welcome_temp_name, welcome_text_name
-                )
+                    welcome_temp_name, welcome_text_name)
                 return render(
                     request=request, 
                     template_name=acct_created_temp_name,
-                    context=context, status=200
-                )
+                    context=context, status=200)
+        else: code = 400
         return render(
             request=request, 
             template_name=signup_temp_name, 
-            context={"form": form}, status=400
+            context={"form": form}, status=code
         )
              
     
@@ -106,15 +108,17 @@ class LoginView(View):
                 messages.success(request, "Logged In")
                 return redirect(dashboard_url)
             except InvalidCredentialsError as error:
+                code = 404
                 messages.error(request, error)
             except Exception:
+                code = 500
                 messages.error(request, SERVER_ERROR)
-
+        else: code = 400
         return render(
             request=request, 
             template_name=login_temp_name, 
             context={"form":form},
-            status=400
+            status=code
         )
     
 class PasswordResetView(View):
@@ -136,11 +140,13 @@ class PasswordResetView(View):
                 ) 
                 return redirect("otp")  
             except CustomUser.DoesNotExist:
+                code = 404
                 messages.error(request, WRONG_CREDENTIALS)
             except Exception:
+                code = 500
                 messages.error(request, SERVER_ERROR)
-        
-        return render(request, reset_temp_name, {"form": form})
+        else: code = 400
+        return render(request, reset_temp_name, {"form": form}, status=code)
         
 
 class OtpView(View):
@@ -168,10 +174,13 @@ class OtpView(View):
                 token = service.get_token(obj)
                 return self._set_token_response(request, token) 
             except OtpError as error:
+                code = 400
                 messages.error(request, error)
             except Exception:
+                code = 500
                 messages.error(request, SERVER_ERROR)
-        return render(request, otp_display_name, {"form":form}) 
+        else: code = 400
+        return render(request, otp_display_name, {"form":form}, status=code) 
                  
 class SetNewPasswordView(View):
     def get(self, request):
@@ -198,14 +207,17 @@ class SetNewPasswordView(View):
                 user = service.validate_token(token)
                 set_password(user, data)
             except TokenError as error:
+                code = 400
                 messages.error(request, error)
             except Exception:
+                code = 500
                 messages.error(request, SERVER_ERROR)
             else:
                 messages.success(request, SUCCESSFUL_RESET)
                 response = redirect("login")
                 return self._delete_reset_token(response)
-        return render(request, set_temp_name, {"form": form})
+        else: code = 400
+        return render(request, set_temp_name, {"form": form}, status=code)
     
 @login_required
 def logout_user(request):

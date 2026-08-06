@@ -7,7 +7,10 @@ from django.contrib.auth.hashers import make_password
 from nhcc_operations.config.settings.base import env
 from ..models import OtpCode, CustomUser
 from ..utils.custom_errors import (
-    InvalidCredentialsError, TokenError, OtpError
+    InvalidCredentialsError, TokenError, OtpError,
+    NAME_ERROR, INVALID_CODE, INVALID_TOKEN, 
+    INVALID_EMAIL, EXPIRED_CODE, EXPIRED_TOKEN,
+    WRONG_CREDENTIALS, ACCOUNT_DENIED
 )
 import secrets, re
 
@@ -16,17 +19,7 @@ STAFF_ACCOUNTS = set(env("STAFF_EMAILS").split(","))
 WELCOME_MESSAGE = "Welcome to NHCC Operations" 
 PASSWORD_RESET = "PASSWORD RESET"
 RESET_TOKEN_KEY = "reset_token"
-EMAIL_EXIST = "An account with this email already exists."
-SERVER_ERROR = "Server error, please try again later."
 SUCCESSFUL_RESET = "Password reset successfully. Please login to continue."
-INVALID_CODE = "Invalid code. Please enter the correct code."
-EXPIRED_CODE = "Expired code. Please request a new reset code."
-INVALID_TOKEN="Your password reset session is invalid. Please request a new code." 
-EXPIRED_TOKEN="Your password reset session has expired. Please request a new code."
-WRONG_CREDENTIALS = "No active account with the provided credentials"
-INVALID_EMAIL = "Invalid email."
-ACCOUNT_DENIED = "You are not allowed to create an account with this email."
-NAME_ERROR = "Enter a valid name using letters, spaces, apostrophes, or hyphens only."
 
 NAME_REGEX = r"^[A-Za-z]+(?:[ '-][A-Za-z]+)*$"
 
@@ -148,4 +141,3 @@ def allow_email(email:str):
 def find_user(email) -> CustomUser | None:
     return CustomUser.objects.get(email=email.lower())
 
-# CustomUser.objects.all().delete()
