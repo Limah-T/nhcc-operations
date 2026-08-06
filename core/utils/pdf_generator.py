@@ -2,9 +2,11 @@ from django.http import HttpResponse
 from weasyprint import HTML, CSS
 from django.conf import settings
 
-def file_naming_constructor(type, month, year, start, end) -> str:
+def file_monthly_naming_constructor(type, month, year, start, end) -> str:
     return f"{month}_{year}_{start.day}_to_{end.day}_{type.lower()}.pdf"
 
+def file_yearly_naming_constructor(type, year) -> str:
+    return f"1_January_{year}_to_31_December_{year}_{type.lower()}.pdf"
 
 def pdf_generator(html_string, request, file_name, css_path):
     pdf = HTML(

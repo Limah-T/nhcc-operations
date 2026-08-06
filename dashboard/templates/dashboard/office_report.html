@@ -423,7 +423,9 @@ Reports | NHCC Operations
 
                 <div class="modal-content rounded-4 border-0 shadow">
 
-                    <form method="post"
+                    <form 
+                        method="post"
+                        id="reportForm"
                         action="{% url 'generate_report' %}">
 
                         {% csrf_token %}
@@ -466,8 +468,10 @@ Reports | NHCC Operations
                                     </label>
 
                                     <select
+                                        id="reportType" 
                                         class="form-select rounded-4"
                                         name="report_type"
+                                        id="reportType"
                                         required>
 
                                         <option value="">
@@ -502,39 +506,70 @@ Reports | NHCC Operations
 
                                 </div>
 
-                                <div class="col-md-6">
+                                <!-- Monthly Reports -->
 
-                                    <label class="form-label fw-semibold">
+                                <div id="dateFields" class="row g-3">
 
-                                        Start Date
+                                    <div class="col-md-6">
 
-                                    </label>
+                                        <label class="form-label fw-semibold">
 
-                                    <input
-                                        type="date"
-                                        class="form-control rounded-4"
-                                        name="start_date">
+                                            Start Date
+
+                                        </label>
+
+                                        <input
+                                            type="date"
+                                            class="form-control rounded-4"
+                                            name="start_date">
+
+                                    </div>
+
+                                    <div class="col-md-6">
+
+                                        <label class="form-label fw-semibold">
+
+                                            End Date
+
+                                        </label>
+
+                                        <input
+                                            type="date"
+                                            class="form-control rounded-4"
+                                            name="end_date">
+
+                                    </div>
 
                                 </div>
 
-                                <div class="col-md-6">
+                                <!-- Yearly Report -->
+
+                                <div
+                                    class="col-12 d-none"
+                                    id="yearField">
 
                                     <label class="form-label fw-semibold">
 
-                                        End Date
+                                        Reporting Year
 
                                     </label>
 
-                                    <input
-                                        type="date"
-                                        class="form-control rounded-4"
-                                        name="end_date">
+                                    <select
+                                        id="yearSelect"
+                                        class="form-select rounded-4"
+                                        name="year">
+
+                                        {% for y in years %}
+                                            <option value="{{ y }}">
+                                                {{ y }}
+                                            </option>
+                                        {% endfor %}
+
+                                    </select>
 
                                 </div>
 
                             </div>
-
-                        </div>
 
                         <div class="modal-footer border-0 pt-0">
 
@@ -566,4 +601,42 @@ Reports | NHCC Operations
             </div>
 
         </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+    const reportType = document.getElementById("reportType");
+    const dateFields = document.getElementById("dateFields");
+    const yearField = document.getElementById("yearField");
+
+    function toggleReportFields() {
+
+        if (reportType.value === "yearly") {
+
+            dateFields.classList.add("d-none");
+            yearField.classList.remove("d-none");
+
+        } else {
+
+            dateFields.classList.remove("d-none");
+            yearField.classList.add("d-none");
+
+        }
+
+    }
+
+    reportType.addEventListener("change", toggleReportFields);
+
+    toggleReportFields();
+
+});
+document.getElementById("reportForm").addEventListener("submit", function () {
+
+    const reportType = document.getElementById("reportType").value;
+    const year = document.getElementById("yearSelect").value;
+
+    if (reportType === "yearly") {
+        this.action = "{% url 'generate_report' %}?year=" + encodeURIComponent(year);
+    }
+});
+</script>
 {% endblock %}

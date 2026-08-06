@@ -1,4 +1,6 @@
 from django.utils import timezone
+from django.db.models import Sum
+from django.db.models.functions import TruncMonth
 from pathlib import Path
 from django.conf import settings
 from account.services.profile_service import getFullName
@@ -11,6 +13,7 @@ from finance.expense.services.diesel_service import (
 from finance.expense.services.electricity_service import (
     EKedcDataRetrieval, EkedcRecordCalculator
 )
+from finance.expense.models import EKEDC, Diesel, Expense
 
 url_name = "reports"
 expense_report_temp = "report/expenses.html"
@@ -156,31 +159,167 @@ def monthly_expenditure_cxt_data(user, start_date, end_date, month, year):
         "report_period": f"{start_date:%d %b %Y} - {end_date:%d %b %Y}", 
     }
 
+def expense_yearly_expenditure(year) -> dict:
+    expense_queryset = (
+    Expense.objects
+        .filter(created_at__year=year)
+        .annotate(report_month=TruncMonth("created_at"))
+        .values("report_month")
+        .annotate(total=Sum("total"))
+    )
+
+    expense_months = {
+        row["report_month"].strftime("%B"): row["total"]
+        for row in expense_queryset
+    }
+    return expense_months
+
+def diesel_yearly_expenditure(year):
+    diesel_queryset = (
+        Diesel.objects
+        .filter(created_at__year=year)
+        .values("month")
+        .annotate(total=Sum("total"))
+    )
+
+    diesel_months = {
+        row["month"]: row["total"]
+        for row in diesel_queryset
+    }
+    return diesel_months
+
+def ekedc_yearly_expenditure(year):
+    ekedc_queryset = (
+    EKEDC.objects
+    .filter(created_at__year=year)
+    .values("month")
+    .annotate(total=Sum("amount"))
+    )
+
+    ekedc_months = {
+        row["month"]: row["total"]
+        for row in ekedc_queryset
+    }
+    return ekedc_months
+
+# def salary_yearly_expenditure(year):
+#     salary_queryset = (
+#         Salary.objects
+#         .filter(created_at__year=year)
+#         .annotate(report_month=TruncMonth("created_at"))
+#         .values("report_month")
+#         .annotate(total=Sum("total"))
+#     )
+
+#     salary_months = {
+#         row["report_month"].strftime("%B"): row["total"]
+#         for row in salary_queryset
+#     }
+#     return salary_months
+
+MONTHS = (
+    "January", "February", "March",
+    "April", "May", "June",
+    "July", "August", "September",
+    "October", "November", "December",
+)
+
+# def yearly_expenditure(year):
+    
+#     print(yearly_data)
+#     return yearly_data
+
+
 def yearly_expenditure_cxt_data(user, year=None)-> dict:
     if year is None: year = timezone.now().year
-    expense = queryset = ExpenseDataRetrieval().retrieve_yearly_expenses(year)
-    total_expenses = total_expense_records(expense)
+    diesel = diesel_yearly_expenditure(year)
+    expense = expense_yearly_expenditure(year)
+    ekedc = ekedc_yearly_expenditure(year)
+    yearly_data = [
+            {
+                "name": "Office Expenses",
+                "total": sum(expense.values()),
+                **{
+                    month[:3].lower(): expense.get(month, 0)
+                    for month in MONTHS
+                },
+            },
+            {
+                "name": "Diesel",
+                "total": sum(diesel.values()),
+                **{
+                    month[:3].lower(): diesel.get(month, 0)
+                    for month in MONTHS
+                },
+                
+            },
+            {
+                "name": "Electricity (Prepaid Meter)",
+                "total": sum(ekedc.values()),
+                **{
+                    month[:3].lower(): ekedc.get(month, 0)
+                    for month in MONTHS
+                },
+            },
+            # {
+            #     "name": "Staff Salaries",
+            #     **{
+            #         month[:3].lower(): salary_months.get(month, 0)
+            #         for month in MONTHS
+            #     },
+            # },
+        ]
+    january_total = sum(item["jan"] for item in yearly_data)
+    february_total = sum(item["feb"] for item in yearly_data)
+    march_total = sum(item["mar"] for item in yearly_data)
+    april_total = sum(item["apr"] for item in yearly_data)
+    may_total = sum(item["may"] for item in yearly_data)
+    june_total = sum(item["jun"] for item in yearly_data)
+    july_total = sum(item["jul"] for item in yearly_data)
+    august_total = sum(item["aug"] for item in yearly_data)
+    september_total = sum(item["sep"] for item in yearly_data)
+    october_total = sum(item["oct"] for item in yearly_data)
+    november_total = sum(item["nov"] for item in yearly_data)
+    december_total = sum(item["dec"] for item in yearly_data)
 
-    ekedc_queryset = EKedcDataRetrieval().retrieve_by_year(year)
-    total_ekedc = EkedcRecordCalculator().total_ekedc_records(ekedc_queryset)
-
-    disel_queryset = DieselDataRetrieval().retrieve_by_year(year)
-    total_diesel = DieselRecordCalculator().total_records(disel_queryset)
-
-    grand_total = total_ekedc + total_expenses + total_diesel
+    yearly_grand_total = (
+        january_total +
+        february_total +
+        march_total +
+        april_total +
+        may_total +
+        june_total +
+        july_total +
+        august_total +
+        september_total +
+        october_total +
+        november_total +
+        december_total
+    )
     prepared_by = getFullName(user)
     generated_at = timezone.now()
-
     return {
-        "expense_records":expenseOrganizer(queryset),
-        "total_ekedc": total_ekedc,
-        "total_diesel": total_diesel,
-        "ekedc_records": ekedc_queryset,
-        "prepared_by":prepared_by,
-        "grand_total": grand_total,
+
         "generated_at":generated_at,
+        "prepared_by":prepared_by,
         "year": year,
+        "yearly_data": yearly_data,
+        "january_total": january_total,
+        "february_total": february_total,
+        "march_total": march_total,
+        "april_total": april_total,
+        "may_total": may_total,
+        "june_total": june_total,
+        "july_total": july_total,
+        "august_total": august_total,
+        "september_total": september_total,
+        "october_total": october_total,
+        "november_total": november_total,
+        "december_total": december_total,
+        "yearly_grand_total": yearly_grand_total,
+        "report_period": f"1 January {year} – 31 December {year}", 
     }
+
 
 def get_template_context(
         report_type, user, start, end, month, year
