@@ -39,10 +39,10 @@ class StaffForm(forms.Form):
         for value in [first_name, last_name, bank_name, account_name]:
             if not re.match(r"^[a-zA-Z0-9\s&,'.-]+$", value):
                 raise forms.ValidationError(NAME_ERROR)
-
-        valid_email = email_is_valid(email)
-        if not valid_email:
-            raise forms.ValidationError("Invalid email")  
+        if email:
+            valid_email = email_is_valid(email)
+            if not valid_email:
+                raise forms.ValidationError("Invalid email")  
         date = self.cleaned_data.get("employment_date")
         if date:
             if date > timezone.now().date():
