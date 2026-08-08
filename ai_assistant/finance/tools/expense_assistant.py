@@ -10,7 +10,6 @@ class ExpenseRecord:
             created_at__gte=start,
             created_at__lte=end
         )
-        print(sum(exp.total for exp in expenses))
         return [
             {
                 "category": exp.category_name,
@@ -29,9 +28,7 @@ class DieselRecord:
             created_at__gte=start,
             created_at__lte=end
         )
-        print(diesels.values())
-        print("*********************************")
-        print(sum(exp.total for exp in diesels))
+
         return [
             {
                 "litres": diesel.litres,
@@ -53,7 +50,7 @@ class EKEDCRecord:
             created_at__gte=start,
             created_at__lte=end
         )
-        print(sum(exp.amount for exp in ekedc))
+
         return [
             {
                 "kwh": meter.kwh,

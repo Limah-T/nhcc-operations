@@ -27,11 +27,13 @@ class AskAssistant(View):
         )
 
     def post(self, request):
+        print(request.POST)
         form = ChatForm(data={"prompt": request.POST.get("prompt")})
         if form.is_valid():
             try:
                 prompt = form.cleaned_data["prompt"]
                 response = ask_assistant(prompt)
+                print(response)
                 return JsonResponse({
                     "response": self.formatted_response(response)
                 })
