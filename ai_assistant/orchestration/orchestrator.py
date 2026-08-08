@@ -82,6 +82,7 @@ def ask_assistant(user_input:str):
             tool_executor(tool_calls, messages)
             initial_response = request.tool_request(messages)
         final_message = initial_response.choices[0].message.content
+        print("FINAL_MEMSSAGE", final_message)
         return final_message
 
     except Exception as error:
