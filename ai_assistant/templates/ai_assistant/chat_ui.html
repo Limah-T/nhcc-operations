@@ -1,0 +1,1019 @@
+{% extends "dashboard/dashboard_base.html" %}
+
+{% block title %}
+AI Assistant | NHCC Operations
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+    .ai-chat-wrapper {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 120px);
+        min-height: 500px;
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    /* =========================
+       HEADER
+    ========================= */
+
+    .ai-chat-header {
+        flex-shrink: 0;
+        padding: 16px 20px;
+        border-bottom: 1px solid #e9ecef;
+        background: #fff;
+    }
+
+    .ai-chat-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .ai-avatar {
+        width: 42px;
+        height: 42px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: #eef4f7;
+        color: #2f4858;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 19px;
+    }
+
+    .ai-chat-title h5 {
+        margin: 0;
+        font-weight: 700;
+        color: #2f4858;
+    }
+
+    .ai-status {
+        margin-top: 2px;
+        color: #6c757d;
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    .ai-status-dot {
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        margin-right: 5px;
+        border-radius: 50%;
+        background: #198754;
+    }
+
+    /* =========================
+       CHAT BODY
+    ========================= */
+
+    .ai-chat-body {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        padding: 24px;
+        background: #fafbfc;
+        scroll-behavior: smooth;
+    }
+
+    /* =========================
+       WELCOME
+    ========================= */
+
+    .ai-welcome {
+        max-width: 720px;
+        margin: 40px auto;
+        text-align: center;
+    }
+
+    .ai-welcome-icon {
+        width: 58px;
+        height: 58px;
+        margin: 0 auto 14px;
+        border-radius: 50%;
+        background: #eef4f7;
+        color: #2f4858;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 25px;
+    }
+
+    .ai-welcome h4 {
+        margin-bottom: 8px;
+        color: #2f4858;
+        font-weight: 700;
+    }
+
+    .ai-welcome p {
+        max-width: 600px;
+        margin: 0 auto 22px;
+        color: #6c757d;
+        line-height: 1.6;
+    }
+
+    /* =========================
+       SUGGESTIONS
+    ========================= */
+
+    .ai-suggestions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .ai-suggestion {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #dee2e6;
+        border-radius: 12px;
+        background: #fff;
+        color: #2f4858;
+        text-align: left;
+        font-size: 13px;
+        transition: .15s ease;
+        cursor: pointer;
+    }
+
+    .ai-suggestion:hover {
+        border-color: #2f4858;
+        background: #f5f8fa;
+    }
+
+    .ai-suggestion i {
+        margin-right: 7px;
+    }
+
+    /* =========================
+       MESSAGES
+    ========================= */
+
+    .chat-message {
+        display: flex;
+        width: 100%;
+        margin-bottom: 18px;
+    }
+
+    .chat-message.user {
+        justify-content: flex-end;
+    }
+
+    .chat-message.ai {
+        justify-content: flex-start;
+    }
+
+    .message-bubble {
+        max-width: min(760px, 82%);
+        padding: 12px 15px;
+        border-radius: 15px;
+        line-height: 1.6;
+        font-size: 14px;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    .chat-message.user .message-bubble {
+        background: #2f4858;
+        color: #fff;
+        border-bottom-right-radius: 5px;
+    }
+
+    .chat-message.ai .message-bubble {
+        background: #fff;
+        color: #212529;
+        border: 1px solid #e1e5e8;
+        border-bottom-left-radius: 5px;
+    }
+
+    /* =========================
+       AI RESPONSE CONTENT
+    ========================= */
+
+    .message-bubble p {
+        margin-bottom: 10px;
+    }
+
+    .message-bubble p:last-child {
+        margin-bottom: 0;
+    }
+
+    .message-bubble strong {
+        font-weight: 700;
+    }
+
+    .message-bubble ul,
+    .message-bubble ol {
+        margin: 8px 0;
+        padding-left: 22px;
+    }
+
+    .message-bubble table {
+        width: 100%;
+        max-width: 100%;
+        margin: 12px 0;
+        border-collapse: collapse;
+        font-size: 13px;
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .message-bubble th,
+    .message-bubble td {
+        padding: 7px 10px;
+        border: 1px solid #dee2e6;
+        text-align: left;
+    }
+
+    .message-bubble th {
+        background: #f1f4f6;
+        font-weight: 700;
+    }
+
+    /* =========================
+       INPUT AREA
+    ========================= */
+
+    .ai-chat-footer {
+        flex-shrink: 0;
+        padding: 14px 18px 10px;
+        border-top: 1px solid #e9ecef;
+        background: #fff;
+    }
+
+    .chat-input-wrapper {
+        display: flex;
+        align-items: flex-end;
+        gap: 8px;
+    }
+
+    .chat-input-wrapper textarea {
+        flex: 1;
+        min-height: 48px;
+        max-height: 140px;
+        resize: none;
+        border-radius: 14px;
+        padding: 12px 14px;
+        line-height: 1.45;
+    }
+
+    .chat-input-wrapper textarea:focus {
+        border-color: #2f4858;
+        box-shadow: 0 0 0 .15rem rgba(47, 72, 88, .12);
+    }
+
+    .chat-send-btn {
+        width: 48px;
+        height: 48px;
+        flex-shrink: 0;
+        border-radius: 14px;
+    }
+
+    .ai-disclaimer {
+        margin: 7px 0 0;
+        text-align: center;
+        color: #8a8f94;
+        font-size: 11px;
+    }
+
+    /* =========================
+       TYPING
+    ========================= */
+
+    .typing-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 10px 13px;
+        background: #fff;
+        border: 1px solid #e1e5e8;
+        border-radius: 14px;
+    }
+
+    .typing-indicator span {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #6c757d;
+        animation: typing 1.2s infinite ease-in-out;
+    }
+
+    .typing-indicator span:nth-child(2) {
+        animation-delay: .15s;
+    }
+
+    .typing-indicator span:nth-child(3) {
+        animation-delay: .3s;
+    }
+
+    @keyframes typing {
+        0%, 60%, 100% {
+            opacity: .3;
+            transform: translateY(0);
+        }
+
+        30% {
+            opacity: 1;
+            transform: translateY(-3px);
+        }
+    }
+
+    /* =========================
+       MOBILE
+    ========================= */
+
+    @media (max-width: 576px) {
+
+        .ai-chat-wrapper {
+            height: calc(100vh - 90px);
+            min-height: 450px;
+            border-radius: 10px;
+        }
+
+        .ai-chat-header {
+            padding: 12px 14px;
+        }
+
+        .ai-avatar {
+            width: 36px;
+            height: 36px;
+            font-size: 16px;
+        }
+
+        .ai-chat-title h5 {
+            font-size: 15px;
+        }
+
+        .ai-status {
+            font-size: 11px;
+        }
+
+        .ai-chat-body {
+            padding: 16px 12px;
+        }
+
+        .ai-welcome {
+            margin: 25px auto;
+        }
+
+        .ai-welcome h4 {
+            font-size: 18px;
+        }
+
+        .ai-welcome p {
+            font-size: 13px;
+        }
+
+        .ai-suggestions {
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
+        .ai-suggestion {
+            font-size: 12px;
+            padding: 11px 12px;
+        }
+
+        .message-bubble {
+            max-width: 90%;
+            font-size: 13px;
+            padding: 10px 12px;
+        }
+
+        .message-bubble table {
+            font-size: 12px;
+        }
+
+        .message-bubble th,
+        .message-bubble td {
+            padding: 6px 8px;
+        }
+
+        .ai-chat-footer {
+            padding: 10px;
+        }
+
+        .chat-input-wrapper textarea {
+            min-height: 46px;
+            font-size: 13px;
+        }
+
+        .chat-send-btn {
+            width: 46px;
+            height: 46px;
+        }
+    }
+
+</style>
+
+<div class="ai-chat-wrapper">
+    <!-- ===========================
+            MESSAGES
+        =========================== -->
+    
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} rounded-4 mb-4 alert-dismissible fade show">
+
+                    {{ message }}
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert">
+                    </button>
+
+                </div>
+            {% endfor %}
+        {% endif %}
+
+<!-- HEADER -->
+
+<div class="ai-chat-header">
+
+    <div class="ai-chat-title">
+
+        <div class="ai-avatar">
+            <i class="bi bi-stars"></i>
+        </div>
+
+        <div>
+
+            <h5>
+                AI Assistant
+            </h5>
+
+            <div class="ai-status">
+
+                <span class="ai-status-dot"></span>
+
+                Ready to assist. Ask questions about
+                expenses, diesel, EKEDC, staff, members, 
+                directors, expenditure, and reports.
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- CHAT BODY -->
+
+<div
+    class="ai-chat-body"
+    id="chatMessages"
+>
+
+    <!-- WELCOME -->
+
+    <div
+        class="ai-welcome"
+        id="welcomeMessage"
+    >
+
+        <div class="ai-welcome-icon">
+
+            <i class="bi bi-lightning-charge"></i>
+
+        </div>
+
+        <h4>
+            How can I help?
+        </h4>
+
+        <p>
+            I can help you understand and analyse
+            your organisation's expenses, diesel usage,
+            EKEDC bills staff management, members, applications,  
+            directors, expenditure, and reports..
+        </p>
+
+
+        <div class="ai-suggestions">
+
+            <button
+                type="button"
+                class="ai-suggestion"
+                data-question="How much did we spend on diesel this year?"
+            >
+                <i class="bi bi-fuel-pump"></i>
+                Diesel expenditure this year
+            </button>
+
+
+            <button
+                type="button"
+                class="ai-suggestion"
+                data-question="How much did we spend on EKEDC this year?"
+            >
+                <i class="bi bi-lightning"></i>
+                EKEDC expenditure this year
+            </button>
+
+
+            <button
+                type="button"
+                class="ai-suggestion"
+                data-question="Which month had the highest expenditure?"
+            >
+                <i class="bi bi-bar-chart"></i>
+                Highest expenditure month
+            </button>
+
+
+            <button
+                type="button"
+                class="ai-suggestion"
+                data-question="Give me a summary of our yearly expenditure."
+            >
+                <i class="bi bi-file-earmark-bar-graph"></i>
+                Yearly expenditure summary
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- FOOTER -->
+
+<div class="ai-chat-footer">
+
+    <form
+        method="post"
+        id="agentForm"
+    >
+
+        {% csrf_token %}
+
+        <div class="chat-input-wrapper">
+
+            <textarea
+                name="prompt"
+                id="prompt"
+                class="form-control"
+                placeholder="Ask your management agent..."
+                autocomplete="off"
+                rows="1"
+                required
+            ></textarea>
+
+
+            <button
+                type="submit"
+                class="btn btn-primary chat-send-btn"
+                id="sendButton"
+            >
+
+                <i class="bi bi-send"></i>
+
+            </button>
+
+        </div>
+
+    </form>
+
+
+    <p class="ai-disclaimer">
+        AI responses may need to be verified against your reports.
+    </p>
+
+</div>
+
+</div>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const form = document.getElementById("agentForm");
+    const promptInput = document.getElementById("prompt");
+    const chatMessages = document.getElementById("chatMessages");
+    const welcomeMessage = document.getElementById("welcomeMessage");
+    const sendButton = document.getElementById("sendButton");
+
+    const STORAGE_KEY = "nhcc_ai_chat_history";
+
+
+    /* ==========================================
+       HELPERS
+    ========================================== */
+
+    function scrollToBottom() {
+
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    }
+
+
+    function createMessage(role, content) {
+
+        const message = document.createElement("div");
+
+        message.className = `chat-message ${role}`;
+
+        const bubble = document.createElement("div");
+
+        bubble.className = "message-bubble";
+
+        /*
+         * AI response is returned already formatted
+         * by the backend, so allow the HTML here.
+         *
+         * User prompts are always inserted as text.
+         */
+
+        if (role === "ai") {
+
+            bubble.innerHTML = content;
+
+        } else {
+
+            bubble.textContent = content;
+
+        }
+
+        message.appendChild(bubble);
+
+        return message;
+
+    }
+
+
+    function saveHistory() {
+
+        const messages = [];
+
+        chatMessages
+            .querySelectorAll(".chat-message")
+            .forEach(function (message) {
+
+                const role = message.classList.contains("user")
+                    ? "user"
+                    : "ai";
+
+                const bubble = message.querySelector(".message-bubble");
+
+                if (!bubble) {
+                    return;
+                }
+
+                messages.push({
+                    role: role,
+                    content: role === "user"
+                        ? bubble.textContent
+                        : bubble.innerHTML
+                });
+
+            });
+
+        sessionStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(messages)
+        );
+
+    }
+
+
+    function restoreHistory() {
+
+        const saved = sessionStorage.getItem(STORAGE_KEY);
+
+        if (!saved) {
+            return;
+        }
+
+        try {
+
+            const messages = JSON.parse(saved);
+
+            if (!Array.isArray(messages) || messages.length === 0) {
+                return;
+            }
+
+            welcomeMessage.remove();
+
+            messages.forEach(function (item) {
+
+                chatMessages.appendChild(
+                    createMessage(
+                        item.role,
+                        item.content
+                    )
+                );
+
+            });
+
+            scrollToBottom();
+
+        } catch (error) {
+
+            console.error(
+                "Unable to restore AI chat history:",
+                error
+            );
+
+        }
+
+    }
+
+
+    function addTypingIndicator() {
+
+        const wrapper = document.createElement("div");
+
+        wrapper.className = "chat-message ai";
+        wrapper.id = "typingMessage";
+
+        wrapper.innerHTML = `
+            <div class="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        `;
+
+        chatMessages.appendChild(wrapper);
+
+        scrollToBottom();
+
+        return wrapper;
+
+    }
+
+
+    /* ==========================================
+       SUGGESTION BUTTONS
+    ========================================== */
+
+    document
+        .querySelectorAll(".ai-suggestion")
+        .forEach(function (button) {
+
+            button.addEventListener("click", function () {
+
+                promptInput.value =
+                    this.dataset.question;
+
+                promptInput.focus();
+
+                autoResize();
+
+            });
+
+        });
+
+
+    /* ==========================================
+       TEXTAREA AUTO RESIZE
+    ========================================== */
+
+    function autoResize() {
+
+        promptInput.style.height = "auto";
+
+        promptInput.style.height =
+            Math.min(
+                promptInput.scrollHeight,
+                140
+            ) + "px";
+
+    }
+
+    promptInput.addEventListener(
+        "input",
+        autoResize
+    );
+
+
+    /* ==========================================
+       ENTER TO SEND
+    ========================================== */
+
+    promptInput.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key === "Enter" &&
+                !event.shiftKey
+            ) {
+
+                event.preventDefault();
+
+                form.requestSubmit();
+
+            }
+
+        }
+    );
+
+
+    /* ==========================================
+       SUBMIT CHAT
+    ========================================== */
+
+    form.addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+            const prompt =
+                promptInput.value.trim();
+
+            if (!prompt) {
+                return;
+            }
+
+
+            /*
+             * Remove welcome screen after
+             * the first message.
+             */
+
+            if (welcomeMessage) {
+
+                welcomeMessage.remove();
+
+            }
+
+
+            /*
+             * Display user message immediately.
+             */
+
+            chatMessages.appendChild(
+                createMessage(
+                    "user",
+                    prompt
+                )
+            );
+
+            scrollToBottom();
+
+
+            /*
+             * Clear input.
+             */
+
+            promptInput.value = "";
+
+            autoResize();
+
+
+            /*
+             * Disable send while waiting.
+             */
+
+            sendButton.disabled = true;
+
+
+            /*
+             * Show typing indicator.
+             */
+
+            const typing =
+                addTypingIndicator();
+
+
+            try {
+
+                const formData =
+                    new FormData();
+
+                formData.append(
+                    "prompt",
+                    prompt
+                );
+
+
+                /*
+                 * Django CSRF token
+                 */
+
+                const csrfToken =
+                    document.querySelector(
+                        "[name=csrfmiddlewaretoken]"
+                    ).value;
+
+
+                const response =
+                    await fetch(
+                        window.location.href,
+                        {
+                            method: "POST",
+                            headers: {
+                                "X-CSRFToken": csrfToken,
+                                "X-Requested-With": "XMLHttpRequest"
+                            },
+                            body: formData
+                        }
+                    );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        `Request failed: ${response.status}`
+                    );
+
+                }
+
+
+                /*
+                 * We expect Django to return JSON.
+                 */
+
+                const data =
+                    await response.json();
+
+
+                typing.remove();
+
+
+                /*
+                 * Display AI response.
+                 */
+
+                chatMessages.appendChild(
+                    createMessage(
+                        "ai",
+                        data.response
+                    )
+                );
+
+
+                /*
+                 * Save conversation in this
+                 * browser session.
+                 */
+
+                saveHistory();
+
+                scrollToBottom();
+
+
+            } catch (error) {
+
+                console.error(
+                    "AI request failed:",
+                    error
+                );
+
+
+                typing.remove();
+
+
+                chatMessages.appendChild(
+                    createMessage(
+                        "ai",
+                        "<p>Sorry, something went wrong while processing your request.</p>"
+                    )
+                );
+
+
+                saveHistory();
+
+                scrollToBottom();
+
+            } finally {
+
+                sendButton.disabled = false;
+
+                promptInput.focus();
+
+            }
+
+        }
+    );
+
+
+    /* ==========================================
+       RESTORE SESSION CHAT
+    ========================================== */
+
+    restoreHistory();
+
+    promptInput.focus();
+
+});
+
+</script>
+
+{% endblock %}

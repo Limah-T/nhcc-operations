@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'core',
     'directors',
     'membership',
+    'ai_assistant',
 ]
 
 MIDDLEWARE = [

@@ -85,6 +85,10 @@
                 Soon
             </span>
         </a>
+        <a class="nav-link rounded-3 px-3 py-2 text-white" href="{% url 'ask_ai'%}">
+            <i class="bi bi-activity me-2"></i>
+            Ask AI
+        </a>
 
     </nav>
 
@@ -96,11 +100,16 @@
             Settings
         </a>
 
-        <a class="nav-link rounded-3 px-3 py-2 text-danger" href="{% url 'logout'%}">
+        <a class="nav-link rounded-3 px-3 py-2 text-danger" 
+            href="{% url 'logout'%}" id="logoutLink">
             <i class="bi bi-box-arrow-right me-2"></i>
             Logout
         </a>
-
+        <script>
+            document.getElementById("logoutLink").addEventListener("click", function () {
+                sessionStorage.removeItem("nhcc_ai_chat_history");
+            });
+        </script>
     </div>
 
 </aside>
