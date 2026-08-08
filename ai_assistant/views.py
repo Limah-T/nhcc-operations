@@ -42,6 +42,7 @@ class AskAssistant(View):
                 messages.error(request, SERVER_ERROR)
 
         messages.error(request, form.errors)
+        print(form.errors)
         code = 400
         return render(
             request=request, template_name=chat_temp, 
