@@ -610,32 +610,94 @@ document.addEventListener("DOMContentLoaded", function () {
     const STORAGE_KEY = "nhcc_ai_chat_history";
 
 
-    /* ==========================================
+    /* =====================================================
+       CSRF
+    ===================================================== */
+
+    function getCookie(name) {
+
+        const cookies = document.cookie.split(";");
+
+        for (let cookie of cookies) {
+
+            cookie = cookie.trim();
+
+            if (cookie.startsWith(name + "=")) {
+
+                return decodeURIComponent(
+                    cookie.substring(name.length + 1)
+                );
+
+            }
+
+        }
+
+        return null;
+    }
+
+
+    function getCsrfToken() {
+
+        /*
+         * First use Django's csrftoken cookie.
+         * This prevents the production mismatch between
+         * the CSRF cookie and X-CSRFToken header.
+         */
+
+        const cookieToken = getCookie("csrftoken");
+
+        if (cookieToken) {
+            return cookieToken;
+        }
+
+
+        /*
+         * Fallback to Django's hidden CSRF input.
+         */
+
+        const csrfInput =
+            document.querySelector(
+                "[name=csrfmiddlewaretoken]"
+            );
+
+        if (csrfInput) {
+            return csrfInput.value;
+        }
+
+        return null;
+    }
+
+
+    /* =====================================================
        HELPERS
-    ========================================== */
+    ===================================================== */
 
     function scrollToBottom() {
 
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        chatMessages.scrollTop =
+            chatMessages.scrollHeight;
 
     }
 
 
     function createMessage(role, content) {
 
-        const message = document.createElement("div");
+        const message =
+            document.createElement("div");
 
-        message.className = `chat-message ${role}`;
+        message.className =
+            `chat-message ${role}`;
 
-        const bubble = document.createElement("div");
 
-        bubble.className = "message-bubble";
+        const bubble =
+            document.createElement("div");
+
+        bubble.className =
+            "message-bubble";
+
 
         /*
-         * AI response is returned already formatted
-         * by the backend, so allow the HTML here.
-         *
-         * User prompts are always inserted as text.
+         * AI response is already formatted by backend.
          */
 
         if (role === "ai") {
@@ -644,9 +706,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
         } else {
 
+            /*
+             * User input is always plain text.
+             */
+
             bubble.textContent = content;
 
         }
+
 
         message.appendChild(bubble);
 
@@ -655,71 +722,113 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
+    /* =====================================================
+       SAVE CHAT HISTORY
+    ===================================================== */
+
     function saveHistory() {
 
         const messages = [];
+
 
         chatMessages
             .querySelectorAll(".chat-message")
             .forEach(function (message) {
 
-                const role = message.classList.contains("user")
-                    ? "user"
-                    : "ai";
+                const role =
+                    message.classList.contains("user")
+                        ? "user"
+                        : "ai";
 
-                const bubble = message.querySelector(".message-bubble");
+
+                const bubble =
+                    message.querySelector(
+                        ".message-bubble"
+                    );
+
 
                 if (!bubble) {
                     return;
                 }
 
+
                 messages.push({
+
                     role: role,
-                    content: role === "user"
-                        ? bubble.textContent
-                        : bubble.innerHTML
+
+                    content:
+                        role === "user"
+                            ? bubble.textContent
+                            : bubble.innerHTML
+
                 });
 
             });
 
+
         sessionStorage.setItem(
+
             STORAGE_KEY,
+
             JSON.stringify(messages)
+
         );
 
     }
 
 
+    /* =====================================================
+       RESTORE CHAT HISTORY
+    ===================================================== */
+
     function restoreHistory() {
 
-        const saved = sessionStorage.getItem(STORAGE_KEY);
+        const saved =
+            sessionStorage.getItem(
+                STORAGE_KEY
+            );
+
 
         if (!saved) {
             return;
         }
 
+
         try {
 
-            const messages = JSON.parse(saved);
+            const messages =
+                JSON.parse(saved);
 
-            if (!Array.isArray(messages) || messages.length === 0) {
+
+            if (
+                !Array.isArray(messages) ||
+                messages.length === 0
+            ) {
                 return;
             }
 
-            welcomeMessage.remove();
+
+            if (welcomeMessage) {
+                welcomeMessage.remove();
+            }
+
 
             messages.forEach(function (item) {
 
                 chatMessages.appendChild(
+
                     createMessage(
                         item.role,
                         item.content
                     )
+
                 );
 
             });
 
+
             scrollToBottom();
+
 
         } catch (error) {
 
@@ -728,25 +837,43 @@ document.addEventListener("DOMContentLoaded", function () {
                 error
             );
 
+            sessionStorage.removeItem(
+                STORAGE_KEY
+            );
+
         }
 
     }
 
 
+    /* =====================================================
+       TYPING INDICATOR
+    ===================================================== */
+
     function addTypingIndicator() {
 
-        const wrapper = document.createElement("div");
+        const wrapper =
+            document.createElement("div");
 
-        wrapper.className = "chat-message ai";
-        wrapper.id = "typingMessage";
+        wrapper.className =
+            "chat-message ai";
+
+        wrapper.id =
+            "typingMessage";
+
 
         wrapper.innerHTML = `
+
             <div class="typing-indicator">
+
                 <span></span>
                 <span></span>
                 <span></span>
+
             </div>
+
         `;
+
 
         chatMessages.appendChild(wrapper);
 
@@ -757,35 +884,46 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    /* ==========================================
+    /* =====================================================
        SUGGESTION BUTTONS
-    ========================================== */
+       KEEP THESE
+    ===================================================== */
 
     document
         .querySelectorAll(".ai-suggestion")
         .forEach(function (button) {
 
-            button.addEventListener("click", function () {
+            button.addEventListener(
+                "click",
+                function () {
 
-                promptInput.value =
-                    this.dataset.question;
+                    /*
+                     * Clicking a suggestion puts the
+                     * question into the textarea.
+                     */
 
-                promptInput.focus();
+                    promptInput.value =
+                        this.dataset.question;
 
-                autoResize();
 
-            });
+                    promptInput.focus();
+
+                    autoResize();
+
+                }
+            );
 
         });
 
 
-    /* ==========================================
+    /* =====================================================
        TEXTAREA AUTO RESIZE
-    ========================================== */
+    ===================================================== */
 
     function autoResize() {
 
         promptInput.style.height = "auto";
+
 
         promptInput.style.height =
             Math.min(
@@ -795,19 +933,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
     }
 
+
     promptInput.addEventListener(
         "input",
         autoResize
     );
 
 
-    /* ==========================================
+    /* =====================================================
        ENTER TO SEND
-    ========================================== */
+    ===================================================== */
 
     promptInput.addEventListener(
         "keydown",
         function (event) {
+
+            /*
+             * Enter sends.
+             * Shift + Enter creates a new line.
+             */
 
             if (
                 event.key === "Enter" &&
@@ -824,9 +968,9 @@ document.addEventListener("DOMContentLoaded", function () {
     );
 
 
-    /* ==========================================
+    /* =====================================================
        SUBMIT CHAT
-    ========================================== */
+    ===================================================== */
 
     form.addEventListener(
         "submit",
@@ -834,65 +978,73 @@ document.addEventListener("DOMContentLoaded", function () {
 
             event.preventDefault();
 
+
             const prompt =
                 promptInput.value.trim();
+
 
             if (!prompt) {
                 return;
             }
 
 
-            /*
-             * Remove welcome screen after
-             * the first message.
-             */
+            /* ---------------------------------------------
+               Remove welcome screen after first message
+            --------------------------------------------- */
 
             if (welcomeMessage) {
-
                 welcomeMessage.remove();
-
             }
 
 
-            /*
-             * Display user message immediately.
-             */
+            /* ---------------------------------------------
+               Display user message immediately
+            --------------------------------------------- */
 
             chatMessages.appendChild(
+
                 createMessage(
                     "user",
                     prompt
                 )
+
             );
+
 
             scrollToBottom();
 
 
-            /*
-             * Clear input.
-             */
+            /* ---------------------------------------------
+               Clear textarea
+            --------------------------------------------- */
 
             promptInput.value = "";
 
             autoResize();
 
 
-            /*
-             * Disable send while waiting.
-             */
+            /* ---------------------------------------------
+               Disable send button
+            --------------------------------------------- */
 
-            sendButton.disabled = true;
+            if (sendButton) {
+                sendButton.disabled = true;
+            }
 
 
-            /*
-             * Show typing indicator.
-             */
+            /* ---------------------------------------------
+               Show typing indicator
+            --------------------------------------------- */
 
             const typing =
                 addTypingIndicator();
 
 
             try {
+
+                /* -----------------------------------------
+                   Form data
+                ----------------------------------------- */
 
                 const formData =
                     new FormData();
@@ -903,66 +1055,139 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
 
 
-                /*
-                 * Django CSRF token
-                 */
+                /* -----------------------------------------
+                   Get CSRF token
+                ----------------------------------------- */
 
                 const csrfToken =
-                    document.querySelector(
-                        "[name=csrfmiddlewaretoken]"
-                    ).value;
+                    getCsrfToken();
 
 
-                const response =
-                    await fetch(
-                        window.location.href,
-                        {
-                            method: "POST",
-                            headers: {
-                                "X-CSRFToken": csrfToken,
-                                "X-Requested-With": "XMLHttpRequest"
-                            },
-                            body: formData
-                        }
-                    );
-
-
-                if (!response.ok) {
+                if (!csrfToken) {
 
                     throw new Error(
-                        `Request failed: ${response.status}`
+                        "CSRF token could not be found."
                     );
 
                 }
 
 
                 /*
-                 * We expect Django to return JSON.
+                 * IMPORTANT:
+                 *
+                 * Do NOT manually add
+                 * Content-Type.
+                 *
+                 * FormData automatically creates the
+                 * correct multipart/form-data boundary.
                  */
+
+                const response =
+                    await fetch(
+                        "/ai_assistant/ask/",
+                        {
+                            method: "POST",
+
+                            headers: {
+
+                                "X-CSRFToken":
+                                    csrfToken,
+
+                                "X-Requested-With":
+                                    "XMLHttpRequest"
+
+                            },
+
+                            credentials:
+                                "same-origin",
+
+                            body:
+                                formData
+
+                        }
+                    );
+
+
+                /* -----------------------------------------
+                   Handle failed HTTP responses
+                ----------------------------------------- */
+
+                if (!response.ok) {
+
+                    let errorMessage =
+                        `Request failed: ${response.status}`;
+
+
+                    /*
+                     * Try to read Django's JSON error.
+                     */
+
+                    try {
+
+                        const errorData =
+                            await response.json();
+
+
+                        if (errorData.error) {
+
+                            errorMessage =
+                                errorData.error;
+
+                        }
+
+                    } catch (error) {
+
+                        /*
+                         * Production may return an HTML
+                         * Django error page instead.
+                         */
+
+                    }
+
+
+                    throw new Error(
+                        errorMessage
+                    );
+
+                }
+
+
+                /* -----------------------------------------
+                   Read JSON response
+                ----------------------------------------- */
 
                 const data =
                     await response.json();
 
 
+                /* -----------------------------------------
+                   Remove typing indicator
+                ----------------------------------------- */
+
                 typing.remove();
 
 
-                /*
-                 * Display AI response.
-                 */
+                /* -----------------------------------------
+                   Display AI response
+                ----------------------------------------- */
 
                 chatMessages.appendChild(
+
                     createMessage(
+
                         "ai",
-                        data.response
+
+                        data.response ||
+                        "<p>No response was returned.</p>"
+
                     )
+
                 );
 
 
-                /*
-                 * Save conversation in this
-                 * browser session.
-                 */
+                /* -----------------------------------------
+                   Save conversation
+                ----------------------------------------- */
 
                 saveHistory();
 
@@ -977,24 +1202,48 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
 
 
-                typing.remove();
+                if (typing) {
+                    typing.remove();
+                }
 
+
+                /*
+                 * Show friendly error in chat.
+                 */
 
                 chatMessages.appendChild(
+
                     createMessage(
+
                         "ai",
-                        "<p>Sorry, something went wrong while processing your request.</p>"
+
+                        `
+                        <p>
+                            Sorry, something went wrong
+                            while processing your request.
+                        </p>
+                        `
+
                     )
+
                 );
 
+
+                /*
+                 * Keep the user's message in the
+                 * temporary browser chat history.
+                 */
 
                 saveHistory();
 
                 scrollToBottom();
 
+
             } finally {
 
-                sendButton.disabled = false;
+                if (sendButton) {
+                    sendButton.disabled = false;
+                }
 
                 promptInput.focus();
 
@@ -1004,16 +1253,24 @@ document.addEventListener("DOMContentLoaded", function () {
     );
 
 
-    /* ==========================================
+    /* =====================================================
        RESTORE SESSION CHAT
-    ========================================== */
+    ===================================================== */
 
     restoreHistory();
 
+
+    /* =====================================================
+       INITIAL STATE
+    ===================================================== */
+
     promptInput.focus();
+
+    autoResize();
 
 });
 
 </script>
+
 
 {% endblock %}
