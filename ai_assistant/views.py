@@ -27,7 +27,6 @@ class AskAssistant(View):
         )
 
     def post(self, request):
-        print(request.POST)
         form = ChatForm(data={"prompt": request.POST.get("prompt")})
         if form.is_valid():
             try:
@@ -37,12 +36,11 @@ class AskAssistant(View):
                 return JsonResponse({
                     "response": self.formatted_response(response)
                 })
-            except IndentationError:
+            except Exception:
                 code = 500
                 messages.error(request, SERVER_ERROR)
 
         messages.error(request, form.errors)
-        print(form.errors)
         code = 400
         return render(
             request=request, template_name=chat_temp, 
