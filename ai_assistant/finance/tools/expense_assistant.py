@@ -4,8 +4,8 @@ import datetime
 class ExpenseRecord:
     @staticmethod
     def get_expense_record(start_date:datetime.date, end_date:datetime.date):
-        start = datetime.date.strptime(start_date, "%Y-%m-%d")
-        end = datetime.date.strptime(end_date, "%Y-%m-%d")
+        start = datetime.date.fromisoformat(start_date)
+        end = datetime.date.fromisoformat(end_date)
         expenses = Expense.objects.select_related("category").filter(
             created_at__gte=start,
             created_at__lte=end
@@ -22,8 +22,8 @@ class ExpenseRecord:
 class DieselRecord:
     @staticmethod
     def get_diesel_record(start_date:datetime.date, end_date:datetime.date):
-        start = datetime.date.strptime(start_date, "%Y-%m-%d")
-        end = datetime.date.strptime(end_date, "%Y-%m-%d")
+        start = datetime.date.fromisoformat(start_date)
+        end = datetime.date.fromisoformat(end_date)
         diesels = Diesel.objects.filter(
             created_at__gte=start,
             created_at__lte=end
@@ -44,8 +44,8 @@ class DieselRecord:
 class EKEDCRecord:
     @staticmethod
     def get_ekedc_record(start_date:datetime.date, end_date:datetime.date):
-        start = datetime.date.strptime(start_date, "%Y-%m-%d")
-        end = datetime.date.strptime(end_date, "%Y-%m-%d")
+        start = datetime.date.fromisoformat(start_date)
+        end = datetime.date.fromisoformat(end_date)
         ekedc = EKEDC.objects.filter(
             created_at__gte=start,
             created_at__lte=end
