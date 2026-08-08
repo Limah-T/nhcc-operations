@@ -37,7 +37,7 @@ class AskAssistant(View):
                 return JsonResponse({
                     "response": self.formatted_response(response)
                 })
-            except Exception:
+            except IndentationError:
                 code = 500
                 messages.error(request, SERVER_ERROR)
 

@@ -85,7 +85,7 @@ def ask_assistant(user_input:str):
         print("FINAL_MEMSSAGE", final_message)
         return final_message
 
-    except Exception as error:
-        raise 
+    except IndentationError as error:
+        print(str(error))
 
 
