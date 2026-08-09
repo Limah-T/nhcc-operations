@@ -19,7 +19,7 @@ class ReportForm(forms.Form):
         end_date = self.cleaned_data.get("end_date")
         if start_date and end_date:
             if future_date(start_date, end_date):
-                raise forms.ValidationError("Date is in the future.")
+                raise forms.ValidationError("Date cannot be in the future.")
         else:
             start_date, end_date = set_date()
             self.cleaned_data["start_date"] = start_date

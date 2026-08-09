@@ -10,25 +10,20 @@ Reports | NHCC Operations
 
     <div class="col-12">
 
-        {% if errors %}
-        <div class="alert alert-danger rounded-4 mb-4">
-            <div class="fw-semibold mb-2">
-                Please correct the following:
-            </div>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} rounded-4 mb-4 alert-dismissible fade show">
 
-            <ul class="mb-0 ps-3">
-                {% for field, messages in errors.items %}
-                <li class="mb-2">
-                    <strong>{{ field|capfirst }}</strong><br>
+                    {{ message }}
 
-                    {% for message in messages %}
-                        <small>{{ message }}</small>
-                    {% endfor %}
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert">
+                    </button>
 
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
+                </div>
+            {% endfor %}
         {% endif %}
 
         <div class="card border-0 shadow-sm rounded-4">

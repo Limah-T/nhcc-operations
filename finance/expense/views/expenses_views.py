@@ -49,23 +49,29 @@ class ExpenseGetCreateView(View):
     def get(self, request):
         start_date = request.GET.get("start_date")
         end_date = request.GET.get("end_date")
-        try:
-            form = FilterDateForm(data={
-                "start_date":start_date, "end_date":end_date})
-            if not form.is_valid(): raise forms.ValidationError
-            start_date = form.cleaned_data["start_date"]
-            end_date = form.cleaned_data["end_date"]
-            code = 200
-        except forms.ValidationError:
+        form = FilterDateForm(
+            data={"start_date":start_date, "end_date":end_date}
+        )
+        if form.is_valid():
+            try:
+                start_date = form.cleaned_data["start_date"]
+                end_date = form.cleaned_data["end_date"]  
+                return render(
+                    request=request, template_name=expense_record_temp_name,
+                    context = expense_context_data(request.user, start_date, end_date),
+                    status=200
+                )         
+            except Exception:
+                code = 500
+                messages.error(request, SERVER_ERROR)
+        else:
             code = 400
             messages.error(request, form.errors)
-        except Exception:
-            code = 500
-            messages.error(request, SERVER_ERROR)
+        start_date, end_date = set_date()
         return render(
             request=request, 
             template_name=expense_record_temp_name,
-            context=expense_context_data(request.user, start_date, end_date),
+            context=expense_context_data(request.user, start_date, end_date, form),
             status=code
         )
 

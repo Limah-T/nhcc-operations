@@ -15,7 +15,6 @@ ALLOWED_HOSTS = env("ALLOWED_HOSTS").split(",")
 # ------------------------
 
 CSRF_TRUSTED_ORIGINS = [
-    "http://127.0.0.0.1:8000",
     "https://nhccoperations.pythonanywhere.com"
 ]
 
@@ -83,14 +82,6 @@ DATABASES = {
         "NAME": BASE_DIR / env("NAME"),
     }
 }
-
-# ------------------------
-# EMAIL
-# ------------------------
-
-# ------------------------
-# LOGGING
-# ------------------------
 
 LOGGING = {
     "version": 1,

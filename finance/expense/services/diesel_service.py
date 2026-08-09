@@ -71,14 +71,15 @@ class DieselRecordCalculator:
     def total_records(queryset:Diesel) -> Decimal:
         return sum(item.total for item in queryset)
     
-def diesel_context_data(user, start_date, end_date) -> dict:
+def diesel_context_data(user, start_date, end_date, form=None) -> dict:
     queryset = DieselDataRetrieval().retrieve_by_month(start_date, end_date)
     total = DieselRecordCalculator().total_records(queryset)
     return {
         "diesel_records": queryset,
         "count": queryset.count(),
         "monthly_total_display": f"₦{total:,.2f}",
-        "user_name":getNameAvatar(user)
+        "user_name":getNameAvatar(user),
+        "form":form
     }
 
 class DieselDataInserter:

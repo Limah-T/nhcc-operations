@@ -15,6 +15,11 @@
     <link
         rel="stylesheet"
         href="{% static 'css/report/report.css' %}">
+    <link
+        rel="icon"
+        type="image/svg+xml"
+        href="{% static 'dashboard/images/favicon.svg' %}"
+    >
 
 </head>
 
@@ -24,12 +29,13 @@
                     HEADER
     =========================================== -->
                 
-    <!-- src="{% static 'images/logo.png' %}" -->
+            <!-- src="{% static 'images/logo.png' %}"  
+            src="{{ logo_url }}"      -->
+
     <header class="report-header">
 
         <img
-            src="{{ logo_url }}"
-            
+            src="{{ logo_url }}" 
             alt="NHCC Logo"
             class="company-logo">
 

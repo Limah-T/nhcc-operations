@@ -60,7 +60,7 @@ class ExpenseDataRetrieval:
             id__in=expense_ids
         )
 
-def expense_context_data(user, start_date, end_date):
+def expense_context_data(user, start_date, end_date, form=None):
     categories = CategoryDataRetrieval().retrieve_all()
     expenses = ExpenseDataRetrieval().retrieve_all_with_category(
         start_date, end_date)
@@ -72,6 +72,7 @@ def expense_context_data(user, start_date, end_date):
         "count":expenses.count(),
         "monthly_total_display": f"₦{total_expenses:,.2f}",
         "user_name":getNameAvatar(user),
+        "form": form
     }
 
 def expenseOrganizer(queryset:Expense) -> dict:

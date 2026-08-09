@@ -15,7 +15,7 @@ from finance.expense.services.electricity_service import (
 )
 from finance.expense.models import EKEDC, Diesel, Expense
 
-url_name = "reports"
+report_url_name = "reports"
 expense_report_temp = "report/expenses.html"
 expense_ekedc_report_temp = "report/expenses_and_ekedc.html"
 diesel_report_temp = "report/diesel.html"
@@ -222,11 +222,6 @@ MONTHS = (
     "July", "August", "September",
     "October", "November", "December",
 )
-
-# def yearly_expenditure(year):
-    
-#     print(yearly_data)
-#     return yearly_data
 
 
 def yearly_expenditure_cxt_data(user, year=None)-> dict:

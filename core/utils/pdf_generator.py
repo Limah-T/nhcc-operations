@@ -17,7 +17,7 @@ def pdf_generator(html_string, request, file_name, css_path):
             CSS(settings.STATIC_ROOT / css_path)
         ]
     )
-
     response = HttpResponse(pdf, content_type="application/pdf")
-    response["Content-Disposition"] = f'inline; filename="{file_name}"'
+    response["Content-Disposition"] = f'attachment; filename="{file_name}"'
+    response["Content-Length"] = len(pdf)
     return response

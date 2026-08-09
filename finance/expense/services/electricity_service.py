@@ -61,14 +61,15 @@ class EkedcRecordCalculator:
         return sum(item.kwh for item in queryset)
     
 
-def ekedc_context_data(user, start_date, end_date) -> dict:
+def ekedc_context_data(user, start_date, end_date, form=None) -> dict:
     queryset = EKedcDataRetrieval().retrieve_by_month(start_date, end_date)
     total = EkedcRecordCalculator().total_ekedc_records(queryset)
     return {
         "electricity_records": queryset,
         "count": queryset.count(),
         "monthly_total_display": f"₦{total:,.2f}",
-        "user_name":getNameAvatar(user)
+        "user_name":getNameAvatar(user),
+        "form": form
     }
 
 class EkedcDataInserter:
