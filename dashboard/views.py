@@ -22,6 +22,7 @@ category_temp_name = "dashboard/office_expense_category.html"
 diesel_temp_name = "dashboard/office_expense_diesel.html"
 electricity_temp_name = "dashboard/office_expense_electricity.html"
 staff_account_temp_name = "dashboard/office_staff_account.html"
+salary_temp_name = "dashboard/salary_records.html"
 director_temp_name = "dashboard/director_records.html"
 report_temp_name = "dashboard/office_report.html"
 

@@ -45,3 +45,11 @@ STAFF_UPDATED = "Staff record updated successfully"
 
 STAFF_DELETED = "Staff record deleted successfully."
 STAFFS_DELETED = "Staff records deleted successfully."
+
+SALARY_CREATED = "Salary record added successfully."
+SALARIES_CREATED = "Salary records added successfully."
+
+SALARY_UPDATED = "Salary record updated successfully"
+
+SALARY_DELETED = "Salary records deleted successfully."
+SALARIES_DELETED = "Salary records deleted successfully."

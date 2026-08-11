@@ -26,6 +26,9 @@ STAFF_404 = "Staff record not found."
 STAFFS_404 = "One or more staff records were not found."
 STAFF_CREDENTIAL_ERROR = "Email, phone number, or account number already exists."
 
+SALARY_404 = "Salary record not found."
+SALARIES_404 = "One or more salary records were not found."
+
 ROLE_DELETE_PROTECTED = "This role cannot be deleted because it is currently"\
                         " assigned to one or more staff members."
 

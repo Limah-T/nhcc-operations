@@ -14,6 +14,7 @@ from finance.expense.services.electricity_service import (
     EKedcDataRetrieval, EkedcRecordCalculator
 )
 from finance.expense.models import EKEDC, Diesel, Expense
+from staff.models import StaffSalary
 
 report_url_name = "reports"
 expense_report_temp = "report/expenses.html"
@@ -201,20 +202,20 @@ def ekedc_yearly_expenditure(year):
         for row in ekedc_queryset
     }
 
-# def salary_yearly_expenditure(year):
-#     salary_queryset = (
-#         Salary.objects
-#         .filter(created_at__year=year)
-#         .annotate(report_month=TruncMonth("created_at"))
-#         .values("report_month")
-#         .annotate(total=Sum("total"))
-#     )
+def salary_yearly_expenditure(year):
+    salary_queryset = (
+        StaffSalary.objects
+        .filter(date_received__year=year)
+        .annotate(report_month=TruncMonth("date_received"))
+        .values("report_month")
+        .annotate(total=Sum("amount_paid"))
+    )
 
-#     salary_months = {
-#         row["report_month"].strftime("%B"): row["total"]
-#         for row in salary_queryset
-#     }
-#     return salary_months
+    salary_months = {
+        row["report_month"].strftime("%B"): row["total"]
+        for row in salary_queryset
+    }
+    return salary_months
 
 MONTHS = (
     "January", "February", "March",
@@ -229,6 +230,7 @@ def yearly_expenditure_cxt_data(user, year=None)-> dict:
     diesel = diesel_yearly_expenditure(year)
     expense = expense_yearly_expenditure(year)
     ekedc = ekedc_yearly_expenditure(year)
+    salary = salary_yearly_expenditure(year)
     yearly_data = [
             {
                 "name": "Office Expenses",
@@ -255,13 +257,13 @@ def yearly_expenditure_cxt_data(user, year=None)-> dict:
                     for month in MONTHS
                 },
             },
-            # {
-            #     "name": "Staff Salaries",
-            #     **{
-            #         month[:3].lower(): salary_months.get(month, 0)
-            #         for month in MONTHS
-            #     },
-            # },
+            {
+                "name": "Staff Salaries",
+                **{
+                    month[:3].lower(): salary.get(month, 0)
+                    for month in MONTHS
+                },
+            },
         ]
     january_total = sum(item["jan"] for item in yearly_data)
     february_total = sum(item["feb"] for item in yearly_data)

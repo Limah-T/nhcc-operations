@@ -3,7 +3,7 @@ from django.utils import timezone
 from core.utils.helper_functions import email_is_valid
 from core.utils.error_responses import NAME_ERROR
 from phonenumber_field.formfields import PhoneNumberField
-from .models import Role
+from .models import Role, Staff
 import re
     
 class RoleForm(forms.Form):
@@ -59,4 +59,19 @@ class StaffForm(forms.Form):
         else:
             self.cleaned_data["employment_date"] = timezone.now().date()
         
+        return self.cleaned_data
+
+class SalaryForm(forms.Form):
+    staff = forms.ModelChoiceField(queryset=Staff.objects.all())
+    amount_paid = forms.DecimalField(decimal_places=2, max_digits=15, required=False)
+    bonus = forms.DecimalField(
+        decimal_places=2, max_digits=15,required=False)
+    additional_info = forms.CharField(widget=forms.Textarea, required=False)
+    date_received = forms.DateField(required=False)
+
+    def clean(self):
+        date_received = self.cleaned_data.get("date_received")
+        if not date_received:
+            date_received = timezone.now().date()
+            self.cleaned_data["date_received"] = date_received
         return self.cleaned_data

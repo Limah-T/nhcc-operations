@@ -7,6 +7,10 @@ from .views.staff_views import (
     StaffGetCreateView, StaffUpdateView, StaffDeleteView
 )
 
+from .views.salary_views import (
+    SalaryGetCreateView, SalaryUpdateView, SalaryDeleteView
+)
+
 urlpatterns = [
 
     path("roles/", RoleGetCreatetView.as_view(), name="roles"),
@@ -18,4 +22,9 @@ urlpatterns = [
     path("<int:id>/edit/", StaffUpdateView.as_view(), name="edit_staff"),
     path("<int:id>/delete/", StaffDeleteView.as_view(), name="delete_staff"),
     path("staff/delete/", StaffDeleteView.as_view(), name="delete_staffs"),
+
+    path("salaries/", SalaryGetCreateView.as_view(), name="salaries"),
+    path("salary/<int:id>/edit/", SalaryUpdateView.as_view(), name="edit_salary"),
+    path("salary/<int:id>/delete/", SalaryDeleteView.as_view(), name="delete_salary"),
+    path("salaries/delete/", SalaryDeleteView.as_view(), name="delete_salaries"),
 ]
