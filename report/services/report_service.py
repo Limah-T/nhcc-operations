@@ -205,21 +205,6 @@ def ekedc_yearly_expenditure(year):
 def salary_yearly_expenditure(year):
     salary_queryset = (
         StaffSalary.objects
-        .filter(date_received__year=year)
-        .annotate(report_month=TruncMonth("date_received"))
-        .values("report_month")
-        .annotate(total=Sum("amount_paid"))
-    )
-
-    salary_months = {
-        row["report_month"].strftime("%B"): row["total"]
-        for row in salary_queryset
-    }
-    return salary_months
-
-def salary_yearly_expenditure(year):
-    salary_queryset = (
-        StaffSalary.objects
         .select_related("staff")
         .filter(date_received__year=year)
         .annotate(
@@ -260,12 +245,10 @@ def salary_yearly_expenditure(year):
 
         month_key = row["report_month"].strftime("%B")[:3].lower()
 
-        salary_data[staff_id][month_key] = row["total"]
+        salary_data[staff_id][month_key] += row["total"]
         salary_data[staff_id]["total"] += row["total"]
 
     return list(salary_data.values())
-
-
 
 MONTHS = (
     "January", "February", "March",
@@ -275,46 +258,52 @@ MONTHS = (
 )
 
 
-def yearly_expenditure_cxt_data(user, year=None)-> dict:
-    if year is None: year = timezone.now().year
+def yearly_expenditure_cxt_data(user, year=None) -> dict:
+    if year is None:
+        year = timezone.now().year
+
     diesel = diesel_yearly_expenditure(year)
     expense = expense_yearly_expenditure(year)
     ekedc = ekedc_yearly_expenditure(year)
-    salary = salary_yearly_expenditure(year)
+    salary_records = salary_yearly_expenditure(year)
+
+    salary = {
+        month[:3].lower(): sum(
+            staff_salary.get(month[:3].lower(), 0)
+            for staff_salary in salary_records
+        )
+        for month in MONTHS
+    }
+
     yearly_data = [
-            {
-                "name": "Office Expenses",
-                "total": sum(expense.values()),
-                **{
-                    month[:3].lower(): expense.get(month, 0)
-                    for month in MONTHS
-                },
+        {
+            "name": "Office Expenses",
+            "total": sum(expense.values()),
+            **{
+                month[:3].lower(): expense.get(month, 0)
+                for month in MONTHS
             },
-            {
-                "name": "Diesel",
-                "total": sum(diesel.values()),
-                **{
-                    month[:3].lower(): diesel.get(month, 0)
-                    for month in MONTHS
-                },
-                
+        },
+        {
+            "name": "Diesel",
+            "total": sum(diesel.values()),
+            **{
+                month[:3].lower(): diesel.get(month, 0)
+                for month in MONTHS
             },
-            {
-                "name": "Electricity (Prepaid Meter)",
-                "total": sum(ekedc.values()),
-                **{
-                    month[:3].lower(): ekedc.get(month, 0)
-                    for month in MONTHS
-                },
+        },
+        {
+            "name": "Electricity (Prepaid Meter)",
+            "total": sum(ekedc.values()),
+            **{
+                month[:3].lower(): ekedc.get(month, 0)
+                for month in MONTHS
             },
-            {
-                "name": "Staff Salaries",
-                **{
-                    month[:3].lower(): salary.get(month, 0)
-                    for month in MONTHS
-                },
-            },
-        ]
+        },
+
+        *salary_records,
+    ]
+
     january_total = sum(item["jan"] for item in yearly_data)
     february_total = sum(item["feb"] for item in yearly_data)
     march_total = sum(item["mar"] for item in yearly_data)
@@ -342,14 +331,16 @@ def yearly_expenditure_cxt_data(user, year=None)-> dict:
         november_total +
         december_total
     )
+
     prepared_by = getFullName(user)
     generated_at = timezone.now()
-    return {
 
-        "generated_at":generated_at,
-        "prepared_by":prepared_by,
+    return {
+        "generated_at": generated_at,
+        "prepared_by": prepared_by,
         "year": year,
         "yearly_data": yearly_data,
+        "salary_records": salary_records,
         "january_total": january_total,
         "february_total": february_total,
         "march_total": march_total,
@@ -363,7 +354,7 @@ def yearly_expenditure_cxt_data(user, year=None)-> dict:
         "november_total": november_total,
         "december_total": december_total,
         "yearly_grand_total": yearly_grand_total,
-        "report_period": f"1 January {year} – 31 December {year}", 
+        "report_period": f"1 January {year} – 31 December {year}",
     }
 
 

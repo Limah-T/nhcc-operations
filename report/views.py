@@ -79,7 +79,7 @@ class ReportManagementView(View):
                 css_path = "css/report/report.css"
                 response = pdf_generator(html_string, request, file_name, css_path)
                 return response
-            except Exception:
+            except IndentationError:
                 code = 500
                 messages.error(request, SERVER_ERROR)
         else: 
