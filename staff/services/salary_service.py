@@ -4,7 +4,8 @@ from django.utils import timezone
 from core.utils.custom_exceptions import NothingToUpdateError
 from account.services.profile_service import getFullName, getNameAvatar
 from decimal import Decimal
-from ..models import Staff, StaffSalary
+from .staff_service import StaffDataRetrieval
+from ..models import StaffSalary
 
 salary_url_name = "salary"
 
@@ -65,10 +66,12 @@ def total_salary_records(queryset:StaffSalary):
     return sum(salary.amount_paid for salary in queryset)    
 
 def salary_context_data(user, start_date, end_date) -> dict:
+    staff_records = StaffDataRetrieval().retrieve_all()
     queryset = SalaryDataRetrieval().retrieve_by_month(start_date, end_date)
     total = total_salary_records(queryset)
 
     return {
+        "staff_records": staff_records,
         "salary_records": queryset,
         "count": queryset.count(),
         "monthly_total_display": f"₦{total:,.2f}",

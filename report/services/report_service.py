@@ -217,6 +217,56 @@ def salary_yearly_expenditure(year):
     }
     return salary_months
 
+def salary_yearly_expenditure(year):
+    salary_queryset = (
+        StaffSalary.objects
+        .select_related("staff")
+        .filter(date_received__year=year)
+        .annotate(
+            report_month=TruncMonth("date_received")
+        )
+        .values(
+            "staff_id",
+            "staff__first_name",
+            "staff__last_name",
+            "report_month",
+        )
+        .annotate(
+            total=Sum("amount_paid")
+        )
+        .order_by(
+            "staff__first_name",
+            "staff__last_name",
+            "report_month",
+        )
+    )
+
+    salary_data = {}
+
+    for row in salary_queryset:
+        staff_id = row["staff_id"]
+
+        if staff_id not in salary_data:
+            salary_data[staff_id] = {
+                "name": (
+                    f'{row["staff__first_name"]} '
+                    f'{row["staff__last_name"]}'
+                ),
+                "total": 0,
+            }
+
+            for month in MONTHS:
+                salary_data[staff_id][month[:3].lower()] = 0
+
+        month_key = row["report_month"].strftime("%B")[:3].lower()
+
+        salary_data[staff_id][month_key] = row["total"]
+        salary_data[staff_id]["total"] += row["total"]
+
+    return list(salary_data.values())
+
+
+
 MONTHS = (
     "January", "February", "March",
     "April", "May", "June",

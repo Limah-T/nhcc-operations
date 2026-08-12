@@ -61,11 +61,18 @@ Salary Management | NHCC Operations
                             w-100
                             w-md-auto">
 
-                        <div class="dropdown">
+                        <div
+                            class="dropdown position-relative"
+                            style="z-index: 1055;"
+                        >
 
                             <button
+                                type="button"
                                 class="btn btn-primary dropdown-toggle rounded-3"
-                                data-bs-toggle="dropdown">
+                                data-bs-toggle="dropdown"
+                                data-bs-display="static"
+                                aria-expanded="false"
+                            >
 
                                 <i class="bi bi-plus-circle me-2"></i>
 
@@ -74,14 +81,19 @@ Salary Management | NHCC Operations
                             </button>
 
 
-                            <ul class="dropdown-menu dropdown-menu-end">
+                            <ul
+                                class="dropdown-menu dropdown-menu-end shadow rounded-3"
+                                style="z-index: 1060;"
+                            >
 
                                 <li>
 
                                     <button
+                                        type="button"
                                         class="dropdown-item"
                                         data-bs-toggle="modal"
-                                        data-bs-target="#addSalaryModal">
+                                        data-bs-target="#addSalaryModal"
+                                    >
 
                                         <i class="bi bi-cash-stack me-2"></i>
 
@@ -95,9 +107,11 @@ Salary Management | NHCC Operations
                                 <li>
 
                                     <button
+                                        type="button"
                                         class="dropdown-item"
                                         data-bs-toggle="modal"
-                                        data-bs-target="#addMultipleSalaryModal">
+                                        data-bs-target="#addMultipleSalaryModal"
+                                    >
 
                                         <i class="bi bi-collection me-2"></i>
 
@@ -110,7 +124,6 @@ Salary Management | NHCC Operations
                             </ul>
 
                         </div>
-
                     </div>
 
                 </div>
@@ -130,7 +143,7 @@ Salary Management | NHCC Operations
                             {% else %} 
                                 {{ monthly_total_display }}
                             {% endif %} 
-                        <div>
+                        </div>
                     </div>
                 </div>
             </div>
